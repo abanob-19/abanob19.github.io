@@ -1,37 +1,24 @@
 const express = require('express')
-const Instructor = require('../models/instructorModel')
+const {
+  getinstructors, 
+  getinstructor, 
+  createinstructor, 
+} = require('../controllers/instructorController')
 const router = express.Router()
 
-// GET all workouts
-router.get('/', (req, res) => {
-  res.json({mssg: 'GET all workouts'})
-})
+// GET all instructors
+router.get('/', getinstructors)
 
-// GET a single workout
-router.get('/:id', (req, res) => {
-  res.json({mssg: 'GET a single workout'})
-})
+// GET a single instructor
+router.get('/:id', getinstructor)
 
-// POST a new workout
-router.post('/', async (req, res) => {
-   
-    
-    try {
-    //   const workout = await Instructor.findById();
-    //   res.status(200).json(workout)
-    } catch (error) {
-      res.status(400).json({error: error.message})
-    }
-  })
+// POST a new instructor
+router.post('/', createinstructor)
 
-// DELETE a workout
-router.delete('/:id', (req, res) => {
-  res.json({mssg: 'DELETE a workout'})
-})
+// // DELETE a workout
+// router.delete('/:id', deleteWorkout)
 
-// UPDATE a workout
-router.patch('/:id', (req, res) => {
-  res.json({mssg: 'UPDATE a workout'})
-})
+// // UPDATE a workout
+// router.patch('/:id', updateWorkout)
 
 module.exports = router
