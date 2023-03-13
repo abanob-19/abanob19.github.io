@@ -9,18 +9,18 @@ const getinstructors = async (req, res) => {
 
 // get a single workout
 const getinstructor = async (req, res) => {
-  const { username } = req.body
+  const { username , password} = req.body
 
 //   if (!mongoose.Types.ObjectId.isValid(id)) {
 //     return res.status(404).json({error: 'No such instructor'})
 //   }
 
-  const instructor =   await Instructor.findOne({ username })
+  const instructor =   await Instructor.findOne({ username , password })
 
   if ((!instructor)) {
     return res.status(404).json({error: 'No such instructor'})
   }
-console.log(instructor.username)
+// console.log(instructor.username)
   res.status(200).json(instructor)
 }
 

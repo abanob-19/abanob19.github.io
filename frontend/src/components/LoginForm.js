@@ -2,16 +2,18 @@ import { useState } from 'react'
 
 const LoginForm = () => {
   const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
 //   const [load, setLoad] = useState('')
 //   const [reps, setReps] = useState('')
   const [error, setError] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-if (username.length==0)
+if (username.length==0 || password.length==0 )
 setError("please fill all the fields")
 else{
-    const instructor = {username}
+    const instructor = {username,password}
     
     const response = await fetch('/instructor/getInstructor', {
       method: 'POST',
@@ -28,9 +30,12 @@ else{
     if (response.ok) {
       setError(null)
       setUsername('')
+      setPassword('')
+      setName(json.name)
+      console.log("welcome")
     //   setLoad('')
     //   setReps('')
-      console.log('done:', json)
+      console.log('found:', json)
     }
 }
   }
@@ -45,7 +50,12 @@ else{
         onChange={(e) => setUsername(e.target.value)} 
         value={username}
       />
-
+     <label>password</label>
+      <input 
+        type="text" 
+        onChange={(e) => setPassword(e.target.value)} 
+        value={password}
+      />
       {/* <label>Load (in kg):</label>
       <input 
         type="number" 
@@ -62,6 +72,7 @@ else{
 
       <button>Login</button>
       {error && <div className="error">{error}</div>}
+      {name && <div className="name">{"welcome " + name}</div>}
     </form>
   )
 }
