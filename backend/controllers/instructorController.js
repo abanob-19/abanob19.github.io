@@ -1,4 +1,5 @@
 const Instructor = require('../models/instructorModel')
+const Student = require('../models/studentModel')
 const mongoose = require('mongoose')
 
 // get all workouts
@@ -18,7 +19,7 @@ const getinstructor = async (req, res) => {
   const instructor =   await Instructor.findOne({ username , password })
 
   if ((!instructor)) {
-    return res.status(404).json({error: 'No such instructor'})
+    return res.status(404).json({error: 'No such instructor '})
   }
 // console.log(instructor.username)
   res.status(200).json(instructor)

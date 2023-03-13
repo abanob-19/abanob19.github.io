@@ -16,7 +16,11 @@ const instructorSchema = new Schema({
     required: true
   },role: {
     type: String,
-    required: true
+    default:"instructor"
+  },
+  courses: {
+    type: [String],
+    default: [],
   },
 }, { timestamps: true })
 

@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose')
 const instructorRoutes = require('./routes/instructorRoutes')
+const studentRoutes = require('./routes/studentRoutes')
 
 // express app
 const app = express()
@@ -16,6 +17,7 @@ app.use((req, res, next) => {
 
 // routes
 app.use('/instructor', instructorRoutes)
+app.use('/student', studentRoutes)
 
 // listen for requests
 mongoose.connect(process.env.MONGO_URI)

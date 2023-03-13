@@ -13,11 +13,11 @@ const LoginForm = () => {
 if (username.length==0 || password.length==0 )
 setError("please fill all the fields")
 else{
-    const instructor = {username,password}
+    const user = {username,password}
     
     const response = await fetch('/instructor/getInstructor', {
       method: 'POST',
-      body: JSON.stringify(instructor),
+      body: JSON.stringify(user),
       headers: {
         'Content-Type': 'application/json'
       }
@@ -25,7 +25,26 @@ else{
     const json = await response.json()
 
     if (!response.ok) {
-      setError(json.error)
+      const response1 = await fetch('/student/getStudent', {
+        method: 'POST',
+        body: JSON.stringify(user),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      const json1 = await response1.json()
+      if (!response1.ok) 
+      setError(json1.error)
+      if (response1.ok) {
+        setError(null)
+        setUsername('')
+        setPassword('')
+        setName(json1.name)
+        console.log("welcome")
+      //   setLoad('')
+      //   setReps('')
+        console.log('found:', json1)
+      }
     }
     if (response.ok) {
       setError(null)
