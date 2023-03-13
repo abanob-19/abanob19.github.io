@@ -10,7 +10,7 @@ const router = express.Router()
 router.get('/', getinstructors)
 
 // GET a single instructor
-router.get('/:id', getinstructor)
+router.post('/getInstructor', getinstructor)
 
 // POST a new instructor
 router.post('/', createinstructor)

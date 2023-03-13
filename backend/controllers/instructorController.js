@@ -1,26 +1,26 @@
-const instructor = require('../models/instructorModel')
+const Instructor = require('../models/instructorModel')
 const mongoose = require('mongoose')
 
 // get all workouts
 const getinstructors = async (req, res) => {
-  const instructors = await instructor.find({}).sort({createdAt: -1})
+  const instructors = await Instructor.find({}).sort({createdAt: -1})
   res.status(200).json(instructors)
 }
 
 // get a single workout
 const getinstructor = async (req, res) => {
-  const { id } = req.params
+  const { username } = req.body
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+//   if (!mongoose.Types.ObjectId.isValid(id)) {
+//     return res.status(404).json({error: 'No such instructor'})
+//   }
+
+  const instructor =   await Instructor.findOne({ username })
+
+  if ((!instructor)) {
     return res.status(404).json({error: 'No such instructor'})
   }
-
-  const instructor = await instructor.findById(id)
-
-  if (!instructor) {
-    return res.status(404).json({error: 'No such instructor'})
-  }
-
+console.log(instructor.username)
   res.status(200).json(instructor)
 }
 
@@ -30,7 +30,7 @@ const createinstructor = async (req, res) => {
 
   // add to the database
   try {
-    const instructor = await instructor.create({ username, password })
+    const instructor = await Instructor.create({ username, password })
     res.status(200).json(instructor)
   } catch (error) {
     res.status(400).json({ error: error.message })
