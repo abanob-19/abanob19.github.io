@@ -48,11 +48,16 @@ const examBankSchema = new Schema({
       required: true,
       unique: true,
     },
-    questions: {
-      type: [mcqQuestionSchema| textQuestionSchema],
+    course: {
+      type: String,
       required: true,
     },
+    questions: {
+      type: [mcqQuestionSchema| textQuestionSchema],
+      default: [],
+    },
   });
-  module.exports = mongoose.model('examBank', examBankSchema)
-  module.exports = mongoose.model('mcqQuestion', mcqQuestionSchema)
-  module.exports = mongoose.model('textQuestion', textQuestionSchema)
+  examBank=mongoose.model('examBank', examBankSchema)
+  mcqQuestion = mongoose.model('mcqQuestion', mcqQuestionSchema)
+  textQuestion = mongoose.model('textQuestion', textQuestionSchema)
+  module.exports ={examBank, mcqQuestion,textQuestion}

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
-const examBankSchema = require('../models/examBankModel')
+const x =require('../models/examBankModel')
+const examBank=x.examBank
 
 const Schema = mongoose.Schema
 
@@ -9,10 +10,9 @@ const courseSchema = new Schema({
     required: true,
     unique: true,
   },
-  questionBanks: {
-    type: [examBankSchema],
-    required: true
-  },
+  questionBanks: 
+  { type: [examBank.Schema], required: true }
+  ,
   exams: {
     type: [String],
     required: true

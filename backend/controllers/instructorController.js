@@ -1,42 +1,98 @@
 const Instructor = require('../models/instructorModel')
-const Student = require('../models/studentModel')
+const Course = require('../models/courseModel')
 const mongoose = require('mongoose')
-
-// get all workouts
+const x =require('../models/examBankModel')
+const examBank=x.examBank
 const getinstructors = async (req, res) => {
   const instructors = await Instructor.find({}).sort({createdAt: -1})
   res.status(200).json(instructors)
 }
-
-// get a single workout
 const getinstructor = async (req, res) => {
   const { username , password} = req.body
-
-//   if (!mongoose.Types.ObjectId.isValid(id)) {
-//     return res.status(404).json({error: 'No such instructor'})
-//   }
-
   const instructor =   await Instructor.findOne({ username , password })
-
   if ((!instructor)) {
     return res.status(404).json({error: 'No such instructor '})
   }
-// console.log(instructor.username)
   res.status(200).json(instructor)
 }
+const seeMyCourses=async(req,res)=>{
+  const { id } = req.params
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+          return res.status(400).json({error: 'No such instructor'})     }
+  const instructor =   await Instructor.findById({_id: id})
+  if(!instructor) {
+           return res.status(400).json({error: 'No such instructor'})
+        }
+         res.status(200).json(instructor.courses)
+
+}
+const seeCourse=async(req,res)=>{
+  const { name } = req.params
+  const course =   await Course.findOne({name})
+  if(!course) {
+           return res.status(400).json({error: 'No such course'})
+        }
+         res.status(200).json(course.questionBanks)
+
+}
+const seeExams=async(req,res)=>{
+  const { name } = req.params
+  const course =   await Course.findOne({name})
+  if(!course) {
+           return res.status(400).json({error: 'No such course'})
+        }
+         res.status(200).json(course.exams)
+}
+const addQuestionBank=async(req,res)=>{
+  const { questionBankName,name } = req.body
+  const course =   await Course.findOne({name})
+  if(!course) {
+           return res.status(400).json({error: 'No such course'})
+        }
+        try {
+              const questionBank = new examBank()
+              questionBank.title=questionBankName
+              questionBank.course=name
+              const course =   await Course.findOne({name})
+              course.questionBanks.push(questionBank)
+              await course.save()
+            const course1 =   await Course.findOne({name})
+              res.status(200).json(course1)
+            } catch (error) {
+              res.status(400).json({ error: error.message })
+            }
+
+}
+
+const openQuestionBank=async(req,res)=>{
+  const { questionBankName,name } = req.body
+  const course =   await Course.findOne({name})
+  if(!course) {
+           return res.status(400).json({error: 'No such course'})
+        }
+        try {
+              const questionBank = course.questionBanks.find(element => element.title == questionBankName);
+              res.status(200).json(questionBank)
+            } catch (error) {
+              res.status(400).json({ error: error.message })
+            }
+
+}
+
+
 
 // create a new workout
-const createinstructor = async (req, res) => {
-  const {username, password } = req.body
-
-  // add to the database
-  try {
-    const instructor = await Instructor.create({ username, password })
-    res.status(200).json(instructor)
-  } catch (error) {
-    res.status(400).json({ error: error.message })
-  }
-}
+// const createinstructor = async (req, res) => {
+//   const {username, password } = req.body
+   
+//   // add to the database
+//   try {
+//     const instructor = await Instructor.create({ username, password })
+//     res.status(200).json(instructor)
+//   } catch (error) {
+//     res.status(400).json({ error: error.message })
+//   }
+// }
 
 // const deleteWorkout = async (req, res) => {
 //     const { id } = req.params
@@ -74,7 +130,10 @@ const createinstructor = async (req, res) => {
 //   }
 
 module.exports = {
-  getinstructors,
+  seeMyCourses,
   getinstructor,
-  createinstructor,
+  seeCourse,
+  seeExams,
+  addQuestionBank,
+  openQuestionBank,
 }
