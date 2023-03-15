@@ -3,6 +3,8 @@ const Course = require('../models/courseModel')
 const mongoose = require('mongoose')
 const x =require('../models/examBankModel')
 const examBank=x.examBank
+const mcqQuestion=x.mcqQuestion
+const textQuestion=x.textQuestion
 const getinstructors = async (req, res) => {
   const instructors = await Instructor.find({}).sort({createdAt: -1})
   res.status(200).json(instructors)
@@ -72,7 +74,146 @@ const openQuestionBank=async(req,res)=>{
         }
         try {
               const questionBank = course.questionBanks.find(element => element.title == questionBankName);
+              if(!questionBank){
+                return res.status(400).json({error: 'No such bank'})
+              }
               res.status(200).json(questionBank)
+            } catch (error) {
+              res.status(400).json({ error: error.message })
+            }
+
+}
+const addMcqQuestion=async(req,res)=>{
+  const { questionBankName,name,text,choices,answer,category } = req.body
+  const course =   await Course.findOne({name})
+  if(!course) {
+           return res.status(400).json({error: 'No such course'})
+        }
+        try {
+              const questionBank = (examBank)(course.questionBanks.find(element => element.title == questionBankName));
+              
+              if(!questionBank){
+                return res.status(400).json({error: 'No such bank'})
+              }
+              var questionBanks = course.questionBanks;
+              const question=new mcqQuestion()
+              question.text=text
+              question.choices=choices
+              question.answer=answer;
+              question.category=category;
+              const updatedQuestionList=questionBank.questions
+              updatedQuestionList.push(question);
+              var targetExam;
+              var targetExamIndex = 0;
+              for (
+                targetExamIndex = 0;
+                targetExamIndex < questionBanks.length;
+                targetExamIndex++
+              ) {
+                if (questionBanks[targetExamIndex].title == questionBankName) {
+                  targetExam = questionBanks[targetExamIndex];
+                  break;
+                }
+              }
+              if (!targetExam) {
+                res.status(400);
+                throw new Error("Bank does not exist");
+              }
+              targetExam.questions = updatedQuestionList;
+              targetExam.title = questionBankName;
+              targetExam.course = name;
+              questionBanks[targetExamIndex] = targetExam;
+              // (course.questionBanks.find(element => element.title == questionBankName)).questions.push(question);
+              //  await course.save()
+              const courseUptaded = await Course.findOneAndUpdate(
+                { name: name },
+                { questionBanks: questionBanks }
+                
+              );
+              if (courseUptaded) {
+                res.status(200).json(courseUptaded);
+              } else {
+                res.status(400);
+                throw new Error("Error occured");
+              }
+             
+            // const course1 =   await Course.findOne({name})
+            //   res.status(200).json(course1)
+            } catch (error) {
+              res.status(400).json({ error: error.message })
+            }
+
+}
+
+const editMcqQuestion=async(req,res)=>{
+  const { questionBankName,name,text,choices,answer,category,oldText } = req.body
+  const course =   await Course.findOne({name})
+  if(!course) {
+           return res.status(400).json({error: 'No such course'})
+        }
+        try {
+              const questionBank = (examBank)(course.questionBanks.find(element => element.title == questionBankName));
+              
+              if(!questionBank){
+                return res.status(400).json({error: 'No such bank'})
+              }
+              var questionBanks = course.questionBanks;
+              const question=new mcqQuestion()
+              question.text=text
+              question.choices=choices
+              question.answer=answer;
+              question.category=category;
+              const updatedQuestionList=questionBank.questions
+             
+              var targetQuestionIndex = 0;
+              for (
+                targetQuestionIndex = 0;
+                targetQuestionIndex < updatedQuestionList.length;
+                targetQuestionIndex++
+              ) {
+                if (updatedQuestionList[targetQuestionIndex].text == oldText) {
+                  // targetExam = questionBanks[targetExamIndex];
+                  break;
+                }
+              }
+              updatedQuestionList[targetQuestionIndex]=question;
+              var targetExam;
+              var targetExamIndex = 0;
+              for (
+                targetExamIndex = 0;
+                targetExamIndex < questionBanks.length;
+                targetExamIndex++
+              ) {
+                if (questionBanks[targetExamIndex].title == questionBankName) {
+                  targetExam = questionBanks[targetExamIndex];
+                  break;
+                }
+              }
+              if (!targetExam) {
+                res.status(400);
+                throw new Error("Bank does not exist");
+              }
+              targetExam.questions = updatedQuestionList;
+              targetExam.title = questionBankName;
+              targetExam.course = name;
+              questionBanks[targetExamIndex] = targetExam;
+              // (course.questionBanks.find(element => element.title == questionBankName)).questions.push(question);
+              //  await course.save()
+              const courseUptaded = await Course.findOneAndUpdate(
+                { name: name },
+                { questionBanks: questionBanks }
+                
+              );
+              if (courseUptaded) {
+                const course1 =   await Course.findOne({name})
+             
+                res.status(200).json(course1);
+              } else {
+                res.status(400);
+                throw new Error("Error occured");
+              }
+             
+            
             } catch (error) {
               res.status(400).json({ error: error.message })
             }
@@ -136,4 +277,6 @@ module.exports = {
   seeExams,
   addQuestionBank,
   openQuestionBank,
+  addMcqQuestion,
+  editMcqQuestion,
 }

@@ -7,26 +7,20 @@ const mcqQuestionSchema = new Schema({
     type: String,
     required: true,
   },
-  choiceA: {
-    type: String,
+  choices: {
+    type: [String],
     required: true,
   },
-  choiceB: {
-    type: String,
-    required: true,
-  },
-  choiceC: {
-    type: String,
-    required: true,
-  },
-  choiceD: {
-    type: String,
-    required: true,
-  },
+  
   answer: {
     type: String,
   },
   type:{
+    type:String,
+    default:"mcq",
+    required:true,
+  },
+  category:{
     type:String,
     required:true,
   },
@@ -38,6 +32,10 @@ const textQuestionSchema = new Schema({
     required: true,
   }, 
   type:{
+    type:String,
+    required:true,
+  },
+  category:{
     type:String,
     required:true,
   },
