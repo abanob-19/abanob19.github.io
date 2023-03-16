@@ -66,6 +66,7 @@ const addQuestionBank=async(req,res)=>{
 
 }
 
+
 const openQuestionBank=async(req,res)=>{
   const { questionBankName,name } = req.body
   const course =   await Course.findOne({name})
@@ -78,6 +79,36 @@ const openQuestionBank=async(req,res)=>{
                 return res.status(400).json({error: 'No such bank'})
               }
               res.status(200).json(questionBank)
+            } catch (error) {
+              res.status(400).json({ error: error.message })
+            }
+
+}
+const deleteQuestionBank=async(req,res)=>{
+  const { questionBankName,name } = req.body
+  const course =   await Course.findOne({name})
+  if(!course) {
+           return res.status(400).json({error: 'No such course'})
+        }
+        try {
+              const questionBank = course.questionBanks.find(element => element.title == questionBankName);
+              if(!questionBank){
+                return res.status(400).json({error: 'No such bank'})
+              }
+              var targetExamIndex = 0;
+              for (
+                targetExamIndex = 0;
+                targetExamIndex < course.questionBanks.length;
+                targetExamIndex++
+              ) {
+                if (course.questionBanks[targetExamIndex].title == questionBankName) {
+                  break;
+                }
+              }
+              course.questionBanks.splice(targetExamIndex,1)
+              await course.save()
+              const course1 =   await Course.findOne({name})
+              res.status(200).json(course1)
             } catch (error) {
               res.status(400).json({ error: error.message })
             }
@@ -221,6 +252,75 @@ const editMcqQuestion=async(req,res)=>{
 }
 
 
+const deleteMcqQuestion=async(req,res)=>{
+  const { questionBankName,name,oldText } = req.body
+  const course =   await Course.findOne({name})
+  if(!course) {
+           return res.status(400).json({error: 'No such course'})
+        }
+        try {
+              const questionBank = (examBank)(course.questionBanks.find(element => element.title == questionBankName));
+              
+              if(!questionBank){
+                return res.status(400).json({error: 'No such bank'})
+              }
+              var questionBanks = course.questionBanks;
+              const updatedQuestionList=questionBank.questions
+              var targetQuestionIndex = 0;
+              for (
+                targetQuestionIndex = 0;
+                targetQuestionIndex < updatedQuestionList.length;
+                targetQuestionIndex++
+              ) {
+                if (updatedQuestionList[targetQuestionIndex].text == oldText) {
+                  // targetExam = questionBanks[targetExamIndex];
+                  break;
+                }
+              }
+              updatedQuestionList.splice(targetQuestionIndex, 1)
+              var targetExam;
+              var targetExamIndex = 0;
+              for (
+                targetExamIndex = 0;
+                targetExamIndex < questionBanks.length;
+                targetExamIndex++
+              ) {
+                if (questionBanks[targetExamIndex].title == questionBankName) {
+                  targetExam = questionBanks[targetExamIndex];
+                  break;
+                }
+              }
+              if (!targetExam) {
+                res.status(400);
+                throw new Error("Bank does not exist");
+              }
+              targetExam.questions = updatedQuestionList;
+              targetExam.title = questionBankName;
+              targetExam.course = name;
+              questionBanks[targetExamIndex] = targetExam;
+              // (course.questionBanks.find(element => element.title == questionBankName)).questions.push(question);
+              //  await course.save()
+              const courseUptaded = await Course.findOneAndUpdate(
+                { name: name },
+                { questionBanks: questionBanks }
+                
+              );
+              if (courseUptaded) {
+                const course1 =   await Course.findOne({name})
+             
+                res.status(200).json(course1);
+              } else {
+                res.status(400);
+                throw new Error("Error occured");
+              }
+             
+            
+            } catch (error) {
+              res.status(400).json({ error: error.message })
+            }
+
+}
+
 
 // create a new workout
 // const createinstructor = async (req, res) => {
@@ -277,6 +377,8 @@ module.exports = {
   seeExams,
   addQuestionBank,
   openQuestionBank,
+  deleteQuestionBank,
   addMcqQuestion,
   editMcqQuestion,
+  deleteMcqQuestion,
 }
