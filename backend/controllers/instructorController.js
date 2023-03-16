@@ -1,4 +1,5 @@
 const Instructor = require('../models/instructorModel')
+const ExamSpecs = require('../models/examSpecsModel')
 const Course = require('../models/courseModel')
 const mongoose = require('mongoose')
 const x =require('../models/examBankModel')
@@ -45,6 +46,84 @@ const seeExams=async(req,res)=>{
         }
          res.status(200).json(course.exams)
 }
+const createExam=async(req,res)=>{
+  const { courseName,title,startTime,endTime , specs } = req.body
+ 
+      const course =   await Course.findOne({name : courseName})
+      console.log(courseName)
+      if(!course) {
+               return res.status(400).json({error: 'No such course'})
+            }
+            const examSpecs = new ExamSpecs()
+            examSpecs.title=title
+            examSpecs.startTime=startTime
+            examSpecs.endTime=endTime
+            examSpecs.specs=specs
+       course.exams.push(examSpecs) 
+       await course.save();    
+       res.status(200).json({course})
+}
+const editExam=async(req,res)=>{
+  const { courseName,title,startTime,endTime , specs ,oldTitle} = req.body
+ 
+      const course =   await Course.findOne({name : courseName})
+      if(!course) {
+               return res.status(400).json({error: 'No such course'})
+            }
+            const examSpecs = new ExamSpecs()
+            examSpecs.title=title
+            examSpecs.startTime=startTime
+            examSpecs.endTime=endTime
+            examSpecs.specs=specs
+            var targetExam;
+            var targetExamIndex = 0;
+            for (
+              targetExamIndex = 0;
+              targetExamIndex < course.exams.length;
+              targetExamIndex++
+            ) {
+              if (course.exams[targetExamIndex].title == oldTitle) {
+                targetExam = course.exams[targetExamIndex];
+                break;
+              }
+            }
+            if (!targetExam) {
+              res.status(400);
+              throw new Error("Exam does not exist");
+            }
+       course.exams[targetExamIndex] =examSpecs
+       await course.save();    
+       res.status(200).json(course);
+}
+const deleteExam=async(req,res)=>{
+  const { courseName,title} = req.body
+ 
+      const course =   await Course.findOne({name : courseName})
+      if(!course) {
+               return res.status(400).json({error: 'No such course'})
+            }
+           
+            var targetExam;
+            var targetExamIndex = 0;
+            for (
+              targetExamIndex = 0;
+              targetExamIndex < course.exams.length;
+              targetExamIndex++
+            ) {
+              if (course.exams[targetExamIndex].title == title) {
+                targetExam = course.exams[targetExamIndex];
+                break;
+              }
+            }
+            if (!targetExam) {
+              res.status(400);
+              throw new Error("Exam does not exist");
+            }
+       course.exams.splice(targetExamIndex,1)
+       await course.save();    
+       res.status(200).json(course);
+}
+
 const addQuestionBank=async(req,res)=>{
   const { questionBankName,name } = req.body
   const course =   await Course.findOne({name})
@@ -321,7 +400,21 @@ const deleteMcqQuestion=async(req,res)=>{
 
 }
 
+const addStudents=async(req,res)=>{
+  const {name,students}=req.body
+  const course =   await Course.findOne({name})
 
+  if(!course) {
+    return res.status(400).json({error: 'No such course'})
+ }
+ var i
+ for( i=0;i<students.length;i++){
+ course.students.push(students[i])
+ await course.save()
+}
+ 
+ res.status(200).json("done")
+}
 // create a new workout
 // const createinstructor = async (req, res) => {
 //   const {username, password } = req.body
@@ -375,10 +468,14 @@ module.exports = {
   getinstructor,
   seeCourse,
   seeExams,
+  createExam,
+  editExam,
+  deleteExam,
   addQuestionBank,
   openQuestionBank,
   deleteQuestionBank,
   addMcqQuestion,
   editMcqQuestion,
   deleteMcqQuestion,
+  addStudents,
 }
