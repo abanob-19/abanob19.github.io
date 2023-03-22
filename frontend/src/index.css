@@ -1,97 +1,151 @@
-/* google font */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;800&family=VT323&display=swap');
-
-/* layout */
+/* Basic color scheme */
 :root {
-  --primary: #1aac83;
-  --error: #e7195a;
+  --primary-color: #4a4a4a; /* Dark gray */
+  --secondary-color: #f0f0f0; /* Light gray */
+  --accent-color: #00a0d1; /* Blue */
 }
+
+/* Set basic styling for the page */
 body {
-  background: #f1f1f1;
-  margin: 0;
-  font-family: "Poppins";
+  background: #f7f7f7; /* Page background color */
+  margin: 0; /* Remove default margin */
+  font-family: Arial, sans-serif; /* Set default font */
+  color: var(--primary-color); /* Set default text color */
 }
+
+/* Style the header */
 header {
-  background: #fff;
+  background: var(--primary-color); /* Header background color */
+  color: #fff; /* Header text color */
+  padding: 10px 20px; /* Add some padding to the header */
 }
+
+/* Center and contain the header content within a max-width container */
 header .container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-header a {
-  color: #333;
-  text-decoration: none;
-}
-.pages{
-  max-width: 1400px;
-  padding: 20px;
-  margin: 0 auto;
+
+/* Style the navigation menu */
+nav {
+  display: flex;
 }
 
-/* homepage */
-.home {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 100px;
-}
-.instructor-details {
-  background: #fff;
-  border-radius: 4px;
-  margin: 20px auto;
-  padding: 20px;
-  position: relative;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
-}
-.instructor-details h4 {
-  margin: 0 0 10px 0;
-  font-size: 1.2em;
-  color: var(--primary);
-}
-.instructor-details p {
+nav ul {
+  list-style: none;
   margin: 0;
-  font-size: 0.9em;
-  color: #555;
+  padding: 0;
+  display: flex;
 }
-.instructor-details span {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  cursor: pointer;
-  background: #f1f1f1;
-  padding: 6px;
-  border-radius: 50%;
-  color: #333;
+
+nav ul li {
+  margin-left: 20px;
 }
-label, input {
-  display: block;
+
+nav ul li:first-child {
+  margin-left: 0;
 }
-input {
-  padding: 10px;
-  margin-top: 15px;
-  margin-bottom: 15px;
-  width: 100%;
-  border: 1px solid rgb(13, 63, 3);
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-form button {
-  background: var(--primary);
-  border: 0;
+
+nav ul li a {
   color: #fff;
-  padding: 10px;
-  font-family: "Poppins";
-  border-radius: 4px;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+nav ul li a:hover {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+/* Set up page container with max-width and padding */
+.pages{
+  max-width: 1200px;
+  padding: 20px;
+  margin: 0 auto;
+  background: #fff; /* Page background color */
+  border-radius: 10px; /* Add rounded corners to the container */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow to the container */
+}
+
+/* Style the page title */
+.page-title {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Style links */
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--secondary-colo);
+}
+
+/* Style buttons */
+button {
+  background: var(--accent-color);
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
   cursor: pointer;
 }
-div.error {
-  padding: 10px;
-  background: #ffefef;
-  border: 1px solid var(--error);
-  color: var(--error);
-  border-radius: 4px;
-  margin: 20px 0;
+
+button:hover {
+  background: var(--primary-color);
 }
+
+/* Style form elements */
+label {
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  display: block;
+  width: 50%;
+  padding: 15px;
+  border: 5px solid var(--primary-color);
+  border-radius: 30px; /* Add rounded corners to the input fields */
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease-in-out; /* Add a transition effect to the input field border color */
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  border-color: var(--accent-color); /* Change the border color on focus */
+}
+/* Style error messages */
+.error {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ff4d4d; /* A darker shade of red */
+  background-color: #ffe6e6; /* A lighter shade of red */
+  border-radius: 5px;
+  padding: 10px; /* Add padding to the sides to adjust width */
+  margin-top: 5px;
+  text-align: left; /* Align left to match label and input field */
+  width: 17%; /* Set the width to 50% */
+}
+
+
+
+/* Position error messages next to their corresponding input fields */
+.error + label,
+.error + input[type="text"],
+.error + input[type="email"],
+.error + input[type="password"] {
+  margin-top: 10px;
+}
+

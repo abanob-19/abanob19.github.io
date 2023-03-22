@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import { useInstructorsContext } from '../hooks/useInstrcutorContext'
+
 
 const LoginForm = () => {
+  const { state,dispatch } = useInstructorsContext()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
@@ -25,25 +28,28 @@ else{
     const json = await response.json()
 
     if (!response.ok) {
-      const response1 = await fetch('/student/getStudent', {
+      const response = await fetch('/student/getStudent', {
         method: 'POST',
         body: JSON.stringify(user),
         headers: {
           'Content-Type': 'application/json'
         }
       })
-      const json1 = await response1.json()
-      if (!response1.ok) 
-      setError(json1.error)
-      if (response1.ok) {
+      const json = await response.json()
+      if (!response.ok) 
+      setError(json.error)
+      if (response.ok) {
         setError(null)
         setUsername('')
         setPassword('')
-        setName(json1.name)
+        
         console.log("welcome")
       //   setLoad('')
       //   setReps('')
-        console.log('found:', json1)
+        
+        dispatch({type: 'GET_USER', payload: json})
+        if(state.userx)
+        setName(state.userx.name)
       }
     }
     if (response.ok) {
@@ -52,9 +58,13 @@ else{
       setPassword('')
       setName(json.name)
       console.log("welcome")
+      
     //   setLoad('')
     //   setReps('')
-      console.log('found:', json)
+    dispatch({type: 'GET_USER', payload: json})
+    if(state.userx)
+        setName(state.userx.name)
+      // console.log('found:', state.userx)
     }
 }
   }
@@ -91,7 +101,7 @@ else{
 
       <button>Login</button>
       {error && <div className="error">{error}</div>}
-      {name && <div className="name">{"welcome " + name}</div>}
+      {state.userx && <div className="name">{"welcome " +state.userType+" "+ name}</div>}
     </form>
   )
 }
