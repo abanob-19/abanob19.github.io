@@ -1,8 +1,8 @@
 /* Basic color scheme */
 :root {
-  --primary-color: #4a4a4a; /* Dark gray */
-  --secondary-color: #f0f0f0; /* Light gray */
-  --accent-color: #00a0d1; /* Blue */
+  --primary-color: #0e475f; /* Dark gray */
+  --secondary-color: #0a87c6; /* Light gray */
+  --accent-color: #2380e4; /* Blue */
 }
 
 /* Set basic styling for the page */
@@ -52,24 +52,29 @@ nav ul li:first-child {
 nav ul li a {
   color: #fff;
   text-decoration: none;
-  padding: 5px 10px;
+  padding: 0px 0px;
   border-radius: 5px;
 }
 
 nav ul li a:hover {
-  background: var(--accent-color);
-  color: #fff;
+  background: #f7f7f7;
+  color: rgb(60, 127, 203);
 }
 
 /* Set up page container with max-width and padding */
-.pages{
-  max-width: 1200px;
-  padding: 20px;
+.pages {
+  max-width: 2500px;
+  padding: 50px;
   margin: 0 auto;
-  background: #fff; /* Page background color */
-  border-radius: 10px; /* Add rounded corners to the container */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow to the container */
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
+
 
 /* Style the page title */
 .page-title {
@@ -85,7 +90,7 @@ a {
 }
 
 a:hover {
-  color: var(--secondary-colo);
+  color: #a8b7e0;
 }
 
 /* Style buttons */
@@ -111,10 +116,10 @@ input[type="text"],
 input[type="email"],
 input[type="password"] {
   display: block;
-  width: 50%;
-  padding: 15px;
+  width: 90%;
+  padding: 15x;
   border: 5px solid var(--primary-color);
-  border-radius: 30px; /* Add rounded corners to the input fields */
+  border-radius: 20px; /* Add rounded corners to the input fields */
   margin-bottom: 20px;
   box-sizing: border-box;
   transition: border-color 0.2s ease-in-out; /* Add a transition effect to the input field border color */
@@ -136,7 +141,7 @@ input[type="password"]:focus {
   padding: 10px; /* Add padding to the sides to adjust width */
   margin-top: 5px;
   text-align: left; /* Align left to match label and input field */
-  width: 17%; /* Set the width to 50% */
+  width: 90%; /* Set the width to 50% */
 }
 
 
@@ -149,3 +154,10 @@ input[type="password"]:focus {
   margin-top: 10px;
 }
 
+body {
+  background-image: url("./images/background.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  
+  
+  }
