@@ -12,6 +12,12 @@ export const instructorsReducer = (state, action) => {
         return { 
             instrcutors: [ ...state.instrcutors] 
         }
+
+        case 'LOG_OUT':
+            return { 
+                userx: null,
+                userType: null
+            }
         case 'GET_USER':
         return { 
             userx: action.payload,

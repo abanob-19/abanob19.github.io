@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useInstructorsContext } from '../hooks/useInstrcutorContext'
-
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
   const { state,dispatch } = useInstructorsContext()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
-//   const [load, setLoad] = useState('')
+  const navigate = useNavigate();//   const [load, setLoad] = useState('')
 //   const [reps, setReps] = useState('')
   const [error, setError] = useState(null)
 
@@ -64,6 +64,7 @@ else{
     dispatch({type: 'GET_USER', payload: json})
     if(state.userx)
         setName(state.userx.name)
+        navigate("/instructorPage");    
       // console.log('found:', state.userx)
     }
 }
