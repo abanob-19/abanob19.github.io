@@ -147,7 +147,8 @@ const addQuestionBank=async(req,res)=>{
 
 
 const openQuestionBank=async(req,res)=>{
-  const { questionBankName,name } = req.body
+  const questionBankName = req.query.questionBankName;
+  const name = req.query.name;
   const course =   await Course.findOne({name})
   if(!course) {
            return res.status(400).json({error: 'No such course'})

@@ -3,7 +3,8 @@ import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import styles from './Home.module.css'// components
 import InstructorDetails from "../components/InstructorDetails"
 import LoginForm from "../components/LoginForm"
-//make style css for this page
+
+
 const Home = () => {
   
 
