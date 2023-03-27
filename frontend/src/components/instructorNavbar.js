@@ -19,7 +19,7 @@ const handleClick = () => {
   }
   return (
     <Navbar bg="light" expand="lg">
-      <Navbar.Brand >{state.userx.name}</Navbar.Brand>
+      <Navbar.Brand > Welcome Instructor  {state.userx.name}</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="ml-auto">

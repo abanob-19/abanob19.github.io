@@ -242,7 +242,7 @@ const addMcqQuestion=async(req,res)=>{
                 
               );
               if (courseUptaded) {
-                res.status(200).json(courseUptaded);
+                res.status(200).json(updatedQuestionList);
               } else {
                 res.status(400);
                 throw new Error("Error occured");
@@ -257,7 +257,7 @@ const addMcqQuestion=async(req,res)=>{
 }
 
 const editMcqQuestion=async(req,res)=>{
-  const { questionBankName,name,text,choices,answer,category,oldText } = req.body
+  const { questionBankName,name,text,choices,answer,category,id } = req.body
   const course =   await Course.findOne({name})
   if(!course) {
            return res.status(400).json({error: 'No such course'})
@@ -282,7 +282,7 @@ const editMcqQuestion=async(req,res)=>{
                 targetQuestionIndex < updatedQuestionList.length;
                 targetQuestionIndex++
               ) {
-                if (updatedQuestionList[targetQuestionIndex].text == oldText) {
+                if (updatedQuestionList[targetQuestionIndex]._id == id) {
                   // targetExam = questionBanks[targetExamIndex];
                   break;
                 }
@@ -333,7 +333,8 @@ const editMcqQuestion=async(req,res)=>{
 
 
 const deleteMcqQuestion=async(req,res)=>{
-  const { questionBankName,name,oldText } = req.body
+  const { questionBankName,name,id } = req.body
+  console.log(id)
   const course =   await Course.findOne({name})
   if(!course) {
            return res.status(400).json({error: 'No such course'})
@@ -352,7 +353,7 @@ const deleteMcqQuestion=async(req,res)=>{
                 targetQuestionIndex < updatedQuestionList.length;
                 targetQuestionIndex++
               ) {
-                if (updatedQuestionList[targetQuestionIndex].text == oldText) {
+                if (updatedQuestionList[targetQuestionIndex]._id == id) {
                   // targetExam = questionBanks[targetExamIndex];
                   break;
                 }
