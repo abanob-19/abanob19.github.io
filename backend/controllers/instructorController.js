@@ -195,7 +195,7 @@ const deleteQuestionBank=async(req,res)=>{
 
 }
 const addMcqQuestion=async(req,res)=>{
-  const { questionBankName,name,text,choices,answer,category } = req.body
+  const { questionBankName,name,text,choices,answer,category , grade } = req.body
   const course =   await Course.findOne({name})
   if(!course) {
            return res.status(400).json({error: 'No such course'})
@@ -212,6 +212,7 @@ const addMcqQuestion=async(req,res)=>{
               question.choices=choices
               question.answer=answer;
               question.category=category;
+              question.grade=grade;
               const updatedQuestionList=questionBank.questions
               updatedQuestionList.push(question);
               var targetExam;
@@ -257,7 +258,7 @@ const addMcqQuestion=async(req,res)=>{
 }
 
 const editMcqQuestion=async(req,res)=>{
-  const { questionBankName,name,text,choices,answer,category,id } = req.body
+  const { questionBankName,name,text,choices,answer,category,grade,id } = req.body
   const course =   await Course.findOne({name})
   if(!course) {
            return res.status(400).json({error: 'No such course'})
@@ -274,6 +275,7 @@ const editMcqQuestion=async(req,res)=>{
               question.choices=choices
               question.answer=answer;
               question.category=category;
+              question.grade=grade;
               const updatedQuestionList=questionBank.questions
              
               var targetQuestionIndex = 0;

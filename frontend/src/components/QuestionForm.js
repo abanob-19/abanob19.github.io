@@ -5,7 +5,8 @@ const QuestionForm = ({ onFinish }) => {
     text: '',
     choices: ['', ''],
     answer: '',
-    category: ''
+    category: '',
+    grade: '',
   });
 
   const handleNewQuestionChange = (event) => {
@@ -76,6 +77,11 @@ const QuestionForm = ({ onFinish }) => {
         <label>
           Category:
           <input type="text" name="category" value={newQuestion.category} onChange={handleNewQuestionChange} />
+        </label>
+        <br />
+        <label>
+            Grade:
+            <input type="text" name="grade" value={newQuestion.grade} onChange={handleNewQuestionChange} />
         </label>
       </form>
       <button onClick={handleFinish}>Finish</button>

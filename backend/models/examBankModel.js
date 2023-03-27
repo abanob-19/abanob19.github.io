@@ -24,6 +24,10 @@ const mcqQuestionSchema = new Schema({
     type:String,
     required:true,
   },
+  grade:{
+    type:String,
+    required:true,
+  },
 });
 const textQuestionSchema = new Schema({
   

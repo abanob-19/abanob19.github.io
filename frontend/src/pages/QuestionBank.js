@@ -36,6 +36,7 @@ const QuestionBank = () => {
               choices: question.choices,
               answer: question.answer,
               category: question.category,
+                grade: question.grade,
               id: question._id,
             })
           })
@@ -60,9 +61,47 @@ const QuestionBank = () => {
         setEditedQuestionIndex(null);
       };
     //create a function to handle delete choice
-    const handleDeleteChoice = (index) => {
-        console.log("delete choice", index);
-    }
+    const handleDeleteChoice=(index,question)=>{
+        // const updatedQuestionBank = { ...questionBank };
+        // updatedQuestionBank.questions[editedChoiceIndex].choices[editedChoice] = newChoice;
+        if(question.choices.length==2)
+            alert("You can't delete more choices");
+        else
+        {
+        question.choices.splice(index,1);
+        fetch('/instructor/editMcqQuestion', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              questionBankName,
+              name,
+              text: question.text,
+              choices: question.choices,
+              answer: question.answer,
+              category: question.category,
+                grade: question.grade,
+              id: question._id,
+            })
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Failed to delete choice');
+              }
+              return response.json();
+            })
+            .then(json => {
+              console.log(json);
+              setDisplayForm(false);
+              setVersion(version => version + 1); // force re-render
+            })
+            .catch(error => {
+              console.error(error);
+              alert('Failed to elete choice');
+            });
+          }  //setVersion(version => version + 1); // force re-render
+      };
     //create a function to handle edit question
     const handleEditQuestion = () => {
         console.log("edit question");
@@ -118,6 +157,7 @@ const QuestionBank = () => {
               choices: question.choices,
               answer: question.answer,
               category: question.category,
+                grade: question.grade,
               id: question._id,
             })
           })
@@ -143,13 +183,149 @@ const QuestionBank = () => {
 
 
     //create a function to handle edit answer
-    const handleEditAnswer = () => {
-        console.log("edit answer");
+    const[editedQuestionIndexforEditAnswer,setEditedQuestionIndexforEditAnswer]=useState(null);
+    const[editedAnswer,setEditedAnswer]=useState(null);
+
+    const handleEditAnswer = (qIndex) => {
+        setEditedAnswer(questionBank.questions[qIndex].answer)
+        setEditedQuestionIndexforEditAnswer(qIndex)
+        
     }
+    const handleFinishEditAnswer=(newAnswer,question)=>{
+        fetch('/instructor/editMcqQuestion', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              questionBankName,
+              name,
+              text: question.text,
+              choices: question.choices,
+              answer: newAnswer,
+              category: question.category,
+                grade: question.grade,
+              id: question._id,
+            })
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Failed to edit answer');
+              }
+              return response.json();
+            })
+            .then(json => {
+              console.log(json);
+              setDisplayForm(false);
+              setVersion(version => version + 1); // force re-render
+            })
+            .catch(error => {
+              console.error(error);
+              alert('Failed to edit answer');
+            });
+      // setVersion(version => version + 1); // force re-render
+       setEditedAnswer(null)
+       setEditedQuestionIndexforEditAnswer(null)
+    }
+    const[editedQuestionIndexforEditCategory,setEditedQuestionIndexforEditCategory]=useState(null);
+    const[editedCategory,setEditedCategory]=useState(null);
+
     //create a function to handle edit category
-    const handleEditCategory = () => {
-        console.log("edit category");
+    const handleEditCategory = (qIndex) => {
+        setEditedCategory(questionBank.questions[qIndex].category)
+        setEditedQuestionIndexforEditCategory(qIndex)
+        
     }
+    const handleFinishEditCategory=(newCategory,question)=>{
+        fetch('/instructor/editMcqQuestion', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              questionBankName,
+              name,
+              text: question.text,
+              choices: question.choices,
+              answer: question.answer,
+              category: newCategory,
+                grade: question.grade,
+              id: question._id,
+            })
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Failed to edit category');
+              }
+              return response.json();
+            })
+            .then(json => {
+              console.log(json);
+              setDisplayForm(false);
+              setVersion(version => version + 1); // force re-render
+            })
+            .catch(error => {
+              console.error(error);
+              alert('Failed to edit category');
+            });
+      // setVersion(version => version + 1); // force re-render
+       setEditedCategory(null)
+       setEditedQuestionIndexforEditCategory(null)
+    }
+    const[editedQuestionIndexforEditGrade,setEditedQuestionIndexforEditGrade]=useState(null);
+    const[editedGrade,setEditedGrade]=useState(null);
+
+    //create a function to handle edit category
+    const handleEditGrade = (qIndex) => {
+        console.log(qIndex)
+        if(questionBank.questions[qIndex].grade==undefined||questionBank.questions[qIndex].grade==null){
+            setEditedGrade(0)
+        }
+        else
+        {
+        setEditedGrade(questionBank.questions[qIndex].grade)
+        
+        }
+        setEditedQuestionIndexforEditGrade(qIndex)
+        console.log(editedGrade)
+    }
+    const handleFinishEditGrade=(newGrade,question)=>{
+        fetch('/instructor/editMcqQuestion', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              questionBankName,
+              name,
+              text: question.text,
+              choices: question.choices,
+              answer: question.answer,
+              category: question.category,
+                grade: newGrade,
+              id: question._id,
+            })
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Failed to edit Grade');
+              }
+              return response.json();
+            })
+            .then(json => {
+              console.log(json);
+              setDisplayForm(false);
+              setVersion(version => version + 1); // force re-render
+            })
+            .catch(error => {
+              console.error(error);
+              alert('Failed to edit Grade');
+            });
+      // setVersion(version => version + 1); // force re-render
+       setEditedGrade(null)
+       setEditedQuestionIndexforEditGrade(null)
+    }
+ 
  
     const url = `/instructor/openQuestionBank?questionBankName=${questionBankName}&name=${name}`;
     const fetchData = async () => {
@@ -186,7 +362,8 @@ const QuestionBank = () => {
         text: newQuestion.text,
         choices: newQuestion.choices,
         answer: newQuestion.answer,
-        category: newQuestion.category
+        category: newQuestion.category,
+        grade: newQuestion.grade,
       })
     })
       .then(response => {
@@ -262,7 +439,7 @@ const QuestionBank = () => {
                     <div>
                       {choice}
                       <button onClick={() => handleEditChoice(index,qIndex)}>Edit</button>
-                      <button onClick={() => handleDeleteChoice(index)}>
+                      <button onClick={() => handleDeleteChoice(index,question)}>
                         Delete
                       </button>
                     </div>
@@ -270,8 +447,70 @@ const QuestionBank = () => {
                 </li>
               ))}
             </ul>
-            <p>Answer: {question.answer}</p>
-            <p>Category: {question.category}</p>
+            {editedQuestionIndexforEditAnswer == qIndex && editedAnswer != null ? (
+               
+               <div>
+                 
+               <input
+                 type="text"
+                 value={editedAnswer}
+                 onChange={(e) => setEditedAnswer(e.target.value)}
+               />
+               <button onClick={() => handleFinishEditAnswer(editedAnswer,question)}>
+                 Finish
+               </button>
+             </div>
+             ):(
+                <div>
+                Answer: {question.answer}
+             <button onClick={() => handleEditAnswer(qIndex)}>
+               Edit Answer
+             </button>
+             </div>
+             )}
+              {editedQuestionIndexforEditCategory == qIndex && editedCategory != null ? (
+               
+               <div>
+                 
+               <input
+                 type="text"
+                 value={editedCategory}
+                 onChange={(e) => setEditedCategory(e.target.value)}
+               />
+               <button onClick={() => handleFinishEditCategory(editedCategory,question)}>
+                 Finish
+               </button>
+             </div>
+             ):(
+                <div>
+                Category: {question.category}
+             <button onClick={() => handleEditCategory(qIndex)}>
+               Edit Category
+             </button>
+             </div>
+             )}
+             {editedQuestionIndexforEditGrade == qIndex && editedGrade != null ? (
+               
+               <div>
+               <input
+                 type="text"
+                 value={editedGrade}
+                 onChange={(e) => setEditedGrade(e.target.value)}
+               />
+               <button onClick={() => handleFinishEditGrade(editedGrade,question)}>
+                 Finish
+               </button>
+             </div>
+             ):(
+                <div>
+                Grade: {question.grade}
+             <button onClick={() => handleEditGrade(qIndex)}>
+             {editedQuestionIndexforEditGrade}
+
+               Edit Grade
+             </button>
+             </div>
+             )}
           </div>
         ))}
     </div>
