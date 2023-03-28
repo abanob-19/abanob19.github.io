@@ -63,6 +63,7 @@ const createExam=async(req,res)=>{
        await course.save();    
        res.status(200).json({course})
 }
+
 const editExam=async(req,res)=>{
   const { courseName,title,startTime,endTime , specs ,oldTitle} = req.body
  
@@ -165,23 +166,22 @@ const openQuestionBank=async(req,res)=>{
 
 }
 const deleteQuestionBank=async(req,res)=>{
-  const { questionBankName,name } = req.body
+  const { id,name } = req.body
+  console.log(id , name)
   const course =   await Course.findOne({name})
   if(!course) {
            return res.status(400).json({error: 'No such course'})
         }
         try {
-              const questionBank = course.questionBanks.find(element => element.title == questionBankName);
-              if(!questionBank){
-                return res.status(400).json({error: 'No such bank'})
-              }
+              //const questionBank = course.questionBanks.find(element => element.title == questionBankName);
+              
               var targetExamIndex = 0;
               for (
                 targetExamIndex = 0;
                 targetExamIndex < course.questionBanks.length;
                 targetExamIndex++
               ) {
-                if (course.questionBanks[targetExamIndex].title == questionBankName) {
+                if (course.questionBanks[targetExamIndex]._id == id) {
                   break;
                 }
               }
@@ -192,6 +192,40 @@ const deleteQuestionBank=async(req,res)=>{
             } catch (error) {
               res.status(400).json({ error: error.message })
             }
+
+}
+const editQuestionBank=async(req,res)=>{
+  const { id,name ,qname} = req.body
+  console.log(id , name,qname)
+  const course =   await Course.findOne({name})
+  if(!course) {
+           return res.status(400).json({error: 'No such course'})
+        }
+        
+              //const questionBank = course.questionBanks.find(element => element.title == questionBankName);
+              
+              var targetExamIndex = 0;
+              for (
+                targetExamIndex = 0;
+                targetExamIndex < course.questionBanks.length;
+                targetExamIndex++
+              ) {
+                if (course.questionBanks[targetExamIndex]._id == id) {
+                  break;
+                }}
+              
+              // course.questionBanks.splice(targetExamIndex,1)
+            const questionBanks=course.questionBanks
+              var targetExam = questionBanks[targetExamIndex];
+              targetExam.title = qname;
+              targetExam.course = name;
+              questionBanks[targetExamIndex] = targetExam;
+              // (course.questionBanks.find(element => element.title == questionBankName)).questions.push(question);
+              //  await course.save()
+              const courseUptaded = await Course.findOneAndUpdate(
+                { name: name},
+                { questionBanks: questionBanks })
+                res.status(200).json(courseUptaded)
 
 }
 const addMcqQuestion=async(req,res)=>{
@@ -478,6 +512,7 @@ module.exports = {
   addQuestionBank,
   openQuestionBank,
   deleteQuestionBank,
+  editQuestionBank,
   addMcqQuestion,
   editMcqQuestion,
   deleteMcqQuestion,

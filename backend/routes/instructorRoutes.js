@@ -10,6 +10,7 @@ const {
   addQuestionBank,
   openQuestionBank,
   deleteQuestionBank,
+  editQuestionBank,
   addMcqQuestion,
   editMcqQuestion,
   deleteMcqQuestion,
@@ -26,6 +27,7 @@ router.put('/editExam/',editExam)
 router.delete('/deleteExam/',deleteExam)
 router.post('/addQuestionBank/',addQuestionBank)
 router.get('/openQuestionBank/',openQuestionBank)
+router.put('/editQuestionBank/',editQuestionBank)
 router.delete('/deleteQuestionBank/',deleteQuestionBank)
 router.post('/addMcqQuestion/',addMcqQuestion)
 router.put('/editMcqQuestion/',editMcqQuestion)

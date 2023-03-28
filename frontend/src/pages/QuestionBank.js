@@ -351,6 +351,7 @@ const QuestionBank = () => {
   const [displayForm, setDisplayForm] = useState(false);
 
   const handleFinish = (newQuestion) => {
+    if(newQuestion){
     fetch('/instructor/addMcqQuestion', {
       method: 'POST',
       headers: {
@@ -382,7 +383,10 @@ const QuestionBank = () => {
         alert('Failed to add question');
       });
   }
-  
+  else{
+    setDisplayForm(false);
+  }
+}
   
 
   return (

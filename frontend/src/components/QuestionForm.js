@@ -48,6 +48,9 @@ const QuestionForm = ({ onFinish }) => {
   const handleFinish = () => {
     onFinish(newQuestion);
   };
+  const handleCancel = () => {
+    onFinish(null);
+  };
 
   return (
     <div>
@@ -85,6 +88,7 @@ const QuestionForm = ({ onFinish }) => {
         </label>
       </form>
       <button onClick={handleFinish}>Finish</button>
+      <button onClick={handleCancel}>Cancel</button>
     </div>
   );
 };
