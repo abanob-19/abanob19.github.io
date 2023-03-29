@@ -1,5 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from "react"
+import { Link } from 'react-router-dom';
+import PdfViewer from './viewer';
 //import QuestionForm from "../components/QuestionForm";
 import QuestionForm from "../components/QuestionForm";
 const QuestionBank = () => {
@@ -13,6 +15,67 @@ const QuestionBank = () => {
     const [editedChoiceIndex, setEditedChoiceIndex] = useState(null);
     const [editedQuestionIndex, setEditedQuestionIndex] = useState(null);
     const [AddedChoice, setAddedChoice] = useState(null);
+    const [file, setFile] = useState(null);
+    function AttachmentViewer({ binaryData, mimeType }) {
+    const [ourl, setOurl] = useState('');
+
+  useEffect(() => {
+    // Create a Blob from the binary data
+    const blob = new Blob([binaryData.arrayBuffer()], { type: mimeType });
+
+    // Create a URL for the Blob
+    const objectUrl = URL.createObjectURL(blob);
+
+    // Update the URL state variable
+    setOurl(objectUrl);
+
+    // Clean up the URL when the component unmounts
+  
+  }, [binaryData, mimeType]);
+
+  if (mimeType.startsWith('image/')) {
+    return <img src={ourl} alt="Attachment" />;
+  } else if (mimeType === 'application/pdf') {
+    return <iframe src={ourl} title="Attachment" />;
+  } else {
+    return <div>Unsupported file type.</div>;
+  }
+  setOurl('')
+}
+    
+    
+    const handleFileChange = (e) => {
+      setFile(e.target.files[0]);
+    };
+  
+    const handleUpload =  (q) => {
+      const formData = new FormData();
+      formData.append('attachment', file);
+      formData.append('questionId', q);
+      formData.append('questionBankId', questionBank._id);
+      formData.append('courseName', name);
+  
+      
+      fetch(`/instructor/uploadFile`, {
+        method: 'POST',
+        'Content-Type': 'multipart/form-data',
+        body: formData, 
+    
+   
+      })
+        .then(json => {
+          console.log(json);
+          setFile(null);
+          setVersion(version => version + 1); // force re-render
+        })
+        .catch(error => {
+          console.error(error);
+          alert('Failed to edit question');
+        });
+      }
+  
+        
+      
 
     const handleEditChoice = (index,qIndex) => {
         setEditedChoiceIndex(index);
@@ -387,7 +450,35 @@ const QuestionBank = () => {
     setDisplayForm(false);
   }
 }
+  if(!questionBank){
+    return <div>Loading...</div>
+  }
+  const handlePDF=(binaryData)=>{
+    const uint8Array = new Uint8Array(binaryData.length);
+for (let i = 0; i < binaryData.length; i++) {
+  uint8Array[i] = binaryData.charCodeAt(i);
+}
+
+const arrayBuffer = uint8Array.buffer;
+    console.log(typeof arrayBuffer)
+    console.log(arrayBuffer)
+    const bytes = new Array(binaryData.length);
+
+for (let i = 0; i < binaryData.length; i++) {
+  bytes[i] = binaryData.charCodeAt(i);
+}
+
+const blob = new Blob([new Uint8Array(bytes)], {type: 'application/pdf'});
   
+    //const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+    const urll = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = urll;
+    link.download = 'questionBank.pdf';
+    link.click();
+    URL.revokeObjectURL(urll);
+  
+  }
 
   return (
     <div>
@@ -515,6 +606,12 @@ const QuestionBank = () => {
              </button>
              </div>
              )}
+             
+      <input type="file" onChange={handleFileChange} />
+        <button onClick={() => handleUpload(question._id)}>Upload</button>
+        <button onClick={() => handlePDF(question.attachment.data)}>View</button>
+        {/* Attachment: {(question.attachment)&& <AttachmentViewer binaryData={question.attachment.data} mimeType={question.attachment.mimeType} />} */}
+    
           </div>
         ))}
     </div>

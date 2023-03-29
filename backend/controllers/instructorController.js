@@ -6,6 +6,68 @@ const x =require('../models/examBankModel')
 const examBank=x.examBank
 const mcqQuestion=x.mcqQuestion
 const textQuestion=x.textQuestion
+const fs = require('fs');
+
+
+const uploadFile =async(req,res)=>{
+  courseName=req.body.courseName
+  questionId=req.body.questionId
+  questionBankId=req.body.questionBankId
+  const buffer = fs.readFileSync(req.file.path);
+ const  attachment= {
+  filename: req.file.filename,
+  data: buffer,
+  mimeType: req.file.mimetype,
+}
+const course =   await Course.findOne({name : courseName})
+var questionBanks = course.questionBanks;
+
+if(!course) {
+  return res.status(400).json({error: 'No such course'})
+}
+var targetExamIndex = 0;
+var targetExam
+for (
+  targetExamIndex = 0;
+  targetExamIndex < course.questionBanks.length;
+  targetExamIndex++
+) {
+  if (course.questionBanks[targetExamIndex]._id == questionBankId) {
+    targetExam = questionBanks[targetExamIndex];
+    break;
+  }}
+  const updatedQuestionList=questionBanks[targetExamIndex].questions
+  
+             
+              var targetQuestionIndex = 0;
+              for (
+                targetQuestionIndex = 0;
+                targetQuestionIndex < updatedQuestionList.length;
+                targetQuestionIndex++
+              ) {
+                if (updatedQuestionList[targetQuestionIndex]._id == questionId) {
+                  // targetExam = questionBanks[targetExamIndex];
+                  break;
+                }
+              }
+              updatedQuestionList[targetQuestionIndex].attachment=attachment
+              targetExam.questions = updatedQuestionList;
+              questionBanks[targetExamIndex] = targetExam;
+              const courseUptaded = await Course.findOneAndUpdate(
+                { name: courseName },
+                { questionBanks: questionBanks }
+                
+              );
+              if (courseUptaded) {
+                const course1 =   await Course.findOne({courseName})
+             
+                res.status(200).json(course1);
+              } else {
+                res.status(400);
+                throw new Error("Error occured");
+              }
+
+}
 const getinstructors = async (req, res) => {
   const instructors = await Instructor.find({}).sort({createdAt: -1})
   res.status(200).json(instructors)
@@ -310,7 +372,9 @@ const editMcqQuestion=async(req,res)=>{
               question.answer=answer;
               question.category=category;
               question.grade=grade;
+              question.attachment=questionBank.questions.find(element => element._id == id).attachment
               const updatedQuestionList=questionBank.questions
+              
              
               var targetQuestionIndex = 0;
               for (
@@ -517,4 +581,5 @@ module.exports = {
   editMcqQuestion,
   deleteMcqQuestion,
   addStudents,
+  uploadFile,
 }

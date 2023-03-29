@@ -28,6 +28,11 @@ const mcqQuestionSchema = new Schema({
     type:String,
     required:true,
   },
+  attachment: {
+    filename: String,
+    data: Buffer,
+    mimeType: String,
+  },
 });
 const textQuestionSchema = new Schema({
   

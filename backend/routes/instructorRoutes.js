@@ -1,4 +1,6 @@
 const express = require('express')
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 const {
   seeMyCourses,
   getinstructor, 
@@ -15,6 +17,7 @@ const {
   editMcqQuestion,
   deleteMcqQuestion,
   addStudents,
+  uploadFile,
 } = require('../controllers/instructorController')
 const router = express.Router()
 // GET a single instructor for login
@@ -33,4 +36,5 @@ router.post('/addMcqQuestion/',addMcqQuestion)
 router.put('/editMcqQuestion/',editMcqQuestion)
 router.delete('/deleteMcqQuestion/',deleteMcqQuestion)
 router.post('/addStudents/',addStudents)
+router.post('/uploadFile', upload.single('attachment'),uploadFile)
 module.exports = router
