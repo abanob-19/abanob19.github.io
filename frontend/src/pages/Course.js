@@ -116,7 +116,9 @@ const[newBank,setNewBank]=useState(false)
       })
       .catch(error => console.error(error));
   };
-
+  if(!questionBanks){
+    return <div>Loading...</div>
+  }
   return (
     <div>
       <h1>Question Banks</h1>

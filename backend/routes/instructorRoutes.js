@@ -18,6 +18,7 @@ const {
   deleteMcqQuestion,
   addStudents,
   uploadFile,
+  viewPdf,
 } = require('../controllers/instructorController')
 const router = express.Router()
 // GET a single instructor for login
@@ -37,4 +38,5 @@ router.put('/editMcqQuestion/',editMcqQuestion)
 router.delete('/deleteMcqQuestion/',deleteMcqQuestion)
 router.post('/addStudents/',addStudents)
 router.post('/uploadFile', upload.single('attachment'),uploadFile)
+router.get('/viewPdf/:courseName&:qb_id&:q_id', viewPdf)
 module.exports = router

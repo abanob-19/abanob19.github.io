@@ -1,9 +1,12 @@
 import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from "react"
 import { Link } from 'react-router-dom';
-import PdfViewer from './viewer';
+import PDFViewer from "./PDFViewer";
+
 //import QuestionForm from "../components/QuestionForm";
 import QuestionForm from "../components/QuestionForm";
+import { pdfjs } from 'react-pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 const QuestionBank = () => {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -609,7 +612,9 @@ const blob = new Blob([new Uint8Array(bytes)], {type: 'application/pdf'});
              
       <input type="file" onChange={handleFileChange} />
         <button onClick={() => handleUpload(question._id)}>Upload</button>
-        <button onClick={() => handlePDF(question.attachment.data)}>View</button>
+        <div>
+      {question.attachment && <PDFViewer attachment={{courseName:name ,qb_id: questionBank._id, q_id:question._id}} />}
+    </div>
         {/* Attachment: {(question.attachment)&& <AttachmentViewer binaryData={question.attachment.data} mimeType={question.attachment.mimeType} />} */}
     
           </div>
