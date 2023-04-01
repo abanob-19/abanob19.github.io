@@ -64,6 +64,7 @@ else{
     dispatch({type: 'GET_USER', payload: json})
     if(state.userx)
         setName(state.userx.name)
+        localStorage.setItem('user', JSON.stringify(json));
         navigate("/instructorPage");    
       // console.log('found:', state.userx)
     }
@@ -82,7 +83,7 @@ else{
       />
      <label>password</label>
       <input 
-        type="text" 
+        type="password" 
         onChange={(e) => setPassword(e.target.value)} 
         value={password}
       />

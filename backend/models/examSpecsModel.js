@@ -20,6 +20,10 @@ const examSpecsSchema = new Schema({
     type: Array,
     required: true
   },
+  courseName: {
+    type: String,
+    required: true
+  },
  
 }, { timestamps: true })
 

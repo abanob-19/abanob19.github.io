@@ -1,9 +1,13 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import { Link } from 'react-router-dom';
+import { Button } from 'react-bootstrap';
+
 
 const InstructorCourses = () => {
     const { state, dispatch } = useInstructorsContext()
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
+
     useEffect(() => {
         console.log(state.userx)
     }, [])
@@ -12,9 +16,11 @@ const InstructorCourses = () => {
         <div>
             <h1>My Courses</h1>
             <ul>
-                {state.userx.courses.map((course) => (
+                {  user.courses.map((course) => (
                     <li key={course}>
-                        <Link to={`/Course/${course}`}>{course}</Link>
+                        {course}
+                        <Button as={Link} to={`/Course/${course}`} variant="primary">Question Banks</Button>
+<Button as={Link} to={`/CourseExams/${course}`} variant="success">Exams</Button>
                     </li>
                 ))}
             </ul>

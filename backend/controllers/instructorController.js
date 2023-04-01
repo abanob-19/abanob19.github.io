@@ -151,23 +151,26 @@ const createExam=async(req,res)=>{
             examSpecs.startTime=startTime
             examSpecs.endTime=endTime
             examSpecs.specs=specs
+            examSpecs.courseName=courseName
        course.exams.push(examSpecs) 
        await course.save();    
        res.status(200).json({course})
 }
 
 const editExam=async(req,res)=>{
-  const { courseName,title,startTime,endTime , specs ,oldTitle} = req.body
+  const { courseName,title,startTime,endTime , specs ,id} = req.body
  
       const course =   await Course.findOne({name : courseName})
       if(!course) {
                return res.status(400).json({error: 'No such course'})
             }
+            console.log(id)
             const examSpecs = new ExamSpecs()
             examSpecs.title=title
             examSpecs.startTime=startTime
             examSpecs.endTime=endTime
             examSpecs.specs=specs
+            examSpecs.courseName=courseName
             var targetExam;
             var targetExamIndex = 0;
             for (
@@ -175,7 +178,7 @@ const editExam=async(req,res)=>{
               targetExamIndex < course.exams.length;
               targetExamIndex++
             ) {
-              if (course.exams[targetExamIndex].title == oldTitle) {
+              if (course.exams[targetExamIndex]._id == id) {
                 targetExam = course.exams[targetExamIndex];
                 break;
               }
@@ -189,7 +192,7 @@ const editExam=async(req,res)=>{
        res.status(200).json(course);
 }
 const deleteExam=async(req,res)=>{
-  const { courseName,title} = req.body
+  const { courseName,id} = req.body
  
       const course =   await Course.findOne({name : courseName})
       if(!course) {
@@ -203,7 +206,7 @@ const deleteExam=async(req,res)=>{
               targetExamIndex < course.exams.length;
               targetExamIndex++
             ) {
-              if (course.exams[targetExamIndex].title == title) {
+              if (course.exams[targetExamIndex]._id == id) {
                 targetExam = course.exams[targetExamIndex];
                 break;
               }

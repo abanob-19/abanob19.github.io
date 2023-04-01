@@ -7,6 +7,7 @@ import InstructorCourses from './pages/InstructorCourses'
 import QuestionBank from './pages/QuestionBank'
 import Course from './pages/Course'
 import InstructorPage from './pages/instructorPage'
+import CourseExams from './pages/CourseExams'
 
 
 function App() {
@@ -37,6 +38,11 @@ function App() {
               path="/QuestionBank/" 
               element={<QuestionBank />} 
             />
+            <Route 
+              path="/CourseExams/:courseName" 
+              element={<CourseExams />} 
+            />
+          
             
           </Routes>
         </div>
