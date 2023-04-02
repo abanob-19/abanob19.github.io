@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import styles from '../pages/Instructor.module.css';
-
+import { Navigate } from 'react-router-dom';
 
 function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam}) {
   const isFinished = new Date() > new Date(exam.endTime);
@@ -14,6 +14,19 @@ function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam}) {
   const [specs, setSpecs] = useState(exam.specs);
   const [isLoading, setIsLoading] = useState(false);
 
+const handleSample = async() => {
+Navigate(`/SampleExam/?courseName=${courseName}&examId=${exam._id}`)
+  // await axios.get(`/instructor/getQuestionsForExam/${courseName}&${exam._id}`)
+  // .then(response => {
+  //   console.log("executed sample");
+  //   alert("Sample questions generated successfully");
+  // })
+  // .catch(error => {
+  //   console.error(error);
+  // }).finally(() => {
+  //     setIsLoading(false);
+  //     });
+}
 
   const handleDeleteClick = () => {
     onDelete();
@@ -112,6 +125,9 @@ function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam}) {
       ))}
       {<button onClick={handleEditClick }>Edit</button>}
       <button onClick={handleDeleteClick}>Delete</button>
+      <button onClick={handleSample}>view Sample</button>
+
+
       
     </div>
   );

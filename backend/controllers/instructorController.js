@@ -4,12 +4,14 @@ const Course = require('../models/courseModel')
 const mongoose = require('mongoose')
 const x =require('../models/examBankModel')
 const examBank=x.examBank
+const { ObjectId } = require('mongodb');
 const mcqQuestion=x.mcqQuestion
 const textQuestion=x.textQuestion
 const fs = require('fs');
 const path = require('path');
 const { promisify } = require('util');
 const readFile = promisify(fs.readFile)
+const _ = require('lodash');
 
 const viewPdf=async(req,res)=>{
   const { courseName,qb_id,q_id } = req.params
@@ -551,6 +553,79 @@ const addStudents=async(req,res)=>{
  
  res.status(200).json("done")
 }
+const getQuestionsForExam = async (req, res) => {
+  const examId= req.query.examId;
+    const courseName = req.query.courseName;
+  
+  console.log(examId , courseName);
+  try {
+    let exam = null;
+    let myCourse=null;
+    // find the exam in MongoDB by id in the given course
+    await Course.findOne(
+      { name: courseName },
+    )
+      .then((course) => {
+        if (!course) {
+          console.log("Course not found");
+          return;
+        }
+        else{
+          myCourse=course 
+        }
+
+         // since we used $elemMatch, the result is an array with one element
+        // do something with the exam
+      })
+      .catch((error) => {
+        // handle error
+        console.log(error);
+      });
+      
+for( let i=0;i<myCourse.exams.length;i++){
+  console.log(myCourse.exams[i]._id.toString())
+    console.log(examId.toString())
+  if(myCourse.exams[i]._id.equals(examId.trim())){
+    exam=myCourse.exams[i]
+    console.log("found")
+    break;
+  }
+}
+if(!exam){
+  return res.status(400).json({error: 'No such exam'})
+}
+    
+      
+    // extract the specs array from the exam
+    const specsArray = exam.specs;
+
+    // initialize an empty array to store the questions
+    const questions = [];
+
+    // loop through the specs array
+    for (let i = 0; i < specsArray.length; i++) {
+      const { chapter, category, numQuestions } = specsArray[i];
+
+      // find the question bank in the questionBanks array by name
+      const questionBank = myCourse.questionBanks.find((qb) => qb.title === chapter);
+
+      // find the questions in the questions array with the given category and numQuestions
+      const questionsForChapter = _.sampleSize(questionBank.questions.filter((q) => q.category === category), numQuestions);
+      const selectedQuestions = questionsForChapter.slice(0, numQuestions);
+
+      // add the questions to the array
+      questions.push(...selectedQuestions);
+    }
+
+    // return the questions
+    return res.send(questions);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send('Server error');
+  }
+};
+
+
 // create a new workout
 // const createinstructor = async (req, res) => {
 //   const {username, password } = req.body
@@ -617,4 +692,5 @@ module.exports = {
   addStudents,
   uploadFile,
   viewPdf,
+  getQuestionsForExam,
 }

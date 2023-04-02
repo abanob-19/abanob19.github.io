@@ -8,6 +8,7 @@ import QuestionBank from './pages/QuestionBank'
 import Course from './pages/Course'
 import InstructorPage from './pages/instructorPage'
 import CourseExams from './pages/CourseExams'
+import SampleExam from './pages/SampleExam'
 
 
 function App() {
@@ -37,6 +38,10 @@ function App() {
             <Route 
               path="/QuestionBank/" 
               element={<QuestionBank />} 
+            />
+            <Route 
+              path="/SampleExam/" 
+              element={<SampleExam />} 
             />
             <Route 
               path="/CourseExams/:courseName" 
