@@ -1,7 +1,7 @@
 import { createContext, useReducer } from 'react'
 
 export const InstructorsContext = createContext()
-const initialState = { userx: null , userType:null };
+const initialState = { userx: null , userType:null , secVersion : 0 };
 export const instructorsReducer = (state, action) => {
     switch (action.type) {
       case 'SET_INSTRUCTORS':
@@ -23,6 +23,10 @@ export const instructorsReducer = (state, action) => {
             userx: action.payload,
             userType: action.payload.role
         }
+        case 'CREATE_EXAM':
+          return { 
+              secVersion: ((state.secVersion) + 1)
+          }
       default:
         return state
     }

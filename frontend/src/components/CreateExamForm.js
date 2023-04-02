@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useInstructorsContext } from '../hooks/useInstrcutorContext'
+import styles from '../pages/Instructor.module.css';
+
 
 function CreateExamForm({ onClose }) {
   const [courseName, setCourseName] = useState('');
@@ -7,10 +10,11 @@ function CreateExamForm({ onClose }) {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [specs, setSpecs] = useState([]);
-
+  const { state,dispatch } = useInstructorsContext()
+  const[isLoading,setIsLoading] = useState(false)
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+   setIsLoading(true)
     const specsJson = specs.map(spec => ({
       chapter: spec.chapter,
       category: spec.category,
@@ -18,7 +22,7 @@ function CreateExamForm({ onClose }) {
     }));
 
     try {
-      const response = await axios.post('instructor/createExam', {
+      const response = await axios.post('/instructor/createExam', {
         courseName,
         title,
         startTime:startTime+"z",
@@ -27,6 +31,10 @@ function CreateExamForm({ onClose }) {
       });
 
       console.log(response.data);
+      alert("Exam Created Successfully");
+      dispatch({type: 'CREATE_EXAM'})
+      setIsLoading(false)
+      console.log(state.secVersion)
       // handle success response here
     } catch (error) {
       console.error(error);
@@ -44,7 +52,10 @@ function CreateExamForm({ onClose }) {
     updatedSpecs[index][field] = event.target.value;
     setSpecs(updatedSpecs);
   };
-
+  if(isLoading){
+  return  <div className={styles['container']}>
+  <div className={styles['loader']}></div>
+</div>}
   return (
     <form onSubmit={handleSubmit}>
       <label>

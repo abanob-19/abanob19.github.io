@@ -193,11 +193,12 @@ const editExam=async(req,res)=>{
 }
 const deleteExam=async(req,res)=>{
   const { courseName,id} = req.body
- 
+  console.log(courseName , id)
       const course =   await Course.findOne({name : courseName})
       if(!course) {
                return res.status(400).json({error: 'No such course'})
             }
+           
            
             var targetExam;
             var targetExamIndex = 0;

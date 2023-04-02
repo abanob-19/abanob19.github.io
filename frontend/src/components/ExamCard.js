@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import styles from '../pages/Instructor.module.css';
+
 
 function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam}) {
   const isFinished = new Date() > new Date(exam.endTime);
@@ -35,6 +37,7 @@ function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam}) {
     .then(response => {
       console.log("executed edit");
       setEditing(false);
+      alert("Exam edited successfully");
       
     })
     .catch(error => {
@@ -57,7 +60,9 @@ function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam}) {
     });
   };
   if(isLoading){
-return <div>loading</div>
+    return  <div className={styles['container']}>
+    <div className={styles['loader']}></div>
+  </div>
     }
   if (editing) {
     return (
