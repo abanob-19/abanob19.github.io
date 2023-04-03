@@ -2,6 +2,7 @@ import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from "react"
 import { Link } from 'react-router-dom';
 import PDFViewer from "./PDFViewer";
+import InstructorNavbar from '../components/instructorNavbar';
 
 //import QuestionForm from "../components/QuestionForm";
 import QuestionForm from "../components/QuestionForm";
@@ -484,7 +485,11 @@ const blob = new Blob([new Uint8Array(bytes)], {type: 'application/pdf'});
   }
 
   return (
+    
+    
+    
     <div>
+       <InstructorNavbar/>
       <h1>{questionBankName}</h1>
       <p>{name}</p>
       <button onClick={handleAddQuestion}>Add Question</button>

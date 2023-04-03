@@ -3,7 +3,7 @@ import axios from 'axios';
 import styles from '../pages/Instructor.module.css';
 import { Navigate } from 'react-router-dom';
 
-function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam}) {
+function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam , onSampleClick}) {
   const isFinished = new Date() > new Date(exam.endTime);
 
   const [editing, setEditing] = useState(false);
@@ -15,7 +15,10 @@ function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam}) {
   const [isLoading, setIsLoading] = useState(false);
 
 const handleSample = async() => {
-Navigate(`/SampleExam/?courseName=${courseName}&examId=${exam._id}`)
+  console.log("executed sample");
+  onSampleClick();
+// Navigate(`/SampleExam/?courseName=${courseName}&examId=${exam._id}`)
+// console.log(`/SampleExam/?courseName=${courseName}&examId=${exam._id}`)
   // await axios.get(`/instructor/getQuestionsForExam/${courseName}&${exam._id}`)
   // .then(response => {
   //   console.log("executed sample");

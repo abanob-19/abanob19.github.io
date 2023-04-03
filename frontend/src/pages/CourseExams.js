@@ -5,10 +5,12 @@ import { useParams } from "react-router-dom";
  import InstructorNavbar from '../components/instructorNavbar';
  import { useInstructorsContext } from '../hooks/useInstrcutorContext'
  import styles from './Instructor.module.css';
-
-
+ import { useNavigate } from "react-router-dom";
+ import { useInRouterContext, Navigate } from 'react-router-dom'
 
 function CourseExams() {
+ // const { navigate } = useInRouterContext();
+  const navigate = useNavigate();
   const [exams, setExams] = useState(null);
   const { courseName } = useParams();
   const[version,setVersion]=useState(0)
@@ -17,6 +19,13 @@ function CourseExams() {
   const { state,dispatch } = useInstructorsContext()
   const onEditExam=(examID)=>{
 setEditingId(examID)
+  }
+  function handleSample  (examId)  {
+    console.log("executed sample");
+    // onSampleClick();
+  navigate(`/SampleExam/?courseName=${courseName}&examId=${examId}`)
+   console.log(`/SampleExam/?courseName=${courseName}&examId=${examId}`)
+
   }
   const onFinishEditExam=(examID)=>{
     setEditingId(null)
@@ -67,7 +76,7 @@ if(!exams|| isLoading){
       <InstructorNavbar/>
       {exams.map(exam => (
         
-        ((!editingId)||(editingId==exam._id))&& <ExamCard key={exam._id} exam={exam} onDelete={() => onDeleteExam(exam)} onEdit={()=>onEditExam(exam._id) } onFinishEditExam={()=>onFinishEditExam(exam._id) }/>
+        ((!editingId)||(editingId==exam._id))&& <ExamCard key={exam._id} exam={exam} onDelete={() => onDeleteExam(exam)} onEdit={()=>onEditExam(exam._id) } onFinishEditExam={()=>onFinishEditExam(exam._id) } onSampleClick={()=>handleSample(exam._id)}/>
         
       ))}
     </div>
