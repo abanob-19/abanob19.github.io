@@ -50,6 +50,8 @@ else{
         dispatch({type: 'GET_USER', payload: json})
         if(state.userx)
         setName(state.userx.name)
+        localStorage.setItem('user', JSON.stringify(json));
+        navigate("/StudentPage");   
       }
     }
     if (response.ok) {

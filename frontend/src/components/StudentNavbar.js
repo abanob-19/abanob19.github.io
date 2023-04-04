@@ -3,8 +3,7 @@ import { Navbar, Nav } from 'react-bootstrap';
 import styles from '../pages/Instructor.module.css';
 import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import { useNavigate } from "react-router-dom";
-import CreateExamForm from './CreateExamForm';
-function InstructorNavbar() {
+function StudentNavbar() {
   const { state,dispatch } = useInstructorsContext()
   const navigate = useNavigate();
   const [showCreateExamForm, setShowCreateExamForm] = useState(false);
@@ -18,31 +17,28 @@ const handleClick = () => {
     
   }
   const handleClick1 = async () => {
-    navigate("/instructorCourses"); 
+    navigate("/StudentPage"); 
   }
-  const handleClick2 = async () => {
-    navigate("/instrcutorExams"); 
-  }
+
+
   return (
     <div>
     <Navbar bg="light" expand="lg">
     <Navbar.Brand > GUC Online Assessment</Navbar.Brand>
-      <Navbar.Brand > Welcome Instructor  {user ? user.name : ''}</Navbar.Brand>
+      <Navbar.Brand > Welcome Student  {user ? user.name : ''}</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="ml-auto">
-        <Nav.Link onClick={() => handleClick1()}  className={styles['nav-link-hover']}>Courses</Nav.Link>
-          <Nav.Link  className={styles['nav-link-hover']} onClick={() => setShowCreateExamForm(true)}>Create Exam</Nav.Link>
+        <Nav.Link onClick={() => handleClick1()}  className={styles['nav-link-hover']}>Home</Nav.Link>
           <Nav.Link onClick={() => handleClick()} className={styles['nav-link-hover']}>Log Out</Nav.Link>
 
         </Nav>
       </Navbar.Collapse>
     </Navbar>
-    {showCreateExamForm && <CreateExamForm onClose={() => setShowCreateExamForm(false)} />}
 </div>
     
   );
 
 }
 
-export default InstructorNavbar;
+export default StudentNavbar;

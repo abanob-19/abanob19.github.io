@@ -33,6 +33,18 @@ const mcqQuestionSchema = new Schema({
     data: Buffer,
     mimeType: String,
   },
+  StudentAnswer:{
+    type:String,
+  },
+  StudentGrade:{
+    type:String,
+  },
+  StudentAttachment: {
+    filename: String,
+    data: Buffer,
+    mimeType: String,
+  },
+  
 });
 const textQuestionSchema = new Schema({
   

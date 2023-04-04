@@ -22,6 +22,10 @@ const studentSchema = new Schema({
     type: [String],
     default: [],
   },
+  exams: {
+    type: [],
+    default: [],
+  },
 }, { timestamps: true })
 
 module.exports = mongoose.model('student', studentSchema)

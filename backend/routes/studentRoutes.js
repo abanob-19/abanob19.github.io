@@ -1,22 +1,14 @@
 const express = require('express')
 const {
   getStudent,
+  seeMyCourses,
+  seeExams,
+  getQuestionsForExam,
 } = require('../controllers/studentController')
 const router = express.Router()
 
-// GET all instructors
-// router.get('/', getinstructors)
-
-// GET a single instructor
 router.post('/getStudent', getStudent)
-
-// POST a new instructor
-// router.post('/', createinstructor)
-
-// // DELETE a workout
-// router.delete('/:id', deleteWorkout)
-
-// // UPDATE a workout
-// router.patch('/:id', updateWorkout)
-
+router.get('/seeMyCourses',seeMyCourses)
+router.get('/seeExams/:name',seeExams)
+router.get('/getQuestionsForExam/', getQuestionsForExam)
 module.exports = router

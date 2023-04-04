@@ -9,6 +9,9 @@ import Course from './pages/Course'
 import InstructorPage from './pages/instructorPage'
 import CourseExams from './pages/CourseExams'
 import SampleExam from './pages/SampleExam'
+import StudentPage from './pages/studentPage'
+import StudentCourseExams from './pages/StudentCourseExams'
+import StudentExam from './pages/StudentExam'
 
 
 function App() {
@@ -27,6 +30,10 @@ function App() {
               path="/instructorPage" 
               element={<InstructorPage />} 
             />
+              <Route 
+              path="/StudentPage" 
+              element={<StudentPage />} 
+            />
             <Route 
               path="/instructorCourses" 
               element={<InstructorCourses />} 
@@ -44,8 +51,16 @@ function App() {
               element={<SampleExam />} 
             />
             <Route 
+              path="/StudentExam/" 
+              element={<StudentExam />} 
+            />
+            <Route 
               path="/CourseExams/:courseName" 
               element={<CourseExams />} 
+            />
+            <Route 
+              path="/StudentCourseExams/:courseName" 
+              element={<StudentCourseExams />} 
             />
           
             

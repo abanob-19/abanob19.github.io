@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
+import InstructorNavbar from "../components/instructorNavbar";
+
 
 
 const InstructorCourses = () => {
@@ -14,6 +16,7 @@ const InstructorCourses = () => {
 
     return (
         <div>
+             { <InstructorNavbar/> }
             <h1>My Courses</h1>
             <ul>
                 {  user.courses.map((course) => (
