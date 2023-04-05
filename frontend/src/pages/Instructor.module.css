@@ -21,4 +21,42 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+  .choice-text {
+    display: inline-block;
+    font-size: 18px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  .choices-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .choice-number {
+    font-size: 1.2rem;
+    margin-right: 1rem;
+  }
+  .button {
+    font-size: 1.2rem;
+    padding: 1rem 2rem;
+    background-color: green;
+    color: white;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 600px; /* adjust as needed */
+    margin: 0 auto; /* centers horizontally */
+  }
+  
+  .button:hover {
+    background-color: darkblue;
+  }
+  
+  
+  
+    
   

@@ -4,10 +4,12 @@ const {
   seeMyCourses,
   seeExams,
   getQuestionsForExam,
+  SubmitExam,
 } = require('../controllers/studentController')
 const router = express.Router()
 
 router.post('/getStudent', getStudent)
+router.post('/submitExam', SubmitExam)
 router.get('/seeMyCourses',seeMyCourses)
 router.get('/seeExams/:name',seeExams)
 router.get('/getQuestionsForExam/', getQuestionsForExam)

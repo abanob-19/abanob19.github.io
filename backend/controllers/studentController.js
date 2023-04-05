@@ -65,7 +65,7 @@ const seeMyCourses=async(req,res)=>{
       const examx = student.exams.find((exam) => exam.examId.equals(examId.trim()));
       if (examx) {
         console.log("already generated");
-        return res.send(examx.questions);
+        return res.send({Questions:examx.questions , submitted:examx.submitted, answers:examx.studentAnswers});
       }
       let exam = null;
       let myCourse=null;
@@ -110,6 +110,7 @@ const seeMyCourses=async(req,res)=>{
       const questions = [];
   
       // loop through the specs array
+      
       for (let i = 0; i < specsArray.length; i++) {
         const { chapter, category, numQuestions } = specsArray[i];
   
@@ -123,22 +124,96 @@ const seeMyCourses=async(req,res)=>{
         // add the questions to the array
         questions.push(...selectedQuestions);
       }
+      var totalGrade=0;
+      //loop over questions to calculate total grade
+      for(let i=0;i<questions.length;i++){
+        totalGrade+=questions[i].grade
+      }
   
       // return the questions
       const examForStudent= {
         examId:exam._id,
         title:exam.title,
+        courseName:courseName,
         questions:questions,
-        totalGrade:0
+        studentAnswers:new Array(questions.length).fill(null),
+        studentGrades:new Array(questions.length).fill(0),
+        totalGrade:0,
+        totalPossibleGrade:totalGrade,
+        submitted:false,
       }
       student.exams.push(examForStudent)
       await student.save()
-      return res.send(questions);
+      return res.send({Questions:questions , submitted:examForStudent.submitted, answers:examForStudent.studentAnswers});
     } catch (err) {
       console.error(err);
       return res.status(500).send('Server error');
     }
   };
+  const SubmitExam = async (req, res) => {
+    const examId= req.body.examId;
+    const answers=req.body.answers
+    const courseName = req.body.courseName;
+    const  id  = req.body.Id
+  // if (!mongoose.Types.ObjectId.isValid(id.trim())) {
+  //         return res.status(400).json({error: ' Invalid Id No such student'})     }
+  const student =   await Student.findById({_id: id.trim()})
+  if(!student) {
+           return res.status(400).json({error: 'No such student'})
+        }
+  
+  console.log(examId , courseName);
+  try {
+    const examx = student.exams.find((exam) => exam.examId.equals(examId.trim()) && exam.courseName===courseName);
+    if (examx) {
+      console.log("found");
+    }
+    else{
+      console.log("no such exam")
+    }
+    var totalGrade=0
+    const answerEntries = Object.entries(answers);
+    const questionAnswers = answerEntries.map(([questionId, answer]) => ({ questionId, answer }));
+
+    console.log(questionAnswers.length)
+    // loop through the answers array and store every answer in the corresponding question.studentAnswer in questions array in the exam
+    for (let i = 0; i < questionAnswers.length; i++) {
+      //get questionId and answer from  answers which ia a json object of the form {questionId:answer}
+
+
+      const { questionId, answer } = questionAnswers[i];
+      console.log(questionId,answer)
+      const index = examx.questions.findIndex((q) => q._id.equals(questionId));
+      examx.studentAnswers[index]=answer
+      const question = examx.questions.find((q) => q._id.equals(questionId));
+      
+      // calculate the grade for the question
+      //get the choice text of the choice that has the same index as the answer
+      const choice = question.choices[answer];
+      const correctAnswer = question.answer;
+      if (correctAnswer===choice) {
+        examx.studentGrades[index] = parseInt(question.grade);;
+        totalGrade+=parseInt(question.grade);
+      } else {
+        examx.studentGrades[index] = 0;
+      }
+     
+    }
+    examx.totalGrade=totalGrade
+    examx.submitted=true
+    // update the exams array of the student with the edited exam examx
+    const index = student.exams.findIndex((exam) => exam.examId.equals(examId.trim()) && exam.courseName===courseName);
+    student.exams[index] = examx;
+    // save the student
+    await student.save();
+    console.log("Submitted")
+   res.send("Submitted")
+  }
+  catch(err){
+    console.log(err)
+    res.status(500).send(err);
+  }
+}
 
 // create a new workout
 // const createinstructor = async (req, res) => {
@@ -193,4 +268,5 @@ module.exports = {
   seeMyCourses,
   seeExams,
   getQuestionsForExam,
+  SubmitExam,
 }

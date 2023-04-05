@@ -16,10 +16,10 @@ function StudentCourseExams() {
   const [isLoading, setIsLoading] = useState(false);
   const { state,dispatch } = useInstructorsContext()
  
-  function handleStart  (examId)  {
+  function handleStart  (examId,title,duration, endTime)  {
     console.log("executed Start");
     // onSampleClick();
-  navigate(`/StudentExam/?courseName=${courseName}&examId=${examId}`)
+  navigate(`/StudentExam/?courseName=${courseName}&examId=${examId}&duration=${duration}&title=${title}+&endTime=${endTime}`)
    console.log(`/SampleExam/?courseName=${courseName}&examId=${examId}`)
 
   }
@@ -52,7 +52,8 @@ if(!exams|| isLoading){
       <StudentNavbar/>
       {exams.map(exam => (
         
-         <StudentExamCard key={exam._id} exam={exam}    onSampleClick={()=>handleStart(exam._id)}/>
+         <StudentExamCard key={exam._id} exam={exam}    onSampleClick={()=>handleStart(exam._id,exam.title,  (new Date(exam.endTime)-new Date(exam.startTime))/3600000
+        , exam.endTime)}/>
         
       ))}
     </div>
