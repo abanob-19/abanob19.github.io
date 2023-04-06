@@ -54,11 +54,26 @@ const textQuestionSchema = new Schema({
   }, 
   type:{
     type:String,
+    default:"text",
     required:true,
   },
   category:{
     type:String,
     required:true,
+  },
+  grade:{
+    type:String,
+    required:true,
+  },
+  attachment: {
+    filename: String,
+    data: Buffer,
+    mimeType: String,
+  },
+  StudentAttachment: {
+    filename: String,
+    data: Buffer,
+    mimeType: String,
   },
 });
 const examBankSchema = new Schema({

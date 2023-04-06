@@ -327,7 +327,7 @@ const editQuestionBank=async(req,res)=>{
 
 }
 const addMcqQuestion=async(req,res)=>{
-  const { questionBankName,name,text,choices,answer,category , grade } = req.body
+  const { questionBankName,name,text,choices,answer,category , grade , type,attachment} = req.body
   const course =   await Course.findOne({name})
   if(!course) {
            return res.status(400).json({error: 'No such course'})
@@ -339,12 +339,23 @@ const addMcqQuestion=async(req,res)=>{
                 return res.status(400).json({error: 'No such bank'})
               }
               var questionBanks = course.questionBanks;
-              const question=new mcqQuestion()
+              var question=null
+              if(type=="mcq"){
+               question=new mcqQuestion()
               question.text=text
               question.choices=choices
               question.answer=answer;
               question.category=category;
               question.grade=grade;
+              question.attachment=attachment;}
+              else if(type=="text"){
+                console.log("text")
+               question=new textQuestion()
+              question.text=text
+              question.category=category;
+              question.grade=grade;
+              question.attachment=attachment
+              }
               const updatedQuestionList=questionBank.questions
               updatedQuestionList.push(question);
               var targetExam;
@@ -360,6 +371,7 @@ const addMcqQuestion=async(req,res)=>{
                 }
               }
               if (!targetExam) {
+                console.log("Bank does not exist");
                 res.status(400);
                 throw new Error("Bank does not exist");
               }
@@ -378,12 +390,14 @@ const addMcqQuestion=async(req,res)=>{
                 res.status(200).json(updatedQuestionList);
               } else {
                 res.status(400);
+                console.log("Error Course not updated");
                 throw new Error("Error occured");
               }
              
             // const course1 =   await Course.findOne({name})
             //   res.status(200).json(course1)
             } catch (error) {
+              console.log(error)
               res.status(400).json({ error: error.message })
             }
 
@@ -397,20 +411,29 @@ const editMcqQuestion=async(req,res)=>{
         }
         try {
               const questionBank = (examBank)(course.questionBanks.find(element => element.title == questionBankName));
-              
+              const questionx=questionBank.questions.find(element => element._id == id)
               if(!questionBank){
                 return res.status(400).json({error: 'No such bank'})
               }
               var questionBanks = course.questionBanks;
-              const question=new mcqQuestion()
+              var question=null
+              if(questionx.type=="mcq"){
+               question=new mcqQuestion()
               question.text=text
               question.choices=choices
               question.answer=answer;
               question.category=category;
               question.grade=grade;
               question.attachment=questionBank.questions.find(element => element._id == id).attachment
-              const updatedQuestionList=questionBank.questions
-              
+              }
+              else if(questionx.type=="text"){
+                 question=new textQuestion()
+                question.text=text
+                question.category=category;
+                question.grade=grade;
+                question.attachment=questionBank.questions.find(element => element._id == id).attachment
+                }
+                const updatedQuestionList=questionBank.questions
              
               var targetQuestionIndex = 0;
               for (
@@ -626,53 +649,6 @@ if(!exam){
 };
 
 
-// create a new workout
-// const createinstructor = async (req, res) => {
-//   const {username, password } = req.body
-   
-//   // add to the database
-//   try {
-//     const instructor = await Instructor.create({ username, password })
-//     res.status(200).json(instructor)
-//   } catch (error) {
-//     res.status(400).json({ error: error.message })
-//   }
-// }
-
-// const deleteWorkout = async (req, res) => {
-//     const { id } = req.params
-  
-//     if (!mongoose.Types.ObjectId.isValid(id)) {
-//       return res.status(400).json({error: 'No such workout'})
-//     }
-  
-//     const workout = await Workout.findOneAndDelete({_id: id})
-  
-//     if(!workout) {
-//       return res.status(400).json({error: 'No such workout'})
-//     }
-  
-//     res.status(200).json(workout)
-//   }
-  
-//   // update a workout
-//   const updateWorkout = async (req, res) => {
-//     const { id } = req.params
-  
-//     if (!mongoose.Types.ObjectId.isValid(id)) {
-//       return res.status(400).json({error: 'No such workout'})
-//     }
-  
-//     const workout = await Workout.findOneAndUpdate({_id: id}, {
-//       ...req.body
-//     })
-  
-//     if (!workout) {
-//       return res.status(400).json({error: 'No such workout'})
-//     }
-  
-//     res.status(200).json(workout)
-//   }
 
 module.exports = {
   seeMyCourses,

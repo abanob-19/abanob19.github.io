@@ -432,11 +432,13 @@ const QuestionBank = () => {
         answer: newQuestion.answer,
         category: newQuestion.category,
         grade: newQuestion.grade,
+        type: newQuestion.type,
+        attachment: newQuestion.attachment,
       })
     })
       .then(response => {
         if (!response.ok) {
-          throw new Error('Failed to add question');
+          throw new Error(response);
         }
         return response.json();
       })
@@ -447,7 +449,7 @@ const QuestionBank = () => {
       })
       .catch(error => {
         console.error(error);
-        alert('Failed to add question');
+        alert(error);
       });
   }
   else{
@@ -504,28 +506,32 @@ const blob = new Blob([new Uint8Array(bytes)], {type: 'application/pdf'});
             <button onClick={() => handleDeleteQuestion(question._id)}>
               Delete Question
             </button>
-            {editedQuestionIndexforAddChoice == qIndex && AddedChoice != null ? (
-               
-              <div>
-                
-              <input
-                type="text"
-                value={AddedChoice}
-                onChange={(e) => setAddedChoice(e.target.value)}
-              />
-              <button onClick={() => handleFinishAddedChoice(AddedChoice,question)}>
-                Finish
-              </button>
-            </div>
-            ):(
-            <button onClick={() => handleAddChoice(qIndex)}>
-              Add Choice
-            </button>
-            )}
+            {question.type === "mcq" && (
+  <div>
+    {editedQuestionIndexforAddChoice === qIndex && AddedChoice !== null ? (
+      <div>
+        <input
+          type="text"
+          value={AddedChoice}
+          onChange={(e) => setAddedChoice(e.target.value)}
+        />
+        <button onClick={() => handleFinishAddedChoice(AddedChoice, question)}>
+          Finish
+        </button>
+      </div>
+    ) : (
+      <button onClick={() => handleAddChoice(qIndex)}>
+        Add Choice
+      </button>
+    )}
+  </div>
+)}
+
 
 
             <ul>
-              {question.choices.map((choice, index) => (
+            {question.type === "mcq" && (
+  <div> {question.choices.map((choice, index) => (
                 <li key={index}>
                   {editedChoiceIndex == index && editedChoice != null && editedQuestionIndex==qIndex ? (
                     <div>
@@ -548,9 +554,10 @@ const blob = new Blob([new Uint8Array(bytes)], {type: 'application/pdf'});
                     </div>
                   )}
                 </li>
-              ))}
+              ))} </div>)}
             </ul>
-            {editedQuestionIndexforEditAnswer == qIndex && editedAnswer != null ? (
+            {question.type === "mcq" && (
+  <div>  {editedQuestionIndexforEditAnswer == qIndex && editedAnswer != null ? (
                
                <div>
                  
@@ -570,7 +577,7 @@ const blob = new Blob([new Uint8Array(bytes)], {type: 'application/pdf'});
                Edit Answer
              </button>
              </div>
-             )}
+             )}</div>)}
               {editedQuestionIndexforEditCategory == qIndex && editedCategory != null ? (
                
                <div>
@@ -614,12 +621,16 @@ const blob = new Blob([new Uint8Array(bytes)], {type: 'application/pdf'});
              </button>
              </div>
              )}
+              <div>
+      type: {question.type}
+    </div>
              
       <input type="file" onChange={handleFileChange} />
         <button onClick={() => handleUpload(question._id)}>Upload</button>
         <div>
       {question.attachment && <PDFViewer attachment={{courseName:name ,qb_id: questionBank._id, q_id:question._id}} />}
     </div>
+   
         {/* Attachment: {(question.attachment)&& <AttachmentViewer binaryData={question.attachment.data} mimeType={question.attachment.mimeType} />} */}
     
           </div>

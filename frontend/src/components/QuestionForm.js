@@ -8,12 +8,20 @@ const QuestionForm = ({ onFinish }) => {
     category: '',
     grade: '',
   });
-
+const[type,setType]=useState("mcq")
+const[numberOfChoices,setNumberOfChoices]=useState(2)
   const handleNewQuestionChange = (event) => {
     setNewQuestion({
       ...newQuestion,
       [event.target.name]: event.target.value
     });
+  };
+ const handleTypeChange = (event) => {
+    setType(event.target.value)
+    setNewQuestion({
+      ...newQuestion,
+      [event.target.name]: event.target.value})
+    
   };
 
   const handleNewChoiceChange = (event, index) => {
@@ -33,11 +41,13 @@ const QuestionForm = ({ onFinish }) => {
       ...newQuestion,
       choices: updatedChoices
     });
+    setNumberOfChoices(numberOfChoices+1)
   };
 
   const handleRemoveChoice = (index) => {
     const updatedChoices = [...newQuestion.choices];
     updatedChoices.splice(index, 1);
+    setNumberOfChoices(numberOfChoices-1)
 
     setNewQuestion({
       ...newQuestion,
@@ -56,26 +66,34 @@ const QuestionForm = ({ onFinish }) => {
     <div>
       <form>
         <label>
+          Question Type:
+          <select name="type" value={newQuestion.type} onChange={handleTypeChange}>
+            <option value="mcq">MCQ</option>
+            <option value="text">Text</option>
+          </select>
+          
+        </label>
+        <label>
           Question Text:
           <input type="text" name="text" value={newQuestion.text} onChange={handleNewQuestionChange} />
         </label>
         <br />
-        <label>
+       { type=="mcq" && <label>
           Choices:
           <br />
           {newQuestion.choices.map((choice, index) => (
             <div key={index}>
               <input type="text" value={choice} onChange={(event) => handleNewChoiceChange(event, index)} />
-              <button type="button" onClick={() => handleRemoveChoice(index)}>Remove Choice</button>
+              { numberOfChoices>2 && <button type="button" onClick={() => handleRemoveChoice(index)}>Remove Choice</button>}
             </div>
           ))}
           <button type="button" onClick={handleAddChoice}>Add Choice</button>
-        </label>
+        </label>}
         <br />
-        <label>
+        { type=="mcq" &&  <label>
           Answer:
           <input type="text" name="answer" value={newQuestion.answer} onChange={handleNewQuestionChange} />
-        </label>
+        </label>}
         <br />
         <label>
           Category:
@@ -86,6 +104,7 @@ const QuestionForm = ({ onFinish }) => {
             Grade:
             <input type="text" name="grade" value={newQuestion.grade} onChange={handleNewQuestionChange} />
         </label>
+        
       </form>
       <button onClick={handleFinish}>Finish</button>
       <button onClick={handleCancel}>Cancel</button>
