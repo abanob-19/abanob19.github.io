@@ -40,14 +40,14 @@ const SampleExam = () => {
           <h2>{question.text}</h2>
           <p>Category: {question.category}</p>
           <p>Grade: {question.grade}</p>
-          <ul>
+         {question.type=='mcq'&& <ul>
             {question.choices.map((choice, index) => (
               <li key={index}>
                 {choice}
                 {choice === question.answer && <FontAwesomeIcon icon={faCheck} />}
               </li>
             ))}
-          </ul>
+          </ul>}
         </div>
       ))}
     </div>

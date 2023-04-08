@@ -67,7 +67,13 @@ const handleSample = async() => {
   const handleAddSpec = () => {
     setSpecs(prevSpecs => [...prevSpecs, { chapter: '', category: '', numQuestions: 0 }]);
   };
-
+  const handleRemoveSpec = (index) => {
+    setSpecs(prevSpecs => {
+      const newSpecs = [...prevSpecs];
+      newSpecs.splice(index, 1);
+      return newSpecs;
+    });
+  };
   const handleSpecChange = (index, field, value) => {
     setSpecs(prevSpecs => {
       const newSpecs = [...prevSpecs];
@@ -100,6 +106,9 @@ const handleSample = async() => {
           <label>  Chapter : <input type="text" value={spec.chapter} onChange={e => handleSpecChange(index, 'chapter', e.target.value)} /></label>
           <label> Category: <input type="text" value={spec.category} onChange={e => handleSpecChange(index, 'category', e.target.value)} /></label>
           <label> Number of Questions:<input type="number" value={spec.numQuestions} onChange={e => handleSpecChange(index, 'numQuestions', parseInt(e.target.value))} /></label>
+          {specs.length > 1 && (
+      <button onClick={() => handleRemoveSpec(index)}>Remove Spec</button>
+    )}
           </div>
         ))}
 

@@ -21,7 +21,7 @@ const StudentExam = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
   const [submitted, setSubmitted] = useState(false);
   const[isSubmitting,setIsSubmitting]=useState(false);
-
+  const[editedAnswer,setEditedAnswer]=useState('');
   useEffect(() => {
     async function fetchData() {
       const response = await fetch(`/student/getQuestionsForExam?courseName=${courseName}&examId=${examId}&Id=${user._id}`);
@@ -109,7 +109,7 @@ const StudentExam = () => {
       {questions.map((question, index) => (
         <div key={question._id}>
           <h2> ({index + 1}) {question.text}  ({question.grade} grades)</h2>
-          <ul className={styles['choices-list']}>
+         {question.type=='mcq'&& <ul className={styles['choices-list']}>
           {question.choices.map((choice, choiceIndex) => (
             <li key={choiceIndex}>
               <label>
@@ -120,7 +120,17 @@ const StudentExam = () => {
               </label>
             </li>
           ))}
-          </ul>
+          </ul>}
+          {question.type=='text'&& <input
+                className={styles['answer']}
+                 type="text"
+                 value={editedAnswer}
+                 onChange={(e) => {setEditedAnswer(e.target.value); setAnswers(prevAnswers => ({
+                  ...prevAnswers,
+                  [question._id]: editedAnswer
+                })); }}
+               />
+          }
         </div>
       ))}
       {!submitted&&!isSubmitting&&<button className ={styles['button']}onClick={handleSubmit}>{buttonText}</button>}

@@ -9,7 +9,7 @@ function CreateExamForm({ onClose }) {
   const [title, setTitle] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
-  const [specs, setSpecs] = useState([]);
+  const [specs, setSpecs] = useState([{chapter: '', category: '', numQuestions: ''}]); // Default specification
   const { state,dispatch } = useInstructorsContext()
   const[isLoading,setIsLoading] = useState(false)
   const handleSubmit = async (event) => {
@@ -46,7 +46,13 @@ function CreateExamForm({ onClose }) {
   const handleAddSpec = () => {
     setSpecs([...specs, {chapter: '', category: '', numQuestions: ''}]);
   };
-
+  const handleRemoveSpec = (index) => {
+    setSpecs(prevSpecs => {
+      const newSpecs = [...prevSpecs];
+      newSpecs.splice(index, 1);
+      return newSpecs;
+    });
+  };
   const handleSpecChange = (event, index, field) => {
     const updatedSpecs = [...specs];
     updatedSpecs[index][field] = event.target.value;
@@ -116,6 +122,9 @@ function CreateExamForm({ onClose }) {
             value={spec.numQuestions}
             onChange={(event) => handleSpecChange(event, index, 'numQuestions')}
           />
+            {specs.length > 1 && (
+      <button onClick={() => handleRemoveSpec(index)}>Remove Spec</button>
+    )}
         </div>
       ))}
       <button type="button" onClick={handleAddSpec}>

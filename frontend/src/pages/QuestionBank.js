@@ -392,6 +392,50 @@ const QuestionBank = () => {
        setEditedGrade(null)
        setEditedQuestionIndexforEditGrade(null)
     }
+    const[editedQuestionIndexforEditText,setEditedQuestionIndexforEditText]=useState(null);
+    const[editedText,setEditedText]=useState(null);
+
+    const handleEditText = (qIndex) => {
+        setEditedText(questionBank.questions[qIndex].text)
+        setEditedQuestionIndexforEditText(qIndex)
+        
+    }
+    const handleFinishEditText=(newText,question)=>{
+        fetch('/instructor/editMcqQuestion', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              questionBankName,
+              name,
+              text: newText,
+              choices: question.choices,
+              answer: question.answer,
+              category: question.category,
+                grade: question.grade,
+              id: question._id,
+            })
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Failed to edit Text');
+              }
+              return response.json();
+            })
+            .then(json => {
+              console.log(json);
+              setDisplayForm(false);
+              setVersion(version => version + 1); // force re-render
+            })
+            .catch(error => {
+              console.error(error);
+              alert('Failed to edit Text');
+            });
+      // setVersion(version => version + 1); // force re-render
+       setEditedText(null)
+       setEditedQuestionIndexforEditText(null)
+    }
  
  
     const url = `/instructor/openQuestionBank?questionBankName=${questionBankName}&name=${name}`;
@@ -406,7 +450,7 @@ const QuestionBank = () => {
   
       
       fetchData();
-    }, [questionBankName, name,version]);
+    }, [version]);
   
     
   
@@ -419,6 +463,7 @@ const QuestionBank = () => {
 
   const handleFinish = (newQuestion) => {
     if(newQuestion){
+      console.log(newQuestion.type)
     fetch('/instructor/addMcqQuestion', {
       method: 'POST',
       headers: {
@@ -501,11 +546,32 @@ const blob = new Blob([new Uint8Array(bytes)], {type: 'application/pdf'});
       {questionBank &&
         questionBank.questions &&
         questionBank.questions.map((question,qIndex) => (
+          
           <div key={question._id}>
-            <h3>{question.text}</h3>{" "}
+               {editedQuestionIndexforEditText == qIndex && editedText != null ? (
+               
+               <div>
+                 
+               <input
+                 type="text"
+                 value={editedText}
+                 onChange={(e) => setEditedText(e.target.value)}
+               />
+               <button onClick={() => handleFinishEditText(editedText,question)}>
+                 Finish
+               </button>
+             </div>
+             ):(
+              <div>
+            <h3>{question.text}</h3>
             <button onClick={() => handleDeleteQuestion(question._id)}>
               Delete Question
-            </button>
+            </button> 
+            <button onClick={() => handleEditText(qIndex)}>
+               Edit Text
+             </button>
+            </div>
+            )}
             {question.type === "mcq" && (
   <div>
     {editedQuestionIndexforAddChoice === qIndex && AddedChoice !== null ? (

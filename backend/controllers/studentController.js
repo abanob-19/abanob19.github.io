@@ -181,6 +181,7 @@ const seeMyCourses=async(req,res)=>{
       
       // calculate the grade for the question
       //get the choice text of the choice that has the same index as the answer
+      if(question.type=='mcq'){
       const choice = question.choices[answer];
       const correctAnswer = question.answer;
       if (correctAnswer===choice) {
@@ -188,7 +189,7 @@ const seeMyCourses=async(req,res)=>{
         totalGrade+=parseInt(question.grade);
       } else {
         examx.studentGrades[index] = 0;
-      }
+      }}
      
     }
     examx.totalGrade=totalGrade

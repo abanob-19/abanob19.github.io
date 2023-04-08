@@ -340,14 +340,16 @@ const addMcqQuestion=async(req,res)=>{
               }
               var questionBanks = course.questionBanks;
               var question=null
+              console.log(type)
               if(type=="mcq"){
-               question=new mcqQuestion()
+              question=new mcqQuestion()
               question.text=text
               question.choices=choices
               question.answer=answer;
               question.category=category;
               question.grade=grade;
-              question.attachment=attachment;}
+              question.attachment=attachment;
+              console.log(question)}
               else if(type=="text"){
                 console.log("text")
                question=new textQuestion()

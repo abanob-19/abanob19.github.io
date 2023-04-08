@@ -7,6 +7,7 @@ const QuestionForm = ({ onFinish }) => {
     answer: '',
     category: '',
     grade: '',
+    type:'mcq',
   });
 const[type,setType]=useState("mcq")
 const[numberOfChoices,setNumberOfChoices]=useState(2)
@@ -15,15 +16,16 @@ const[numberOfChoices,setNumberOfChoices]=useState(2)
       ...newQuestion,
       [event.target.name]: event.target.value
     });
-  };
- const handleTypeChange = (event) => {
-    setType(event.target.value)
-    setNewQuestion({
-      ...newQuestion,
-      [event.target.name]: event.target.value})
     
   };
-
+  // const handleTypeChange = (event) => {
+  //   setType(event.target.value);
+  //   setNewQuestion(prevQuestion => ({
+  //     ...prevQuestion,
+  //     [event.target.name]: event.target.value
+  //   }));
+  // };
+  
   const handleNewChoiceChange = (event, index) => {
     const updatedChoices = [...newQuestion.choices];
     updatedChoices[index] = event.target.value;
@@ -67,9 +69,9 @@ const[numberOfChoices,setNumberOfChoices]=useState(2)
       <form>
         <label>
           Question Type:
-          <select name="type" value={newQuestion.type} onChange={handleTypeChange}>
-            <option value="mcq">MCQ</option>
-            <option value="text">Text</option>
+          <select name="type" value={newQuestion.type} onChange={handleNewQuestionChange}>
+            <option value='mcq'>MCQ</option>
+            <option value='text'>Text</option>
           </select>
           
         </label>
@@ -78,7 +80,7 @@ const[numberOfChoices,setNumberOfChoices]=useState(2)
           <input type="text" name="text" value={newQuestion.text} onChange={handleNewQuestionChange} />
         </label>
         <br />
-       { type=="mcq" && <label>
+       { newQuestion.type=="mcq" && <label>
           Choices:
           <br />
           {newQuestion.choices.map((choice, index) => (
@@ -90,7 +92,7 @@ const[numberOfChoices,setNumberOfChoices]=useState(2)
           <button type="button" onClick={handleAddChoice}>Add Choice</button>
         </label>}
         <br />
-        { type=="mcq" &&  <label>
+        { newQuestion.type=="mcq" &&  <label>
           Answer:
           <input type="text" name="answer" value={newQuestion.answer} onChange={handleNewQuestionChange} />
         </label>}
