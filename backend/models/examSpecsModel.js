@@ -24,6 +24,10 @@ const examSpecsSchema = new Schema({
     type: String,
     required: true
   },
+  graded: {
+    type: Boolean,
+    required: true
+  },
  
 }, { timestamps: true })
 

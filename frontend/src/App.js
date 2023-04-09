@@ -12,7 +12,7 @@ import SampleExam from './pages/SampleExam'
 import StudentPage from './pages/studentPage'
 import StudentCourseExams from './pages/StudentCourseExams'
 import StudentExam from './pages/StudentExam'
-
+import GradeExams from './pages/GradeExams'
 
 function App() {
 
@@ -49,6 +49,10 @@ function App() {
             <Route 
               path="/SampleExam/" 
               element={<SampleExam />} 
+            />
+            <Route 
+              path="/GradeExams" 
+              element={<GradeExams />} 
             />
             <Route 
               path="/StudentExam/" 

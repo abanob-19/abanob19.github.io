@@ -20,6 +20,9 @@ const handleClick = () => {
   const handleClick1 = async () => {
     navigate("/instructorCourses"); 
   }
+  const handleClick3 = async () => {
+    navigate("/GradeExams"); 
+  }
   const handleClick2 = async () => {
     navigate("/instrcutorExams"); 
   }
@@ -33,6 +36,7 @@ const handleClick = () => {
         <Nav className="ml-auto">
         <Nav.Link onClick={() => handleClick1()}  className={styles['nav-link-hover']}>Courses</Nav.Link>
           <Nav.Link  className={styles['nav-link-hover']} onClick={() => setShowCreateExamForm(true)}>Create Exam</Nav.Link>
+          <Nav.Link onClick={() => handleClick3()}  className={styles['nav-link-hover']}>Grade</Nav.Link>
           <Nav.Link onClick={() => handleClick()} className={styles['nav-link-hover']}>Log Out</Nav.Link>
 
         </Nav>

@@ -4,7 +4,10 @@ import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import styles from '../pages/Instructor.module.css';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
+import EditMathField from 'react-mathquill'
+import  MathQuill  from 'react-mathquill';
 
+import VirtualKeyboard from 'react-virtual-keyboard';
 const StudentExam = () => {
   const [questions, setQuestions] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -22,6 +25,10 @@ const StudentExam = () => {
   const [submitted, setSubmitted] = useState(false);
   const[isSubmitting,setIsSubmitting]=useState(false);
   const[editedAnswer,setEditedAnswer]=useState('');
+  const[equation,setEquation]=useState(''); 
+  function handleChange(mathField) {
+    setEquation(mathField.latex())
+  }
   useEffect(() => {
     async function fetchData() {
       const response = await fetch(`/student/getQuestionsForExam?courseName=${courseName}&examId=${examId}&Id=${user._id}`);
@@ -121,7 +128,7 @@ const StudentExam = () => {
             </li>
           ))}
           </ul>}
-          {question.type=='text'&& <input
+          {question.type=='text'&& <div><input
                 className={styles['answer']}
                  type="text"
                  value={editedAnswer}
@@ -130,7 +137,20 @@ const StudentExam = () => {
                   [question._id]: editedAnswer
                 })); }}
                />
+               <div>
+      <MathQuill
+        latex={equation}
+        onChange={handleChange}
+        config={{ autoCommands: 'pi theta sqrt sum' }}
+      />
+      <textarea
+        value={equation}
+        onChange={(e) => setEquation(e.target.value)}
+      />
+    </div>
+    </div>
           }
+           
         </div>
       ))}
       {!submitted&&!isSubmitting&&<button className ={styles['button']}onClick={handleSubmit}>{buttonText}</button>}

@@ -123,6 +123,29 @@ const seeMyCourses=async(req,res)=>{
          res.status(200).json(instructor.courses)
 
 }
+const seeExamsForGrade=async(req,res)=>{
+  const { id } = req.params
+  console.log(id)
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+          console.log("here")   }
+  const instructor =   await Instructor.findById({_id: id})
+  if(!instructor) {
+           return res.status(400).json({error: 'No such instructor'})
+        }
+    //for each course in instructor.courses get the exams not graded yet and return them
+    var exams=[]
+    for (var i = 0; i < instructor.courses.length; i++) {
+      const course = await Course.findOne({name: instructor.courses[i]})
+      if (course){
+      for (var j = 0; j < course.exams.length; j++) {
+       // if(course.exams[j].graded==false){
+          exams.push(course.exams[j])
+       // }
+      }
+    }}
+    res.status(200).json(exams)
+
+}
 const seeCourse=async(req,res)=>{
   const { name } = req.params
   const course =   await Course.findOne({name})
@@ -154,6 +177,7 @@ const createExam=async(req,res)=>{
             examSpecs.endTime=endTime
             examSpecs.specs=specs
             examSpecs.courseName=courseName
+            examSpecs.graded=false
        course.exams.push(examSpecs) 
        await course.save();    
        res.status(200).json({course})
@@ -671,4 +695,5 @@ module.exports = {
   uploadFile,
   viewPdf,
   getQuestionsForExam,
+  seeExamsForGrade,
 }
