@@ -1,4 +1,5 @@
 const Instructor = require('../models/instructorModel')
+const Student = require('../models/studentModel')
 const ExamSpecs = require('../models/examSpecsModel')
 const Course = require('../models/courseModel')
 const mongoose = require('mongoose')
@@ -673,6 +674,101 @@ if(!exam){
     return res.status(500).send('Server error');
   }
 };
+// get student ids taking an exam with examId and courseName from student collection and return them
+
+const getStudentsForExam = async (req, res) => {
+  const examId= req.query.examId;
+  const courseName = req.query.courseName;
+  console.log("here")
+  console.log(examId , courseName);
+  try {
+    //retireve array of all students
+    const students = await Student.find();
+    var i=0;
+    var studentsTakingExam=[];
+    for(i=0;i<students.length;i++){
+      var j=0;
+      for(j=0;j<students[i].exams.length;j++){
+        if(students[i].exams[j].examId.equals(examId.trim())){
+          studentsTakingExam.push(students[i]._id)
+        }
+      }
+    }
+    console.log(studentsTakingExam)
+    return res.send(studentsTakingExam);
+
+    
+    // await Student.find(
+    //   { "exams.examId":  examId.trim()},
+    // )
+    //   .then((students) => {
+    //     if (!students) {
+    //       console.log("No students found");
+    //       return;
+    //     }
+    //     else{
+    //       console.log(students)
+    //       return res.send(students);
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     // handle error
+    //     console.log(error);
+    //   });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send('Server error');
+  }
+};
+// make a function that takes an examId and courseName and studentId and returns the questions that have type text and the answers for the student  with studentId
+const getExamTextQuestions = async (req, res) => {
+  const examId= req.query.examId;
+  const courseName = req.query.courseName;
+  const studentId = req.query.studentId;
+  console.log(examId , courseName,studentId);
+  var questions=[]
+  var answers=[]
+  try {
+    await Student.findById(studentId)
+      .then((student) => {
+        if (!student) {
+          console.log("Student not found");
+          return;
+        }
+        else{
+          var j=0;
+          for(j=0;j<student.exams.length;j++){
+            if(student.exams[j].examId.equals(examId.trim())){
+              var k=0;
+              for(k=0;k<student.exams[j].questions.length;k++){
+                if(student.exams[j].questions[k].type=="text"){
+                  
+                  console.log(student.exams[j].studentAnswers)
+                  questions.push(student.exams[j].questions[k])
+                  answers.push(student.exams[j].studentAnswers[k])
+                }
+              }
+            }
+        }
+  }
+  return res.send({questions:questions,answers:answers});
+})
+      .catch((error) => {
+        // handle error
+        console.log(error);
+      });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send('Server error');
+  }
+};
+
+
+    
+  
+
+
+
 
 
 
@@ -696,4 +792,6 @@ module.exports = {
   viewPdf,
   getQuestionsForExam,
   seeExamsForGrade,
+  getStudentsForExam,
+  getExamTextQuestions,
 }

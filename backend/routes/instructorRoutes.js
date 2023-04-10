@@ -21,6 +21,8 @@ const {
   viewPdf,
   getQuestionsForExam,
   seeExamsForGrade,
+  getStudentsForExam,
+  getExamTextQuestions,
 } = require('../controllers/instructorController')
 const router = express.Router()
 // GET a single instructor for login
@@ -43,4 +45,6 @@ router.post('/uploadFile', upload.single('attachment'),uploadFile)
 router.get('/viewPdf/:courseName&:qb_id&:q_id', viewPdf)
 router.get('/getQuestionsForExam/', getQuestionsForExam)
 router.get('/seeExamsForGrade/:id',seeExamsForGrade)
+router.get('/getStudentsForExam/', getStudentsForExam)
+router.get('/getExamTextQuestions/', getExamTextQuestions)
 module.exports = router

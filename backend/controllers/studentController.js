@@ -133,6 +133,7 @@ const seeMyCourses=async(req,res)=>{
         totalGrade:0,
         totalPossibleGrade:totalGrade,
         submitted:false,
+        graded:false,
       }
       student.exams.push(examForStudent)
       await student.save()

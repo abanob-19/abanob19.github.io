@@ -13,6 +13,7 @@ import StudentPage from './pages/studentPage'
 import StudentCourseExams from './pages/StudentCourseExams'
 import StudentExam from './pages/StudentExam'
 import GradeExams from './pages/GradeExams'
+import GradingPage from './pages/GradingPage'
 
 function App() {
 
@@ -53,6 +54,10 @@ function App() {
             <Route 
               path="/GradeExams" 
               element={<GradeExams />} 
+            />
+             <Route 
+              path="/GradingPage" 
+              element={<GradingPage />} 
             />
             <Route 
               path="/StudentExam/" 
