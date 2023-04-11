@@ -738,7 +738,7 @@ const getExamTextQuestions = async (req, res) => {
         else{
           var j=0;
           for(j=0;j<student.exams.length;j++){
-            if(student.exams[j].examId.equals(examId.trim())){
+            if((student.exams[j].examId.equals(examId.trim()))&&(student.exams[j].courseName==courseName)){
               var k=0;
               for(k=0;k<student.exams[j].questions.length;k++){
                 if(student.exams[j].questions[k].type=="text"){
@@ -762,8 +762,45 @@ const getExamTextQuestions = async (req, res) => {
     return res.status(500).send('Server error');
   }
 };
-
-
+const submitAnswers = async (req, res) => {
+  const examId= req.bode.examId;
+  const courseName = req.body.courseName;
+  const studentId = req.body.studentId;
+  const questionId = req.body.questionId;
+  const grade = req.body.grade;
+  try {
+    await Student.findById(studentId)
+      .then((student) => {
+        if (!student) {
+          console.log("Student not found");
+          return;
+        }
+        else{
+          var j=0;
+          for(j=0;j<student.exams.length;j++){
+            if((student.exams[j].examId.equals(examId.trim()))&&(student.exams[j].courseName==courseName) ){
+              var k=0;
+              for(k=0;k<student.exams[j].questions.length;k++){
+                if(student.exams[j].questions[k]._id.equals(questionId.trim())&&(student.exams[j].questions[k].graded==false)){
+                  student.exams[j].studentGrades[j]=parseInt(grade)
+                  student.exams[j].questions[k].graded=true
+                  student.exams[j].totalGrade=student.exams[j].totalGrade+grade
+                }
+              }
+            }
+        }
+        // let exams=student.exams
+  }
+  return res.send("Success");
+})
+      .catch((error) => {
+        // handle error
+        console.log(error);
+      });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send('Server error');
+  }}
     
   
 

@@ -14,6 +14,7 @@ const GradingPage = () => {
 const [answers, setAnswers] = useState(null);
 const [verion, setVersion] = useState(0);
 const [loading, setLoading] = useState(true);
+const [selectedOption, setSelectedOption] = useState([]);
   useEffect(() => {
     // Fetch questions from backend API
     const fetchQuestions = async () => {
@@ -24,6 +25,7 @@ const [loading, setLoading] = useState(true);
           setLoading(false);
           setQuestions(response.data.questions);
           setAnswers(response.data.answers)
+          setSelectedOption(new Array(response.data.questions.length).fill(null))
           // Assuming response.data contains the fetched data
           console.log(response.data);
           
@@ -68,19 +70,19 @@ const [loading, setLoading] = useState(true);
 //     // Fetch questions for next student
 //     // (similar to the useEffect hook in step 1)
 //   };
-//   const handlePreviousStudent = () => {
-//     // Update current student ID
-//     setLoading(true);
-//     if(index!=0){
-//     setIndex(index-1);
-//     setCurrentStudentId(students[index]);
-//     }
-//     setLoading(false);
-    // Fetch questions for next student
-    // (similar to the useEffect hook in step 1)
-  // };
-  const handleSubmitAnswers = () => {
+const handleOptionSelect = (index) => {
+   // update selectedOption array to reflect the selected grade of given index 
+    return (event) => {
+        const newSelectedOption = [...selectedOption];
+        newSelectedOption[index] = event.target.value;
+        setSelectedOption(newSelectedOption);
+        };
+    
+}
+const handleSubmitAnswers = (questionId , index) => {
     // Collect answers from UI (e.g., selected radio buttons)
+   
+console.log(questionId, index , selectedOption[index]);
     // Send answers to backend API for grading
     // Update UI with graded results
   };
@@ -98,7 +100,11 @@ const [loading, setLoading] = useState(true);
     <div>
       <h1>Exam Questions</h1>
       {questions.map((question, index) => (
-        <Question key={index} question={question} answer={answers[index]} />
+        <div> 
+        <Question key={index} question={question} answer={answers[index]} onSelect={handleOptionSelect(index)} />
+        {!question.graded && selectedOption[index]&&<button onClick={handleSubmitAnswers(question._id , index )} > Submit </button> }
+        {question.graded && <p>graded</p>}
+        </div>
       ))}
       
      
@@ -106,31 +112,43 @@ const [loading, setLoading] = useState(true);
  );
 
 };
-const Question = ({ question,answer }) => {
+const Question = ({ question, answer,onSelect }) => {
+    const [selectedOption, setSelectedOption] = useState(null); // State variable for selected option
+  
     const options = Array.from({ length: parseInt(question.grade) + 1 }, (_, index) => index);
+  
+    const handleOptionSelect = (option) => {
+      setSelectedOption(option); // Update the state with the selected option
+      onSelect(option)
+    };
+  
     return (
       <div>
-       
-        
         <h3> Question : {question.text}</h3>
         <p>Answer : {answer} </p>
         <p>choose grade</p>
         <ul>
           {options.map((option, index) => (
-            <AnswerOption key={index} option={option} />  
+            <AnswerOption key={index} option={option} onSelect={handleOptionSelect} /> // Pass the callback function to the AnswerOption component
           ))}
         </ul>
-        {/* <button onClick={handleSubmitAnswer}>Submit</button> */}
+        
       </div>
     );
   };
   
-  const AnswerOption = ({ option }) => {
+  
+  const AnswerOption = ({ option, onSelect }) => {
+    const handleSelect = (event) => {
+      onSelect(event.target.value); // Pass the selected option to the callback function
+    };
+  
     return (
       <div>
         <label>{option}</label>
-        <input type="radio" name={option} value={option} />
-        </div>
+        <input type="radio" name={option} value={option} onChange={handleSelect} />
+      </div>
     );
   };
+  
 export default GradingPage;
