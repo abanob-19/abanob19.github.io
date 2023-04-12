@@ -23,6 +23,7 @@ const {
   seeExamsForGrade,
   getStudentsForExam,
   getExamTextQuestions,
+  submitAnswers,
 } = require('../controllers/instructorController')
 const router = express.Router()
 // GET a single instructor for login
@@ -47,4 +48,5 @@ router.get('/getQuestionsForExam/', getQuestionsForExam)
 router.get('/seeExamsForGrade/:id',seeExamsForGrade)
 router.get('/getStudentsForExam/', getStudentsForExam)
 router.get('/getExamTextQuestions/', getExamTextQuestions)
+router.post('/submitAnswers/', submitAnswers)
 module.exports = router

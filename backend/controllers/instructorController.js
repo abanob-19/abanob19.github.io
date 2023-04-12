@@ -690,10 +690,14 @@ const getStudentsForExam = async (req, res) => {
       var j=0;
       for(j=0;j<students[i].exams.length;j++){
         if(students[i].exams[j].examId.equals(examId.trim())){
+          var k=0;
+          for(k=0;k<students[i].exams[j].questions.length;k++){
+            if(students[i].exams[j].questions[k].type=="text" && (!students[i].exams[j].questions[k].graded)){
           studentsTakingExam.push(students[i]._id)
+        break ;}
         }
       }
-    }
+    }}
     console.log(studentsTakingExam)
     return res.send(studentsTakingExam);
 
@@ -763,35 +767,47 @@ const getExamTextQuestions = async (req, res) => {
   }
 };
 const submitAnswers = async (req, res) => {
-  const examId= req.bode.examId;
+  const examId= req.body.examId;
   const courseName = req.body.courseName;
   const studentId = req.body.studentId;
   const questionId = req.body.questionId;
   const grade = req.body.grade;
   try {
     await Student.findById(studentId)
-      .then((student) => {
+      .then(async (student) => {
         if (!student) {
           console.log("Student not found");
           return;
         }
         else{
+          let exams=student.exams
+          let exam=null
           var j=0;
           for(j=0;j<student.exams.length;j++){
+            
             if((student.exams[j].examId.equals(examId.trim()))&&(student.exams[j].courseName==courseName) ){
+              exam=student.exams[j]
               var k=0;
               for(k=0;k<student.exams[j].questions.length;k++){
-                if(student.exams[j].questions[k]._id.equals(questionId.trim())&&(student.exams[j].questions[k].graded==false)){
-                  student.exams[j].studentGrades[j]=parseInt(grade)
-                  student.exams[j].questions[k].graded=true
-                  student.exams[j].totalGrade=student.exams[j].totalGrade+grade
+                if(exam.questions[k]._id.equals(questionId.trim())&&(!exam.questions[k].graded)){
+                  console.log("here")
+                  exam.studentGrades[k]=parseInt(grade)
+                  exam.questions[k].graded=true
+                  exam.totalGrade=exam.totalGrade+parseInt(grade)
+                  exams[j]=exam
+                  break;
                 }
               }
+              console.log(exam)
+              //update student exams array with the new exam
+              student.exams=exams
+              await student.save()
+              break;
             }
         }
         // let exams=student.exams
   }
-  return res.send("Success");
+  return res.status(200).send("success");
 })
       .catch((error) => {
         // handle error
@@ -831,4 +847,5 @@ module.exports = {
   seeExamsForGrade,
   getStudentsForExam,
   getExamTextQuestions,
+  submitAnswers,
 }

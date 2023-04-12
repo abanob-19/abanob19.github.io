@@ -44,10 +44,7 @@ const mcqQuestionSchema = new Schema({
     data: Buffer,
     mimeType: String,
   },
-  graded:{
-    type:Boolean,
-    default:false,
-  },  
+
 });
 const textQuestionSchema = new Schema({
   
