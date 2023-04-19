@@ -14,6 +14,7 @@ import StudentCourseExams from './pages/StudentCourseExams'
 import StudentExam from './pages/StudentExam'
 import GradeExams from './pages/GradeExams'
 import GradingPage from './pages/GradingPage'
+import WebCam from './pages/WebCam'
 
 function App() {
 
@@ -71,8 +72,10 @@ function App() {
               path="/StudentCourseExams/:courseName" 
               element={<StudentCourseExams />} 
             />
-          
-            
+           <Route 
+              path="/WebCam"
+              element={<WebCam />}
+            />
           </Routes>
         </div>
       </BrowserRouter>

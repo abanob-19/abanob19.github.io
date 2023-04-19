@@ -2,7 +2,8 @@ const Student = require('../models/studentModel')
 const mongoose = require('mongoose')
 const Course = require('../models/courseModel')
 const _ = require('lodash');
-
+const fs = require('fs');
+const path = require('path');
 const getStudent = async (req, res) => {
     const { username , password} = req.body
   
@@ -208,7 +209,22 @@ const seeMyCourses=async(req,res)=>{
     res.status(500).send(err);
   }
 }
+const saveScreenshot = async (req, res) => {
+  const screenshotDataUrl = req.body.screenshot;
+  const filename = `screenshot_${Date.now()}.png`;
+  const filepath = path.join(__dirname, 'screenshots', filename);
 
+  const buffer = Buffer.from(screenshotDataUrl.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+  fs.writeFile(filepath, buffer, (err) => {
+    if (err) {
+      console.error('Failed to save screenshot', err);
+      res.status(500).send('Failed to save screenshot');
+    } else {
+      console.log(`Saved screenshot to ${filepath}`);
+      res.status(200).json({ message: 'Screenshot saved' });
+    }
+  });
+};
 
 
 module.exports = {
@@ -217,4 +233,5 @@ module.exports = {
   seeExams,
   getQuestionsForExam,
   SubmitExam,
+  saveScreenshot
 }
