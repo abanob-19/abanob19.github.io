@@ -22,45 +22,45 @@ function WebCam() {
     console.log(webcamRef.current.videoWidth);
     // console.log(webcam.video.readyState);
   
-    if (webcam) {
-      const videoSettings = webcam.videoWidth && webcam.videoHeight
-        ? { videoWidth: webcam.videoWidth, videoHeight: webcam.videoHeight }
-        : {};
+    // if (webcam) {
+    //   const videoSettings = webcam.videoWidth && webcam.videoHeight
+    //     ? { videoWidth: webcam.videoWidth, videoHeight: webcam.videoHeight }
+    //     : {};
   
-      console.log("Webcam is defined");
-      console.log("Canvas dimensions:", canvas.width, canvas.height);
-      console.log("Video dimensions:", videoSettings.videoWidth, videoSettings.videoHeight);
+    //   console.log("Webcam is defined");
+    //   console.log("Canvas dimensions:", canvas.width, canvas.height);
+    //   console.log("Video dimensions:", videoSettings.videoWidth, videoSettings.videoHeight);
   
-      canvas.width = videoSettings.videoWidth;
-      canvas.height = videoSettings.videoHeight;
+    //   canvas.width = videoSettings.videoWidth;
+    //   canvas.height = videoSettings.videoHeight;
   
-      setTimeout( async () => {
-        canvas.getContext('2d').drawImage(
-          webcam,
-          0,
-          0,
-          videoSettings.videoWidth,
-          videoSettings.videoHeight
-        );
-        const dataURL = canvas.toDataURL('image/jpeg', 0.5);
+    //   setTimeout( async () => {
+    //     canvas.getContext('2d').drawImage(
+    //       webcam,
+    //       0,
+    //       0,
+    //       videoSettings.videoWidth,
+    //       videoSettings.videoHeight
+    //     );
+    //     const dataURL = canvas.toDataURL('image/jpeg', 0.5);
   
-        try {
-          const response = await fetch('/student/saveScreenshot', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ screenshot: dataURL })
-          });
-          const result = await response.json();
-          console.log(result);
-        } catch (error) {
-          console.error('Failed to save screenshot', error);
-        }
-      }, 500); // add a 500ms delay before taking the screenshot
-    } else {
-      console.log("Webcam is not yet defined");
-    }
+    //     try {
+    //       const response = await fetch('/student/saveScreenshot', {
+    //         method: 'POST',
+    //         headers: {
+    //           'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify({ screenshot: dataURL })
+    //       });
+    //       const result = await response.json();
+    //       console.log(result);
+    //     } catch (error) {
+    //       console.error('Failed to save screenshot', error);
+    //     }
+    //   }, 500); // add a 500ms delay before taking the screenshot
+    // } else {
+    //   console.log("Webcam is not yet defined");
+    // }
   };
   
 
@@ -83,7 +83,7 @@ function WebCam() {
         ))}
       </div>
       <canvas ref={canvasRef} style={{ display: 'none' }} />
-      <video ref={webcamRef} style={{ maxWidth: '100%' }} />
+      <video ref={webcamRef} style={{ display: 'inline-block' }} />
     </div>
   );
 }

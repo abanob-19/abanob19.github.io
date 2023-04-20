@@ -129,7 +129,7 @@ const seeMyCourses=async(req,res)=>{
         title:exam.title,
         courseName:courseName,
         questions:questions,
-        studentAnswers:new Array(questions.length).fill(null),
+        studentAnswers:new Array(questions.length).fill(''),
         studentGrades:new Array(questions.length).fill(0),
         totalGrade:0,
         totalPossibleGrade:totalGrade,
@@ -210,10 +210,17 @@ const seeMyCourses=async(req,res)=>{
   }
 }
 const saveScreenshot = async (req, res) => {
+  const { courseName,studentId, examId } = req.body;
   const screenshotDataUrl = req.body.screenshot;
   const filename = `screenshot_${Date.now()}.png`;
-  const filepath = path.join(__dirname, 'screenshots', filename);
+  const directoryPath = path.join(__dirname, 'screenshots', `${courseName}`, `${examId}`, `${studentId}`);
 
+  if (!fs.existsSync(directoryPath)) {
+    fs.mkdirSync(directoryPath, { recursive: true });
+  }
+
+  const filepath = path.join(directoryPath, filename);
+  
   const buffer = Buffer.from(screenshotDataUrl.replace(/^data:image\/\w+;base64,/, ''), 'base64');
   fs.writeFile(filepath, buffer, (err) => {
     if (err) {
@@ -225,6 +232,7 @@ const saveScreenshot = async (req, res) => {
     }
   });
 };
+
 
 
 module.exports = {

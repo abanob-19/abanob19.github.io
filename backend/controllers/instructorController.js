@@ -724,6 +724,51 @@ const getStudentsForExam = async (req, res) => {
     return res.status(500).send('Server error');
   }
 };
+const getStudentsForExam2 = async (req, res) => {
+  const examId= req.query.examId;
+  const courseName = req.query.courseName;
+  console.log("here")
+  console.log(examId , courseName);
+  try {
+    //retireve array of all students
+    const students = await Student.find();
+    var i=0;
+    var studentsTakingExam=[];
+    for(i=0;i<students.length;i++){
+      var j=0;
+      for(j=0;j<students[i].exams.length;j++){
+        if(students[i].exams[j].examId.equals(examId.trim())){    
+          studentsTakingExam.push(students[i])
+          break;
+        
+      }
+    }}
+    console.log(studentsTakingExam)
+    return res.send(studentsTakingExam);
+
+    
+    // await Student.find(
+    //   { "exams.examId":  examId.trim()},
+    // )
+    //   .then((students) => {
+    //     if (!students) {
+    //       console.log("No students found");
+    //       return;
+    //     }
+    //     else{
+    //       console.log(students)
+    //       return res.send(students);
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     // handle error
+    //     console.log(error);
+    //   });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send('Server error');
+  }
+};
 // make a function that takes an examId and courseName and studentId and returns the questions that have type text and the answers for the student  with studentId
 const getExamTextQuestions = async (req, res) => {
   const examId= req.query.examId;
@@ -818,6 +863,24 @@ const submitAnswers = async (req, res) => {
     return res.status(500).send('Server error');
   }}
     
+  const getScreenshots = async (req, res) => {
+    const { courseName, studentId, examId } = req.query;
+    console.log(courseName, studentId, examId);
+    const directoryPath = path.join(__dirname, 'screenshots', `${courseName}`, `${examId}`, `${studentId}`);
+    
+    try {
+      const files = await fs.promises.readdir(directoryPath);
+      const screenshots = files.map((file) => {
+        const filePath = path.join(directoryPath, file);
+        return `data:image/png;base64,${fs.readFileSync(filePath, { encoding: 'base64' })}`;
+      });
+      
+      res.status(200).json({ screenshots });
+    } catch (error) {
+      console.error('Failed to retrieve screenshots', error);
+      res.status(500).send('Failed to retrieve screenshots');
+    }
+  };
   
 
 
@@ -846,6 +909,8 @@ module.exports = {
   getQuestionsForExam,
   seeExamsForGrade,
   getStudentsForExam,
+  getStudentsForExam2,
   getExamTextQuestions,
   submitAnswers,
+  getScreenshots,
 }

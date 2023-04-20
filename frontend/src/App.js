@@ -15,7 +15,8 @@ import StudentExam from './pages/StudentExam'
 import GradeExams from './pages/GradeExams'
 import GradingPage from './pages/GradingPage'
 import WebCam from './pages/WebCam'
-
+import ScreenShots from './pages/ScreenShots'
+import ExamStudents from './pages/ExamStudents'
 function App() {
 
   return (
@@ -76,6 +77,14 @@ function App() {
               path="/WebCam"
               element={<WebCam />}
             />
+            <Route
+              path="/ScreenShots"
+              element={<ScreenShots/>}
+              />
+            <Route
+              path="/ExamStudents"
+              element={<ExamStudents/>}
+              />
           </Routes>
         </div>
       </BrowserRouter>

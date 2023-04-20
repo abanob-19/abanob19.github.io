@@ -24,6 +24,7 @@ const InstructorCourses = () => {
                         {course}
                         <Button as={Link} to={`/Course/${course}`} variant="primary">Question Banks</Button>
 <Button as={Link} to={`/CourseExams/${course}`} variant="success">Exams</Button>
+
                     </li>
                 ))}
             </ul>

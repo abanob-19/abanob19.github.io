@@ -26,6 +26,7 @@ const handleClick = () => {
   const handleClick2 = async () => {
     navigate("/instrcutorExams"); 
   }
+
   return (
     <div>
     <Navbar bg="light" expand="lg">
@@ -38,7 +39,7 @@ const handleClick = () => {
           <Nav.Link  className={styles['nav-link-hover']} onClick={() => setShowCreateExamForm(true)}>Create Exam</Nav.Link>
           <Nav.Link onClick={() => handleClick3()}  className={styles['nav-link-hover']}>Grade</Nav.Link>
           <Nav.Link onClick={() => handleClick()} className={styles['nav-link-hover']}>Log Out</Nav.Link>
-
+          
         </Nav>
       </Navbar.Collapse>
     </Navbar>

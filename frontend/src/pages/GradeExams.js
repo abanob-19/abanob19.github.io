@@ -6,7 +6,7 @@ import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import styles from './Instructor.module.css';
 import { useNavigate } from "react-router-dom";
 import { useInRouterContext } from 'react-router-dom'
-
+import { Button } from 'react-bootstrap';
 function GradeExams() {
   const navigate = useNavigate();
   const [exams, setExams] = useState(null);
@@ -45,7 +45,8 @@ function GradeExams() {
             EXAM:
           <Link to={`/GradingPage/?courseName=${exam.courseName}&examId=${exam._id}`}>
             {exam.title}
-          </Link>
+          </Link> 
+          <Button as={Link} to={`/ExamStudents/?courseName=${exam.courseName}&examId=${exam._id}`} variant="primary">Screen Shots</Button>
           <div>
           Course:{exam.courseName} 
         </div>
