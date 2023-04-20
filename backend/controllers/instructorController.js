@@ -777,20 +777,24 @@ const getExamTextQuestions = async (req, res) => {
   console.log(examId , courseName,studentId);
   var questions=[]
   var answers=[]
+  let exams=null
+  let exam=null
   try {
     await Student.findById(studentId)
-      .then((student) => {
+      .then(async (student) => {
         if (!student) {
           console.log("Student not found");
           return;
         }
         else{
           var j=0;
+          exams=student.exams
           for(j=0;j<student.exams.length;j++){
             if((student.exams[j].examId.equals(examId.trim()))&&(student.exams[j].courseName==courseName)){
+              exam=student.exams[j]
               var k=0;
               for(k=0;k<student.exams[j].questions.length;k++){
-                if(student.exams[j].questions[k].type=="text"){
+                if(student.exams[j].questions[k].type=="text" && (!student.exams[j].questions[k].graded)){
                   
                   console.log(student.exams[j].studentAnswers)
                   questions.push(student.exams[j].questions[k])
@@ -800,6 +804,14 @@ const getExamTextQuestions = async (req, res) => {
             }
         }
   }
+  if(answers.length==0)
+  {
+    exam.graded=true
+    exams[j]=exam
+    student.exams=exams
+    await student.save()
+  }
+       
   return res.send({questions:questions,answers:answers});
 })
       .catch((error) => {

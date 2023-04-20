@@ -6,6 +6,7 @@ const {
   getQuestionsForExam,
   SubmitExam,
   saveScreenshot,
+  seeExamsForGrades,
 } = require('../controllers/studentController')
 const router = express.Router()
 
@@ -15,4 +16,5 @@ router.get('/seeMyCourses',seeMyCourses)
 router.get('/seeExams/:name',seeExams)
 router.get('/getQuestionsForExam/', getQuestionsForExam)
 router.post('/saveScreenshot', saveScreenshot)
+router.get('/seeExamsForGrades/',seeExamsForGrades)
 module.exports = router

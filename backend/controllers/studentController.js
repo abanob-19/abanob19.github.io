@@ -31,6 +31,17 @@ const seeMyCourses=async(req,res)=>{
            res.status(200).json(student.courses)
   
   }  
+  const seeExamsForGrades=async(req,res)=>{
+    const { courseName , studentId } = req.query
+    const student =   await Student.findById({_id: studentId.trim()})
+  if(!student) {
+           return res.status(400).json({error: 'No such student'})
+        }
+      //  return student.exams that have courseName = name
+      const exams = student.exams.filter((exam) => exam.courseName === courseName.trim() && exam.submitted===true);
+
+    res.status(200).json(exams)
+  }
   const seeExams=async(req,res)=>{
     const { name } = req.params
     const course =   await Course.findOne({name})
@@ -241,5 +252,6 @@ module.exports = {
   seeExams,
   getQuestionsForExam,
   SubmitExam,
-  saveScreenshot
+  saveScreenshot,
+  seeExamsForGrades,
 }
