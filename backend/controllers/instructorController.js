@@ -45,22 +45,47 @@ const viewPdf=async(req,res)=>{
              
 
 }
-const uploadFile = async (req, res) => {
-  courseName = req.body.courseName;
-  questionId = req.body.questionId;
-  questionBankId = req.body.questionBankId;
-  const buffer = await fs.promises.readFile(req.file.path, 'utf8');
-  const attachment = {
-    filename: req.file.filename,
-    data: buffer,
-    mimeType: req.file.mimetype,
-  };
-  const course = await Course.findOne({ name: courseName });
-  var questionBanks = course.questionBanks;
+// donwload pdf or image in a given path 
 
+const downloadFile = async (req, res) => {
+  const { attachment } = req.query;
+  console.log(attachment)
+  const filePath = `${attachment}`;
+  res.download(filePath, (err) => {
+    console.log("downloading");
+      if (err) {
+          console.log(err);
+          res.status(404).send('File not found');
+      }
+  });
+}
+const uploadFile = async (req, res) => {
+  const courseName = req.body.courseName;
+  const questionId = req.body.questionId;
+  const questionBankId = req.body.questionBankId;
+  // const attachment = {
+  //   filename: req.file.filename,
+  // };
+  const course = await Course.findOne({ name: courseName });
   if (!course) {
     return res.status(400).json({ error: 'No such course' });
   }
+  const questionBank = course.questionBanks.find(qb => qb._id == questionBankId);
+  if (!questionBank) {
+    return res.status(400).json({ error: 'No such question bank' });
+  }
+  const question = questionBank.questions.find(q => q._id == questionId);
+  if (!question) {
+    return res.status(400).json({ error: 'No such question' });
+  }
+  const folderPath = `./uploads/question-banks/${questionBankId}`;
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath, { recursive: true });
+  }
+  const filePath = `${folderPath}/${questionId}.${req.file.originalname.split('.').pop()}`;
+  fs.renameSync(req.file.path, filePath);
+  var questionBanks = course.questionBanks;
+  // question.attachment = filePath;
   var targetExamIndex = 0;
   var targetExam;
   for (
@@ -85,7 +110,7 @@ const uploadFile = async (req, res) => {
       break;
     }
   }
-  updatedQuestionList[targetQuestionIndex].attachment = attachment;
+  updatedQuestionList[targetQuestionIndex].attachment = filePath;
   targetExam.questions = updatedQuestionList;
   questionBanks[targetExamIndex] = targetExam;
   const courseUptaded = await Course.findOneAndUpdate(
@@ -99,7 +124,9 @@ const uploadFile = async (req, res) => {
     res.status(400);
     throw new Error('Error occured');
   }
+  
 };
+
 
 const getinstructors = async (req, res) => {
   const instructors = await Instructor.find({}).sort({createdAt: -1})
@@ -925,4 +952,5 @@ module.exports = {
   getExamTextQuestions,
   submitAnswers,
   getScreenshots,
+  downloadFile,
 }

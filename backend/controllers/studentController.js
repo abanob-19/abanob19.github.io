@@ -4,6 +4,75 @@ const Course = require('../models/courseModel')
 const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
+const downloadFile = async (req, res) => {
+  const { attachment } = req.query;
+  console.log(attachment)
+  const filePath = `${attachment}`;
+  res.download(filePath, (err) => {
+    console.log("downloading");
+      if (err) {
+          console.log(err);
+          res.status(404).send('File not found');
+      }
+  });
+}
+const uploadFile = async (req, res) => {
+  const { courseName,studentId, examId , questionId } = req.body;
+  console.log(req.file)
+  // const attachment = {
+  //   filename: req.file.filename,
+  // };
+  
+  const folderPath = `./uploads/studentAttachments/${studentId}/${courseName}/${examId}`;
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath, { recursive: true });
+  }
+  const filePath = `${folderPath}/${questionId}.${req.file.originalname.split('.').pop()}`;
+  fs.renameSync(req.file.path, filePath);
+  try {
+  await Student.findById(studentId)
+      .then(async (student) => {
+        if (!student) {
+          console.log("Student not found");
+          return;
+        }
+        else{
+          let exams=student.exams
+          let exam=null
+          var j=0;
+          for(j=0;j<student.exams.length;j++){
+            
+            if((student.exams[j].examId.equals(examId.trim()))&&(student.exams[j].courseName==courseName) ){
+              exam=student.exams[j]
+              var k=0;
+              for(k=0;k<student.exams[j].questions.length;k++){
+                if(exam.questions[k]._id.equals(questionId.trim())&&(!exam.questions[k].graded)){
+                  console.log("here")
+                  exam.questions[k].studentAttachment=filePath
+                  exams[j]=exam
+                  break;
+                }
+              }
+              //update student exams array with the new exam
+              student.exams=exams
+              await student.save()
+              break;
+            }
+        }
+        // let exams=student.exams
+  }
+  return res.status(200).send("success");
+})
+      .catch((error) => {
+        // handle error
+        console.log(error);
+      });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send('Server error');
+  }
+  
+};
 const getStudent = async (req, res) => {
     const { username , password} = req.body
   
@@ -254,4 +323,6 @@ module.exports = {
   SubmitExam,
   saveScreenshot,
   seeExamsForGrades,
+  uploadFile,
+  downloadFile,
 }

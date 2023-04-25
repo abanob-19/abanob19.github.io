@@ -1,4 +1,6 @@
 const express = require('express')
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 const {
   getStudent,
   seeMyCourses,
@@ -7,6 +9,8 @@ const {
   SubmitExam,
   saveScreenshot,
   seeExamsForGrades,
+  uploadFile,
+  downloadFile,
 } = require('../controllers/studentController')
 const router = express.Router()
 
@@ -17,4 +21,6 @@ router.get('/seeExams/:name',seeExams)
 router.get('/getQuestionsForExam/', getQuestionsForExam)
 router.post('/saveScreenshot', saveScreenshot)
 router.get('/seeExamsForGrades/',seeExamsForGrades)
+router.post('/uploadFile', upload.single('attachment'),uploadFile)
+router.get('/downloadFile/', downloadFile)
 module.exports = router

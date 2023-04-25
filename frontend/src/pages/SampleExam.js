@@ -6,7 +6,7 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import styles from '../pages/Instructor.module.css';
 import InstructorNavbar from '../components/instructorNavbar';
-
+import axios from 'axios';
 const SampleExam = () => {
   const [questions, setQuestions] = useState([]);
   const location = useLocation();
@@ -25,6 +25,25 @@ const SampleExam = () => {
     }
     fetchData();
   }, [version,state.secVersion]);
+  const handleDownload = async (attachment) => {
+    try {
+      const response = await axios.get(`/instructor/downloadFile/?attachment=${attachment}`, {
+        responseType: 'blob', // set the response type to blob to handle binary data
+      });
+  
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+  
+      // create a temporary link and click it to download the file
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', attachment);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   if(!questions){
     return  <div className={styles['container']}>
     <div className={styles['loader']}></div>
@@ -38,6 +57,7 @@ const SampleExam = () => {
       {questions.map(question => (
         <div key={question._id}>
           <h2>{question.text}</h2>
+          {question.attachment &&  <button onClick={() => handleDownload(question.attachment)}>Download Attachments</button>}
           <p>Category: {question.category}</p>
           <p>Grade: {question.grade}</p>
          {question.type=='mcq'&& <ul>

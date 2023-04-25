@@ -4,6 +4,7 @@ import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import styles from '../pages/Instructor.module.css';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
+import axios from 'axios';
 import EditMathField from 'react-mathquill'
 import  MathQuill  from 'react-mathquill';
 import VirtualKeyboard from 'react-virtual-keyboard';
@@ -29,6 +30,7 @@ const StudentExam = () => {
   const canvasRef = useRef(null);
   const [enabled, setEnabled] = useState(false);
   const [started, setStarted] = useState(false);
+  const [file, setFile] = useState(null);
   useEffect(() => {
     const interval = setInterval(() => {
       if (started){
@@ -103,6 +105,41 @@ const StudentExam = () => {
       console.error('Failed to access webcam', error);
     }
   };
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+    console.log(e.target.files[0]);
+    console.log(file);
+  };
+
+  const handleUpload =  (q) => {
+    if(file){
+    const formData = new FormData();
+    console.log(file);
+    formData.append('attachment', file);
+    formData.append('questionId', q);
+    formData.append('examId', examId);
+    formData.append('courseName', courseName);
+    formData.append('studentId', user._id);
+    
+    fetch(`/student/uploadFile`, {
+      method: 'POST',
+      'Content-Type': 'multipart/form-data',
+      body: formData, 
+  
+ 
+    })
+      .then(json => {
+        console.log(json);
+        setFile(null);
+        setVersion(version => version + 1); // force re-render
+      })
+      .catch(error => {
+        console.error(error);
+        alert('Failed to edit question');
+      });}
+      else 
+      alert('No file selected');
+    }
   const stopCamera = () => {
     const stream = webcamRef.current.srcObject;
     if (stream) {
@@ -174,6 +211,25 @@ const StudentExam = () => {
       });
     console.log(answers);
   };
+  const handleDownload = async (attachment) => {
+    try {
+      const response = await axios.get(`/student/downloadFile/?attachment=${attachment}`, {
+        responseType: 'blob', // set the response type to blob to handle binary data
+      });
+  
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+  
+      // create a temporary link and click it to download the file
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', attachment);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const handleClickStart = () => {
     setStarted(true);
   };
@@ -222,6 +278,9 @@ const StudentExam = () => {
       {questions.map((question, index) => (
         <div key={question._id}>
           <h2> ({index + 1}) {question.text}  ({question.grade} grades)</h2>
+          {question.attachment &&  <button onClick={() => handleDownload(question.attachment)}>Download Attachments</button>}
+          <input type="file" onChange={handleFileChange} />
+        <button onClick={() => handleUpload(question._id)}>Upload your answers</button>
          {question.type=='mcq'&& <ul className={styles['choices-list']}>
           {question.choices.map((choice, choiceIndex) => (
             <li key={choiceIndex}>

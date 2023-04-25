@@ -3,7 +3,8 @@ import { useEffect, useState } from "react"
 import { Link } from 'react-router-dom';
 import PDFViewer from "./PDFViewer";
 import InstructorNavbar from '../components/instructorNavbar';
-
+import axios from 'axios';
+import styles from '../pages/Instructor.module.css';
 //import QuestionForm from "../components/QuestionForm";
 import QuestionForm from "../components/QuestionForm";
 import { pdfjs } from 'react-pdf';
@@ -20,32 +21,7 @@ const QuestionBank = () => {
     const [editedQuestionIndex, setEditedQuestionIndex] = useState(null);
     const [AddedChoice, setAddedChoice] = useState(null);
     const [file, setFile] = useState(null);
-    function AttachmentViewer({ binaryData, mimeType }) {
-    const [ourl, setOurl] = useState('');
-
-  useEffect(() => {
-    // Create a Blob from the binary data
-    const blob = new Blob([binaryData.arrayBuffer()], { type: mimeType });
-
-    // Create a URL for the Blob
-    const objectUrl = URL.createObjectURL(blob);
-
-    // Update the URL state variable
-    setOurl(objectUrl);
-
-    // Clean up the URL when the component unmounts
-  
-  }, [binaryData, mimeType]);
-
-  if (mimeType.startsWith('image/')) {
-    return <img src={ourl} alt="Attachment" />;
-  } else if (mimeType === 'application/pdf') {
-    return <iframe src={ourl} title="Attachment" />;
-  } else {
-    return <div>Unsupported file type.</div>;
-  }
-  setOurl('')
-}
+const[loading,setLoading]=useState(false)
     
     
     const handleFileChange = (e) => {
@@ -53,13 +29,14 @@ const QuestionBank = () => {
     };
   
     const handleUpload =  (q) => {
+      if (file){
       const formData = new FormData();
       formData.append('attachment', file);
       formData.append('questionId', q);
       formData.append('questionBankId', questionBank._id);
       formData.append('courseName', name);
   
-      
+      setLoading(true)
       fetch(`/instructor/uploadFile`, {
         method: 'POST',
         'Content-Type': 'multipart/form-data',
@@ -75,7 +52,9 @@ const QuestionBank = () => {
         .catch(error => {
           console.error(error);
           alert('Failed to edit question');
-        });
+        });}
+        else 
+        alert('No file selected');
       }
   
         
@@ -91,6 +70,7 @@ const QuestionBank = () => {
         // const updatedQuestionBank = { ...questionBank };
         // updatedQuestionBank.questions[editedChoiceIndex].choices[editedChoice] = newChoice;
         question.choices[editedChoiceIndex] = newChoice;
+        setLoading(true)
         fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
             headers: {
@@ -136,6 +116,7 @@ const QuestionBank = () => {
         else
         {
         question.choices.splice(index,1);
+        setLoading(true)
         fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
             headers: {
@@ -175,6 +156,7 @@ const QuestionBank = () => {
     }
     //create a function to handle delete question
     const handleDeleteQuestion = (question) => {
+      setLoading(true)
         fetch('/instructor/deleteMcqQuestion', {
           method: 'Delete',
           headers: {
@@ -212,6 +194,7 @@ const QuestionBank = () => {
         // const updatedQuestionBank = { ...questionBank };
         // updatedQuestionBank.questions[editedChoiceIndex].choices[editedChoice] = newChoice;
         question.choices.push(AddedChoice);
+        setLoading(true)
         fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
             headers: {
@@ -259,6 +242,7 @@ const QuestionBank = () => {
         
     }
     const handleFinishEditAnswer=(newAnswer,question)=>{
+      setLoading(true)
         fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
             headers: {
@@ -304,6 +288,7 @@ const QuestionBank = () => {
         
     }
     const handleFinishEditCategory=(newCategory,question)=>{
+      setLoading(true)
         fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
             headers: {
@@ -357,6 +342,7 @@ const QuestionBank = () => {
         console.log(editedGrade)
     }
     const handleFinishEditGrade=(newGrade,question)=>{
+      setLoading(true)
         fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
             headers: {
@@ -401,6 +387,7 @@ const QuestionBank = () => {
         
     }
     const handleFinishEditText=(newText,question)=>{
+      setLoading(true)
         fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
             headers: {
@@ -440,10 +427,12 @@ const QuestionBank = () => {
  
     const url = `/instructor/openQuestionBank?questionBankName=${questionBankName}&name=${name}`;
     const fetchData = async () => {
+      setLoading(true)
       const response = await fetch(url);
       const json = await response.json();
       setQuestionBank(json);
       console.log(json);
+      setLoading(false)
     };
     useEffect(() => {
       if (!questionBankName) return; // add a check for undefined
@@ -464,6 +453,7 @@ const QuestionBank = () => {
   const handleFinish = (newQuestion) => {
     if(newQuestion){
       console.log(newQuestion.type)
+      setLoading(true)
     fetch('/instructor/addMcqQuestion', {
       method: 'POST',
       headers: {
@@ -501,36 +491,36 @@ const QuestionBank = () => {
     setDisplayForm(false);
   }
 }
-  if(!questionBank){
-    return <div>Loading...</div>
-  }
-  const handlePDF=(binaryData)=>{
-    const uint8Array = new Uint8Array(binaryData.length);
-for (let i = 0; i < binaryData.length; i++) {
-  uint8Array[i] = binaryData.charCodeAt(i);
+if (!questionBank||loading) {
+  return (
+    <div className={styles['container']}>
+      <div className={styles['loader']}></div>
+    </div>
+  );
 }
-
-const arrayBuffer = uint8Array.buffer;
-    console.log(typeof arrayBuffer)
-    console.log(arrayBuffer)
-    const bytes = new Array(binaryData.length);
-
-for (let i = 0; i < binaryData.length; i++) {
-  bytes[i] = binaryData.charCodeAt(i);
-}
-
-const blob = new Blob([new Uint8Array(bytes)], {type: 'application/pdf'});
+ 
+  const handleDownload = async (attachment) => {
+    try {
+      const response = await axios.get(`/instructor/downloadFile/?attachment=${attachment}`, {
+        responseType: 'blob', // set the response type to blob to handle binary data
+      });
   
-    //const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-    const urll = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = urll;
-    link.download = 'questionBank.pdf';
-    link.click();
-    URL.revokeObjectURL(urll);
+      const url = window.URL.createObjectURL(new Blob([response.data]));
   
-  }
-
+      // create a temporary link and click it to download the file
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', attachment);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
+  // call the handleDownload function when the user clicks a download button or link
+  
   return (
     
     
@@ -694,7 +684,7 @@ const blob = new Blob([new Uint8Array(bytes)], {type: 'application/pdf'});
       <input type="file" onChange={handleFileChange} />
         <button onClick={() => handleUpload(question._id)}>Upload</button>
         <div>
-      {question.attachment && <PDFViewer attachment={{courseName:name ,qb_id: questionBank._id, q_id:question._id}} />}
+      {question.attachment &&  <button onClick={() => handleDownload(question.attachment)}>Download</button>}
     </div>
    
         {/* Attachment: {(question.attachment)&& <AttachmentViewer binaryData={question.attachment.data} mimeType={question.attachment.mimeType} />} */}

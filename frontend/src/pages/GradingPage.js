@@ -94,6 +94,25 @@ const [allStudentsGraded, setAllStudentsGraded] = useState(false);
     // Fetch questions for next student
     // (similar to the useEffect hook in step 1)
   };
+  const handleDownload = async (attachment) => {
+    try {
+      const response = await axios.get(`/student/downloadFile/?attachment=${attachment}`, {
+        responseType: 'blob', // set the response type to blob to handle binary data
+      });
+  
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+  
+      // create a temporary link and click it to download the file
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', attachment);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 const handleOptionSelect = (index,option) => {
    // update selectedOption array to reflect the selected grade of given index 
       console.log(index,option);
@@ -158,6 +177,7 @@ setLoading(false);
       <h1>Exam Questions</h1>
       {questions.map((question, index) => (
         <div key={index}> 
+         {question.studentAttachment &&  <button onClick={() => handleDownload(question.studentAttachment)}>Download Attachments</button>}
           <Question question={question} answer={answers[index]} onChoose={(option)=>handleOptionSelect(index,option)} />
           {!question.graded && selectedOption[index] && <button onClick={() => handleSubmitAnswers(question._id, index)}>Submit</button>}
           {question.graded && <p>graded</p>}

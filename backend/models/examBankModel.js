@@ -29,9 +29,7 @@ const mcqQuestionSchema = new Schema({
     required:true,
   },
   attachment: {
-    filename: String,
-    data: Buffer,
-    mimeType: String,
+    type: String,
   },
   StudentAnswer:{
     type:String,
@@ -40,9 +38,7 @@ const mcqQuestionSchema = new Schema({
     type:String,
   },
   StudentAttachment: {
-    filename: String,
-    data: Buffer,
-    mimeType: String,
+    type: String,
   },
 
 });
@@ -66,14 +62,10 @@ const textQuestionSchema = new Schema({
     required:true,
   },
   attachment: {
-    filename: String,
-    data: Buffer,
-    mimeType: String,
+    type: String,
   },
   StudentAttachment: {
-    filename: String,
-    data: Buffer,
-    mimeType: String,
+    type: String,
   },
   graded:{
     type:Boolean,

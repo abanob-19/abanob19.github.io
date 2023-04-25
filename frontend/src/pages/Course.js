@@ -2,24 +2,26 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from 'react-router-dom';
-
+import styles from '../pages/Instructor.module.css';
 const Course = () => {
-  const [questionBanks, setQuestionBanks] = useState([]);
+  const [questionBanks, setQuestionBanks] = useState(null);
   const [newQuestionBankName, setNewQuestionBankName] = useState(null);
   const [editingQuestionBankId, setEditingQuestionBankId] = useState(null);
-
+  const [loading,setLoading]=useState(false)
   const { courseName } = useParams();
   const[version,setVersion]=useState(0);
 
   useEffect(() => {
     // Fetch question banks from server and update state
     const fetchData = async () => { 
+      setLoading(true)
         await fetch(`/instructor/seeCourse/${courseName}`)
       .then(async response => await response.json())
       .then(data => setQuestionBanks(data))
       .catch(error => console.error(error));}
       fetchData();
       console.log(questionBanks);
+      setLoading(false)
      
   }, [version]);
 const[newBank,setNewBank]=useState(false)
@@ -36,6 +38,7 @@ const[newBank,setNewBank]=useState(false)
 
    const handleNewQuestionBankSubmit = async () => {
     // Send a POST request to create the new question bank
+    setLoading(true)
     fetch(`/instructor/addQuestionBank`, {
       method: "POST",
       headers: {
@@ -70,6 +73,7 @@ const[newBank,setNewBank]=useState(false)
 
   const handleQuestionBankSubmit = async (questionBankId) => {
     // Send a PUT request to update the selected question bank
+    setLoading(true)
     await fetch(`/instructor/editQuestionBank/`, {
       method: "PUT",
       headers: {
@@ -96,7 +100,7 @@ const[newBank,setNewBank]=useState(false)
    };
 
   const handleQuestionBankDelete = (questionBankId) => {
-  
+    setLoading(true)
     fetch(`/instructor/deleteQuestionBank/`, {
       method: "Delete",
         headers: {
@@ -113,11 +117,16 @@ const[newBank,setNewBank]=useState(false)
           console.error(response);
         }
         setVersion(version => version + 1);
+       
       })
       .catch(error => console.error(error));
   };
-  if(!questionBanks){
-    return <div>Loading...</div>
+  if (!questionBanks||loading) {
+    return (
+      <div className={styles['container']}>
+        <div className={styles['loader']}></div>
+      </div>
+    );
   }
   return (
     <div>
