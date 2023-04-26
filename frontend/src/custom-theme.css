@@ -1,0 +1,34 @@
+/* Define theme colors */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #4FA8D1;    ;
+    --dark-color: #343a40;
+  }
+  
+  /* Apply theme colors to elements */
+  body {
+    background-color: var(--light-color);
+  }
+  
+  header {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 10px;
+  }
+  
+  button {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+  }
+  
+  button:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: #fff;
+  }

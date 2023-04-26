@@ -1,39 +1,38 @@
-import { useInstructorsContext } from '../hooks/useInstrcutorContext'
-import { useEffect, useState } from "react"
+import { useInstructorsContext } from '../hooks/useInstrcutorContext';
+import { useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
+import { Card, Button, Container } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import StudentNavbar from "../components/StudentNavbar";
- import styles from './Instructor.module.css';
-// import LoginForm from "../components/loooogin";
+import styles from './Instructor.module.css';
 
-
-// components
-// import LoginForm from "../components/LoginForm"
 const StudentPage = () => {
   
   const { state, dispatch } = useInstructorsContext()
-    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
-    useEffect(() => {
-        console.log(state.userx)
-    }, [])
+  useEffect(() => {
+    console.log(state.userx)
+  }, [])
   
-    return (
-      <div>
-           { <StudentNavbar/> }
-          <h1>My Courses</h1>
-          <ul>
-              {  user.courses.map((course) => (
-                  <li key={course}>
-                      {course}
-                      
-<Button as={Link} to={`/StudentCourseExams/${course}`} variant="success">Exams</Button>
-<Button as={Link} to={`/StudentGrades/${course}`} variant="success">Grades</Button>
-
-                  </li>
-              ))}
-          </ul>
-      </div>
+  return (
+    <div>
+      <StudentNavbar />
+      <h1 style={{ paddingTop: '72px' }} className={styles.courses} >My Courses</h1>
+      <Container fluid className="d-flex flex-wrap justify-content-center" >
+        {user.courses.map((course) => (
+          <Card key={course} className={styles.courseCard} >
+            <Card.Body>
+              <Card.Title className={styles.cardTitle} >{course.charAt(0).toUpperCase() + course.slice(1)}</Card.Title>
+              <div className={styles.cardButtons}>
+                <Button as={Link} to={`/StudentCourseExams/${course}`} variant="primary" className="mr-3 rounded-pill px-5 py-3 font-weight-bold">Exams</Button>
+                <Button as={Link} to={`/StudentGrades/${course}`} variant="secondary" className="rounded-pill px-5 py-3 font-weight-bold"> Grades</Button>
+              </div>
+            </Card.Body>
+          </Card>
+        ))}
+      </Container>
+    </div>
   )
   
 }

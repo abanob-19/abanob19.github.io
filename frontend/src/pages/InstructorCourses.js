@@ -17,7 +17,7 @@ const InstructorCourses = () => {
     return (
         <div>
              { <InstructorNavbar/> }
-            <h1>My Courses</h1>
+            <h1 style={{ paddingTop: '72px' }}>My Courses</h1>
             <ul>
                 {  user.courses.map((course) => (
                     <li key={course}>

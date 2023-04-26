@@ -48,7 +48,7 @@ if(!exams|| isLoading){
 }
 
   return (
-    <div>
+    <div style={{ paddingTop: '72px' }}>
       <StudentNavbar/>
       {exams.map(exam => (
         

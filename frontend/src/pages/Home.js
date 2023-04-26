@@ -10,8 +10,8 @@ const Home = () => {
 
   return (
    
-    <div className={styles['home-page']}>
-     <div className={styles['form-container']}>
+    <div >
+     <div >
      <LoginForm />
      </div>
       

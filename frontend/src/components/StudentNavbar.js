@@ -1,44 +1,48 @@
 import React, { useState } from 'react';
-import { Navbar, Nav } from 'react-bootstrap';
+import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import styles from '../pages/Instructor.module.css';
 import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import { useNavigate } from "react-router-dom";
+import logo from '../pages/images/logo.png'; 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHome } from '@fortawesome/free-solid-svg-icons'
 function StudentNavbar() {
   const { state,dispatch } = useInstructorsContext()
   const navigate = useNavigate();
   const [showCreateExamForm, setShowCreateExamForm] = useState(false);
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
-const handleClick = () => {
-    // Handle the click event
+  const handleClick = () => {
     dispatch({type: 'LOG_OUT'})
-    console.log( state.userx)
+    console.log(state.userx)
     localStorage.removeItem('user');
     navigate("/");
-    
   }
   const handleClick1 = async () => {
     navigate("/StudentPage"); 
   }
 
-
   return (
-    <div>
-    <Navbar bg="light" expand="lg">
-    <Navbar.Brand > GUC Online Assessment</Navbar.Brand>
-      <Navbar.Brand > Welcome Student  {user ? user.name : ''}</Navbar.Brand>
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="ml-auto">
-        <Nav.Link onClick={() => handleClick1()}  className={styles['nav-link-hover']}>Home</Nav.Link>
-          <Nav.Link onClick={() => handleClick()} className={styles['nav-link-hover']}>Log Out</Nav.Link>
-
-        </Nav>
-      </Navbar.Collapse>
+    <Navbar bg="dark" variant='dark' expand="lg" className="fixed-top">
+      <div className="container-fluid">
+        <img src={logo} alt="Logo" width="100" height="50" /> 
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="ml-auto">
+            <Nav.Link onClick={() => handleClick1()} className={styles['nav-link-hover']}>
+              <FontAwesomeIcon icon={faHome} size="lg" />
+            </Nav.Link>
+            <NavDropdown
+              alignRight
+              title={<span className={styles['nav-link-hover']}> {user ? user.name : ''} </span>}
+              id="basic-nav-dropdown"
+            >
+              <NavDropdown.Item onClick={() => handleClick()}>Log Out</NavDropdown.Item>
+            </NavDropdown>
+          </Nav>
+        </Navbar.Collapse>
+      </div>
     </Navbar>
-</div>
-    
   );
-
 }
 
 export default StudentNavbar;

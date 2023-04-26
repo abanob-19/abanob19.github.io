@@ -44,7 +44,7 @@ if(!exams|| isLoading){
 
   return (
     <div>
-      <StudentNavbar/>
+      <StudentNavbar />
       {exams.map(exam => (
        <div key={exam._id}> 
         <h1>{exam.title}</h1>

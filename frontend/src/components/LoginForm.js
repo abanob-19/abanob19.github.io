@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import { useNavigate } from "react-router-dom";
-
+import { Form, Button, Col } from 'react-bootstrap';
 const LoginForm = () => {
   const { state,dispatch } = useInstructorsContext()
   const [username, setUsername] = useState('')
@@ -67,47 +67,31 @@ else{
     if(state.userx)
         setName(state.userx.name)
         localStorage.setItem('user', JSON.stringify(json));
-        navigate("/instructorPage");    
+        navigate("/InstructorCourses");    
       // console.log('found:', state.userx)
     }
 }
   }
 
   return (
-    <form className="login" onSubmit={handleSubmit}> 
-      <h3>Login</h3>
-
-      <label>username</label>
-      <input 
-        type="text" 
-        onChange={(e) => setUsername(e.target.value)} 
-        value={username}
-      />
-     <label>password</label>
-      <input 
-        type="password" 
-        onChange={(e) => setPassword(e.target.value)} 
-        value={password}
-      />
-      {/* <label>Load (in kg):</label>
-      <input 
-        type="number" 
-        onChange={(e) => setLoad(e.target.value)} 
-        value={load}
-      />
-
-      <label>Number of Reps:</label>
-      <input 
-        type="number" 
-        onChange={(e) => setReps(e.target.value)} 
-        value={reps} 
-      /> */}
-
-      <button>Login</button>
-      {error && <div className="error">{error}</div>}
-      {state.userx && <div className="name">{"welcome " +state.userType+" "+ name}</div>}
-    </form>
-  )
+    <div className="d-flex justify-content-center align-items-center vh-100">
+      <Form className="login mx-auto" onSubmit={handleSubmit}>
+        <h3>Login</h3>
+        <Form.Group controlId="formBasicEmail">
+          <Form.Label >Username</Form.Label>
+          <Form.Control type="text"  onChange={(e) => setUsername(e.target.value)} value={username} className="w-100"  />
+        </Form.Group>
+        <Form.Group controlId="formBasicPassword">
+          <Form.Label className="mr-2">Password</Form.Label>
+          <Form.Control type="password" onChange={(e) => setPassword(e.target.value)} value={password} className="w-100" />
+        </Form.Group>
+        <Button variant="primary" type="submit">
+          Login
+        </Button>
+        {error && <div className="error">{error}</div>}
+      </Form>
+    </div>
+  );
 }
 
 export default LoginForm

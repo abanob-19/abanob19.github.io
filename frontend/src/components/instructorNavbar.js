@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import { Navbar, Nav } from 'react-bootstrap';
+import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 import styles from '../pages/Instructor.module.css';
 import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import { useNavigate } from "react-router-dom";
 import CreateExamForm from './CreateExamForm';
+import logo from '../pages/images/logo.png';
 function InstructorNavbar() {
   const { state,dispatch } = useInstructorsContext()
   const navigate = useNavigate();
@@ -29,24 +33,29 @@ const handleClick = () => {
 
   return (
     <div>
-    <Navbar bg="light" expand="lg">
-    <Navbar.Brand > GUC Online Assessment</Navbar.Brand>
-      <Navbar.Brand > Welcome Instructor  {user ? user.name : ''}</Navbar.Brand>
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="ml-auto">
-        <Nav.Link onClick={() => handleClick1()}  className={styles['nav-link-hover']}>Courses</Nav.Link>
-          <Nav.Link  className={styles['nav-link-hover']} onClick={() => setShowCreateExamForm(true)}>Create Exam</Nav.Link>
-          <Nav.Link onClick={() => handleClick3()}  className={styles['nav-link-hover']}>Grade</Nav.Link>
-          <Nav.Link onClick={() => handleClick()} className={styles['nav-link-hover']}>Log Out</Nav.Link>
+      <Navbar bg="dark" variant='dark' expand="lg" className="fixed-top">
+        <div className="container-fluid">
+          <img src={logo} alt="Logo" width="100" height="50" /> 
           
-        </Nav>
-      </Navbar.Collapse>
-    </Navbar>
-    {showCreateExamForm && <CreateExamForm onClose={() => setShowCreateExamForm(false)} />}
-</div>
-    
+          <Navbar.Brand >   {user ? user.name : ''}</Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ml-auto">
+              <Nav.Link onClick={() => handleClick1()} className={styles['nav-link-hover']}><FontAwesomeIcon icon={faHome} /></Nav.Link>
+              <NavDropdown title={<FontAwesomeIcon icon={faUser} />} alignRight>
+                <NavDropdown.Item onClick={() => setShowCreateExamForm(true)}>Create Exam</NavDropdown.Item>
+                <NavDropdown.Item onClick={() => handleClick3()}>Grade</NavDropdown.Item>
+                <NavDropdown.Divider />
+                <NavDropdown.Item onClick={() => handleClick()} >Log Out</NavDropdown.Item>
+              </NavDropdown>
+            </Nav>
+          </Navbar.Collapse>
+        </div>
+      </Navbar>
+      {showCreateExamForm && <CreateExamForm onClose={() => setShowCreateExamForm(false)} />}
+    </div>
   );
+  
 
 }
 

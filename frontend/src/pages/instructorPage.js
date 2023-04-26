@@ -11,7 +11,7 @@ const InstructorPage = () => {
   
 
   return (
-    <div className={styles['instructor-home']}>
+    <div className={styles['instructor-home'] } style={{ paddingTop: '72px' }}>
       { <InstructorNavbar/> }
     </div>
   )

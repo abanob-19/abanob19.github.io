@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 // import './index.css';
 import App from './App';
+import './custom-theme.css';
 import reportWebVitals from './reportWebVitals';
 import { InstructorsContextProvider } from './context/InstructorContext';
 
