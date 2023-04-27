@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Card, Button,Badge,ListGroup, ListGroupItem } from "react-bootstrap";
+import {faPencilAlt , faTrash} from '@fortawesome/free-solid-svg-icons';
 import styles from '../pages/Instructor.module.css';
 import { Navigate } from 'react-router-dom';
+import { PencilSquare, Trash } from 'react-bootstrap-icons';  
 
 function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam , onSampleClick}) {
   const isFinished = new Date() > new Date(exam.endTime);
@@ -88,7 +92,7 @@ const handleSample = async() => {
     }
   if (editing) {
     return (
-      <div>
+      <div style={{ paddingTop: '72px' }}>
       <label> Title: <input type="text" value={title} onChange={e => setTitle(e.target.value)} /></label>
       <label> Course Name : <input type="text" value={courseName} onChange={e => setCourseName(e.target.value)} /></label>
       <label> Start Time:  <input
@@ -121,26 +125,49 @@ const handleSample = async() => {
   }
   
   return (
-    <div>
-      <h3>{exam.title}</h3>
-      <p>Course : {exam.courseName}</p>
-      <p>Start Time: {new Date(exam.startTime).toLocaleString()}</p>
-      <p>End Time: {new Date(exam.endTime).toLocaleString()}</p>
+    <div style={{ paddingTop: '72px' }}>
+      <Card style={{ marginBottom: "1rem" }  } className={styles.courseCard}>
+        <Card.Header className={styles.cardTitle}>
+          <h3>{exam.title}</h3>&nbsp;
+          <FontAwesomeIcon onClick= {handleEditClick } icon={faPencilAlt} className={styles['nav-link-hover']} /> &nbsp;
+          <FontAwesomeIcon onClick={handleDeleteClick} icon={faTrash} className={styles['nav-link-hover']} />
 
-      <p>Status: {isFinished ? "Finished" : "Not Finished"}</p>
-      {exam.specs.map((spec, index) => (
-        <div key={index}>
-          <p>Chapter: {spec.chapter}</p>
-          <p>Category: {spec.category}</p>
-          <p>Number of Questions: {spec.numQuestions}</p>
-        </div>
-      ))}
-      {<button onClick={handleEditClick }>Edit</button>}
-      <button onClick={handleDeleteClick}>Delete</button>
-      <button onClick={handleSample}>view Sample</button>
+        </Card.Header>
+        <Card.Body>
+          {exam.courseName && (
+            <Card.Subtitle className='mb-2 text-muted'>
+              Course: {exam.courseName.charAt(0).toUpperCase() + exam.courseName.slice(1)}
+            </Card.Subtitle>
+          )}
+          <Card.Text>Start Time: {new Date(exam.startTime).toLocaleString()}</Card.Text>
+          <Card.Text>End Time: {new Date(exam.endTime).toLocaleString()}</Card.Text>
+          <p>
+            Status:{' '}
+            <Badge variant={isFinished ? 'success' : 'danger'}>{isFinished ? 'Finished' : 'Not Finished'}</Badge>
+          </p>
+          <ListGroup>
+            {exam.specs.map((spec, index) => (
+              <ListGroupItem key={index}>
+                <div>
+                  <strong>Chapter:</strong> {spec.chapter}
+                </div>
+                <div>
+                  <strong>Category:</strong> {spec.category}
+                </div>
+                <div>
+                  <strong>Number of Questions:</strong> {spec.numQuestions}
+                </div>
+              </ListGroupItem>
+            ))}
+          </ListGroup>
+          <div className={`${styles.cardButtons} d-flex justify-content-center`} style={{ marginTop: '20px' }}>
+  <Button variant="info" onClick={handleSample} className="mr-3 rounded-pill px-5 py-3 font-weight-bold">View Sample</Button>
+</div>
 
 
-      
+          
+        </Card.Body>
+      </Card>
     </div>
   );
 }

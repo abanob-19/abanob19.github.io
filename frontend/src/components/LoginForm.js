@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Col } from 'react-bootstrap';
+import styles from '../pages/Instructor.module.css'
 const LoginForm = () => {
   const { state,dispatch } = useInstructorsContext()
   const [username, setUsername] = useState('')
@@ -10,12 +11,13 @@ const LoginForm = () => {
   const navigate = useNavigate();//   const [load, setLoad] = useState('')
 //   const [reps, setReps] = useState('')
   const [error, setError] = useState(null)
-
+   const [loading, setLoading] = useState(false)
   const handleSubmit = async (e) => {
     e.preventDefault()
 if (username.length==0 || password.length==0 )
 setError("please fill all the fields")
 else{
+  setLoading(true)
     const user = {username,password}
     
     const response = await fetch('/instructor/getInstructor', {
@@ -51,6 +53,7 @@ else{
         if(state.userx)
         setName(state.userx.name)
         localStorage.setItem('user', JSON.stringify(json));
+        setLoading(false)
         navigate("/StudentPage");   
       }
     }
@@ -67,12 +70,17 @@ else{
     if(state.userx)
         setName(state.userx.name)
         localStorage.setItem('user', JSON.stringify(json));
+        setLoading(false)
         navigate("/InstructorCourses");    
       // console.log('found:', state.userx)
     }
 }
   }
-
+if(loading){
+  return  <div className={styles['container']}>
+  <div className={styles['loader']}></div>
+</div>
+}
   return (
     <div className="d-flex justify-content-center align-items-center vh-100">
       <Form className="login mx-auto" onSubmit={handleSubmit}>

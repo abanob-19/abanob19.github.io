@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
  import styles from './Instructor.module.css';
  import { useNavigate } from "react-router-dom";
  import { useInRouterContext, Navigate } from 'react-router-dom'
-
+import { Container } from 'react-bootstrap';
 function CourseExams() {
  // const { navigate } = useInRouterContext();
   const navigate = useNavigate();
@@ -74,11 +74,13 @@ if(!exams|| isLoading){
   return (
     <div>
       <InstructorNavbar/>
+      <Container fluid className="d-flex flex-wrap justify-content-center" >
       {exams.map(exam => (
         
         ((!editingId)||(editingId==exam._id))&& <ExamCard key={exam._id} exam={exam} onDelete={() => onDeleteExam(exam)} onEdit={()=>onEditExam(exam._id) } onFinishEditExam={()=>onFinishEditExam(exam._id) } onSampleClick={()=>handleSample(exam._id)}/>
         
       ))}
+      </Container>
     </div>
   );
 }

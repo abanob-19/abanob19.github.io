@@ -5,6 +5,9 @@ import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import { useNavigate } from "react-router-dom";
 import logo from '../pages/images/logo.png'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+
+
 import { faHome } from '@fortawesome/free-solid-svg-icons'
 function StudentNavbar() {
   const { state,dispatch } = useInstructorsContext()
@@ -36,7 +39,9 @@ function StudentNavbar() {
               title={<span className={styles['nav-link-hover']}> {user ? user.name : ''} </span>}
               id="basic-nav-dropdown"
             >
-              <NavDropdown.Item onClick={() => handleClick()}>Log Out</NavDropdown.Item>
+              <NavDropdown.Item onClick={() => handleClick()}>
+  <FontAwesomeIcon icon={faSignOutAlt} className={styles['nav-link-hover']} /> Logout
+</NavDropdown.Item>
             </NavDropdown>
           </Nav>
         </Navbar.Collapse>

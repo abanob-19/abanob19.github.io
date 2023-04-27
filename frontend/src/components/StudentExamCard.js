@@ -1,41 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from '../pages/Instructor.module.css';
 import { Navigate } from 'react-router-dom';
+import { Card, Button, Badge, Alert } from 'react-bootstrap';
 
-function StudentExamCard({ exam, onSampleClick}) {
+function StudentExamCard({ exam, onSampleClick }) {
   const isFinished = new Date() > new Date(exam.endTime);
-  const diffInMs =  new Date(exam.endTime)-new Date() ;
-  const remainingToStart =  (new Date(exam.startTime)-new Date() )/3600000;
+  const diffInMs = new Date(exam.endTime) - new Date();
+  const remainingToStart = (new Date(exam.startTime) - new Date()) / 1000;
 
-  const duration=(new Date(exam.endTime)-new Date(exam.startTime))/3600000
-const diffInHours = diffInMs / 3600000; // divide by the number of milliseconds in an hour
-const canStart=(diffInHours>(duration/2 )) &&(remainingToStart <0);
+  const duration = (new Date(exam.endTime) - new Date(exam.startTime)) / 3600000;
+  const diffInHours = diffInMs / 3600000; // divide by the number of milliseconds in an hour
+  const canStart = diffInHours > duration / 2 && remainingToStart < 0;
   const [isLoading, setIsLoading] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(null);
+  const handleSample = async () => {
+    console.log('executed sample');
+    onSampleClick();
+  };
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const timeLeft = remainingToStart;
 
-const handleSample = async() => {
-  console.log("executed sample");
-  onSampleClick();
-}
+      if (timeLeft <= 0) {
+        clearInterval(intervalId);
+        setRemainingTime(null);
+      } else {
+        const days = Math.floor(timeLeft / 86400);
+        const hours = Math.floor((timeLeft % 86400) / 3600);
+        const minutes = Math.floor((timeLeft % 3600) / 60);
+        const seconds = Math.floor(timeLeft % 60);
+        setRemainingTime(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      }
+    }, 1000);
 
-  if(isLoading){
-    return  <div className={styles['container']}>
-    <div className={styles['loader']}></div>
-  </div>
-    }
+    return () => clearInterval(intervalId);
+  }, [remainingToStart]);
+
+ 
+
+ 
+  if (isLoading) {
+    return (
+      <div className={styles['container']}>
+        <div className={styles['loader']}></div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h3>{exam.title}</h3>
-        {(remainingToStart >0) && <p>Remaining to start: {remainingToStart} hours</p>}
-       { (remainingToStart <0) &&!isFinished && < p>open</p> }
-      <p>Course : {exam.courseName}</p>
-      <p>Start Time: {new Date(exam.startTime).toLocaleString()}</p>
-      <p>End Time: {new Date(exam.endTime).toLocaleString()}</p>
-      <p>Status: {isFinished ? "Finished" : "Not Finished"}</p>
-     { canStart && <button onClick={handleSample}>Start Exam</button> }
- 
-    </div>
+    <Card className={styles.courseCard} style={{ margin: '10px', padding: '10px' }}>
+      <Card.Body>
+        <Card.Title className={styles.cardTitle}>{exam.title}</Card.Title>
+        {exam.courseName && (
+          <Card.Subtitle className='mb-2 text-muted'>
+            Course: {exam.courseName.charAt(0).toUpperCase() + exam.courseName.slice(1)}
+          </Card.Subtitle>
+        )}
+        <Card.Text>
+          {remainingToStart > 0 && <p>Remaining to start: {remainingTime} </p>}
+          {remainingToStart < 0 && !isFinished && <Alert variant='warning'>Open</Alert>}
+          <p>Start Time: {new Date(exam.startTime).toLocaleDateString()} {new Date(exam.startTime).toLocaleTimeString()}</p>
+          <p>End Time: {new Date(exam.endTime).toLocaleDateString()} {new Date(exam.endTime).toLocaleTimeString()}</p>
+
+          <p>
+            Status:{' '}
+            <Badge variant={isFinished ? 'success' : 'danger'}>{isFinished ? 'Finished' : 'Not Finished'}</Badge>
+          </p>
+        </Card.Text>
+        {canStart && <Button onClick={handleSample}>Start Exam</Button>}
+      </Card.Body>
+    </Card>
   );
 }
 

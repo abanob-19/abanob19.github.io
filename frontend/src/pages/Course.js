@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import styles from '../pages/Instructor.module.css';
+import InstructorNavbar from "../components/instructorNavbar";
 const Course = () => {
   const [questionBanks, setQuestionBanks] = useState(null);
   const [newQuestionBankName, setNewQuestionBankName] = useState(null);
@@ -130,7 +131,8 @@ const[newBank,setNewBank]=useState(false)
   }
   return (
     <div>
-      <h1>Question Banks</h1>
+      { <InstructorNavbar/> }
+      <h1 style={{ paddingTop: '72px' }}>Question Banks</h1>
       <button onClick={handleNewQuestionBankClick}>Add Question Bank</button>
       <br />
       <br />

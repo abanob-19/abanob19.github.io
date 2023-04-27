@@ -42,8 +42,10 @@ function StudentCourseExams() {
       });
   }, [state.secVersion]);
 if(!exams|| isLoading){
-  return  <div className={styles['container']}>
+  
+  return <div> <StudentNavbar/>  <div className={styles['container']} style={{ paddingTop: '72px' }}>
   <div className={styles['loader']}></div>
+</div>
 </div>
 }
 
