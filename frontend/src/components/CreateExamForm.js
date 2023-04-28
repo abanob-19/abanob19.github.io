@@ -156,14 +156,18 @@ function CreateExamForm({ onClose }) {
           />
         </label>
         <label className={styles['form-label']}>
-          Category:
-          <input
-            type="text"
-            className={styles['form-control']}
-            value={spec.category}
-            onChange={(event) => handleSpecChange(event, index, 'category')}
-          />
-        </label>
+  Category:
+  <select
+    className={styles['form-control']}
+    value={spec.category}
+    onChange={(event) => handleSpecChange(event, index, 'category')}
+  >
+    <option value="Easy">Easy</option>
+    <option value="Medium">Medium</option>
+    <option value="Hard">Hard</option>
+  </select>
+</label>
+
         <label className={styles['form-label']}>
           Number of Questions:
           <input

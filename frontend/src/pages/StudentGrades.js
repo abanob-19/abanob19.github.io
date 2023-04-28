@@ -42,17 +42,33 @@ if(!exams|| isLoading){
 </div>
 }
 
-  return (
-    <div>
-      <StudentNavbar />
-      {exams.map(exam => (
-       <div key={exam._id}> 
-        <h1>{exam.title}</h1>
-        <h2>Grade: {exam.totalGrade} / {exam.totalPossibleGrade}</h2>
-        </div>
-      ))}
-    </div>
-  );
+return (
+  <div>
+  <StudentNavbar/>
+  <div style={{ paddingTop: '72px' , textAlign: "center"}} >
+    <h1>My Grades</h1>
+    <table style={{ borderCollapse: 'collapse', width: '40%' , backgroundColor: 'white' , margin:"auto" }}>
+      <thead>
+        <tr>
+        <th style={{ border: '1px solid black', padding: '10px', borderRadius: '50px' }}>Exam Title</th>
+          <th style={{ border: '1px solid black', padding: '10px' ,borderRadius: '50px' }}>Your Grade</th>
+          <th style={{ border: '1px solid black', padding: '10px' ,borderRadius: '50px' }}>Total Grade</th>
+        </tr>
+      </thead>
+      <tbody>
+        {exams.map(exam => (
+          <tr key={exam._id}>
+            <td style={{ border: '1px solid black', padding: '10px' }}>{exam.title}</td>
+            <td style={{ border: '1px solid black', padding: '10px'  }}>{exam.graded ? exam.totalGrade : '-'}</td>
+            <td style={{ border: '1px solid black', padding: '10px'  }}>{exam.totalPossibleGrade}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+);
 }
 
 

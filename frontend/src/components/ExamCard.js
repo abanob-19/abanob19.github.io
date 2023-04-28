@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Modal from 'react-modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card, Button,Badge,ListGroup, ListGroupItem } from "react-bootstrap";
 import {faPencilAlt , faTrash} from '@fortawesome/free-solid-svg-icons';
-import styles from '../pages/Instructor.module.css';
-import { Navigate } from 'react-router-dom';
-import { PencilSquare, Trash } from 'react-bootstrap-icons';  
-
+import styles from '../pages/Instructor.module.css'; 
+import { FaPlus,FaMinusCircle } from 'react-icons/fa';
 function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam , onSampleClick}) {
   const isFinished = new Date() > new Date(exam.endTime);
 
@@ -21,18 +20,6 @@ function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam , onSampleClick}) 
 const handleSample = async() => {
   console.log("executed sample");
   onSampleClick();
-// Navigate(`/SampleExam/?courseName=${courseName}&examId=${exam._id}`)
-// console.log(`/SampleExam/?courseName=${courseName}&examId=${exam._id}`)
-  // await axios.get(`/instructor/getQuestionsForExam/${courseName}&${exam._id}`)
-  // .then(response => {
-  //   console.log("executed sample");
-  //   alert("Sample questions generated successfully");
-  // })
-  // .catch(error => {
-  //   console.error(error);
-  // }).finally(() => {
-  //     setIsLoading(false);
-  //     });
 }
 
   const handleDeleteClick = () => {
@@ -92,35 +79,149 @@ const handleSample = async() => {
     }
   if (editing) {
     return (
+      <Modal
+      isOpen={true}
+      onRequestClose={() => {setEditing(false); onFinishEditExam()}}
+      className={styles['modal']}
+      overlayClassName={styles['overlay']}
+    >
+      <h2 className={styles['form-title']}>Edit Exam</h2>
       <div style={{ paddingTop: '72px' }}>
-      <label> Title: <input type="text" value={title} onChange={e => setTitle(e.target.value)} /></label>
-      <label> Course Name : <input type="text" value={courseName} onChange={e => setCourseName(e.target.value)} /></label>
-      <label> Start Time:  <input
-          type="datetime-local"
-          value={new Date(startTime).toISOString().slice(0, -1)}
-          onChange={(event) => setStartTime(event.target.value)}
-        /></label>
-<label> End Time:  <input
-          type="datetime-local"
-          value={new Date(endTime).toISOString().slice(0, -1)}
-          onChange={(event) => setEndTime(event.target.value)}
-        /></label>
-        {specs.map((spec, index) => (
-          <div key={index}>
-          <label>  Chapter : <input type="text" value={spec.chapter} onChange={e => handleSpecChange(index, 'chapter', e.target.value)} /></label>
-          <label> Category: <input type="text" value={spec.category} onChange={e => handleSpecChange(index, 'category', e.target.value)} /></label>
-          <label> Number of Questions:<input type="number" value={spec.numQuestions} onChange={e => handleSpecChange(index, 'numQuestions', parseInt(e.target.value))} /></label>
+      <form onSubmit={handleSaveClick} className={styles['form']} >
+        <div className={styles['form-group']}>
+          <label className={styles['form-label']}>
+            Course Name:
+            <input
+              type="text"
+              className={styles['form-control']}
+              value={courseName}
+              onChange={(event) => setCourseName(event.target.value)}
+            />
+          </label>
+        </div>
+        <div className={styles['form-group']}>
+          <label className={styles['form-label']}>
+            Exam Title:
+            <input
+              type="text"
+              className={styles['form-control']}
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+            />
+          </label>
+        </div>
+        <div className={styles['form-group']}>
+          <label className={styles['form-label']}>
+            Start Time:
+            <input
+  type="datetime-local"
+  className={styles['form-control']}
+  value={new Date(startTime).toISOString().slice(0, -1)}
+  onChange={(event) => {
+    const inputDate = new Date(event.target.value);
+    const inputValue = event.target.value.trim();
+    if (inputValue === '' || inputValue === '0') return;
+    const timestamp = inputDate.getTime() - (inputDate.getTimezoneOffset() * 60000);
+    setStartTime((inputDate + "z"))
+  }}
+/>
+
+
+
+
+              </label>
+              </div>
+              <div className={styles['form-group']}>
+              <label className={styles['form-label']}>
+              End Time:
+              <input
+  type="datetime-local"
+  className={styles['form-control']}
+  value={new Date(endTime).toISOString().slice(0, -1)}
+  onChange={(event) => {
+    const inputDate = new Date(event.target.value);
+    const inputValue = event.target.value.trim();
+    if (inputValue === '' || inputValue === '0') return;
+    const timestamp = inputDate.getTime() - (inputDate.getTimezoneOffset() * 60000);
+    setEndTime((inputDate + "z"))
+  }}
+/>
+
+              </label>
+              </div>
+              <div className={styles['form-group']}>
+                
+              <label className={styles['form-label']}>Exam Specifications:</label>
+              <button
+              type="button"
+              className={styles['btn-icon']}
+              onClick={handleAddSpec}
+              >
+              <FaPlus />
+              </button>
+              <ul>
+  {specs.map((spec, index) => (
+    <li key={index} className={styles['form-subgroup']}>
+      <div className={styles['form-subgroup-fields']}>
+        <div className={styles['form-subgroup-controls']}>
           {specs.length > 1 && (
-      <button onClick={() => handleRemoveSpec(index)}>Remove Spec</button>
-    )}
-          </div>
-        ))}
+            <div
+              
+              className={styles['btn-icon']}
+              onClick={() => handleRemoveSpec(index)}
+            >
+              <FaMinusCircle />
+            </div>
+          )}
+        </div>
+        <label className={styles['form-label']}>
+          Chapter:
+          <input
+            type="text"
+            className={styles['form-control']}
+            value={spec.chapter}
+            onChange={(event) => handleSpecChange(index, 'chapter', event.target.value)}
+          />
+        </label>
+        <label className={styles['form-label']}>
+  Category:
+  <select
+    className={styles['form-control']}
+    value={spec.category}
+    onChange={(event) => handleSpecChange( index, 'category', event.target.value)}
+  >
+    <option value="Easy">Easy</option>
+    <option value="Medium">Medium</option>
+    <option value="Hard">Hard</option>
+  </select>
+</label>
 
-        <button onClick={handleAddSpec}>Add Spec</button>
-
-        <button onClick={handleSaveClick}>Save</button>
-        <button onClick={() => {setEditing(false); onFinishEditExam()}}>Cancel</button>
+        <label className={styles['form-label']}>
+          Number of Questions:
+          <input
+            type="number"
+            className={styles['form-control']}
+            value={spec.numQuestions}
+            onChange={(event) => handleSpecChange(index, 'numQuestions', parseInt(event.target.value))}
+          />
+        </label>
       </div>
+    </li>
+  ))}
+</ul>
+
+              </div>
+              <div className={styles['form-group']}>
+              <button type="submit" className={styles['btn-primary']}>
+              Save Changes
+              </button>
+              <button type="button" className={styles['btn-secondary']} onClick={() => {setEditing(false); onFinishEditExam()}}>
+              Cancel
+              </button>
+              </div>
+              </form>
+      </div>
+      </Modal>
     );
   }
   
@@ -139,8 +240,8 @@ const handleSample = async() => {
               Course: {exam.courseName.charAt(0).toUpperCase() + exam.courseName.slice(1)}
             </Card.Subtitle>
           )}
-          <Card.Text>Start Time: {new Date(exam.startTime).toLocaleString()}</Card.Text>
-          <Card.Text>End Time: {new Date(exam.endTime).toLocaleString()}</Card.Text>
+          <Card.Text>Start Time:{new Date(exam.startTime).toLocaleDateString()} {new Date(exam.startTime).toLocaleTimeString([], { timeZone: 'UTC' })}</Card.Text>
+          <Card.Text>End Time: {new Date(exam.endTime).toLocaleDateString()} {new Date(exam.endTime).toLocaleTimeString([], { timeZone: 'UTC' })}</Card.Text>
           <p>
             Status:{' '}
             <Badge variant={isFinished ? 'success' : 'danger'}>{isFinished ? 'Finished' : 'Not Finished'}</Badge>
@@ -175,6 +276,7 @@ const handleSample = async() => {
         </Card.Body>
       </Card>
     </div>
+    
   );
 }
 

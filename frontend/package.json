@@ -20,6 +20,7 @@
     "react-bootstrap": "^2.7.2",
     "react-bootstrap-icons": "^1.10.3",
     "react-dom": "^18.2.0",
+    "react-flip-toolkit": "^7.0.17",
     "react-floating-action-button": "^1.0.5",
     "react-icons": "^4.8.0",
     "react-mathquill": "^1.0.3",

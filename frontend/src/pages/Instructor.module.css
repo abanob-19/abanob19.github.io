@@ -242,6 +242,17 @@ color: #000;
     border-bottom: 2px solid #ccc;
     padding-bottom: 0.5rem;
   }
+  .flip-text {
+    position: absolute;
+    left: 30px;
+    opacity: 0;
+    transition: all 0.5s;
+  }
+  
+  .flip-text.show {
+    opacity: 1;
+    transform: translateX(30px);
+  }
   
   
   
