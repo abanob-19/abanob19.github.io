@@ -52,7 +52,7 @@ if (loading){
             <Nav className="ml-auto">
               <Nav.Link onClick={() => handleClick1()} className={styles['nav-link-hover']}><FontAwesomeIcon icon={faHome} /></Nav.Link>
               <NavDropdown title={<FontAwesomeIcon icon={faUser} />} alignRight>
-              <NavDropdown.Item onClick={() => handleClick3()}>
+              <NavDropdown.Item onClick={() => setShowCreateExamForm(true)}>
                <FontAwesomeIcon icon={faFileAlt} className={styles['nav-link-hover']} /> Create Exam
                </NavDropdown.Item>
                 <NavDropdown.Item onClick={() => handleClick3()}>
@@ -67,7 +67,7 @@ if (loading){
           </Navbar.Collapse>
         </div>
       </Navbar>
-      {showCreateExamForm && <CreateExamForm onClose={() => setShowCreateExamForm(false)} />}
+      {showCreateExamForm && <CreateExamForm onClose={() => setShowCreateExamForm(false)} style={{ paddingTop: '200px' }}/>}
     </div>
   );
   

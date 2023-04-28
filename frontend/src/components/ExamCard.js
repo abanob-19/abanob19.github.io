@@ -145,9 +145,15 @@ const handleSample = async() => {
             Status:{' '}
             <Badge variant={isFinished ? 'success' : 'danger'}>{isFinished ? 'Finished' : 'Not Finished'}</Badge>
           </p>
+         
+          <p>
+         
+            <Badge variant='danger'>{ 'Specifications'}</Badge>
+          </p>
           <ListGroup>
             {exam.specs.map((spec, index) => (
               <ListGroupItem key={index}>
+                
                 <div>
                   <strong>Chapter:</strong> {spec.chapter}
                 </div>
