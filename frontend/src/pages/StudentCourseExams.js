@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
  import styles from './Instructor.module.css';
  import { useNavigate } from "react-router-dom";
  import { useInRouterContext, Navigate } from 'react-router-dom'
-
+import { Container } from 'react-bootstrap';
 function StudentCourseExams() {
  // const { navigate } = useInRouterContext();
   const navigate = useNavigate();
@@ -52,12 +52,14 @@ if(!exams|| isLoading){
   return (
     <div style={{ paddingTop: '72px' }}>
       <StudentNavbar/>
+      <Container fluid className="d-flex flex-wrap justify-content-center" >
       {exams.map(exam => (
         
          <StudentExamCard key={exam._id} exam={exam}    onSampleClick={()=>handleStart(exam._id,exam.title,  (new Date(exam.endTime)-new Date(exam.startTime))/3600000
         , exam.endTime)}/>
         
       ))}
+      </Container>
     </div>
   );
 }

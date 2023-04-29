@@ -49,7 +49,7 @@ function StudentExamCard({ exam, onSampleClick }) {
   }
 
   return (
-    <Card className={styles.courseCard} style={{ margin: '10px', padding: '10px' }}>
+    <Card className={styles.courseCard} style={{ margin: '10px', padding: '10px' ,textAlign: 'center' }} >
       <Card.Body>
         <Card.Title className={styles.cardTitle}>{exam.title}</Card.Title>
         {exam.courseName && (
@@ -58,7 +58,7 @@ function StudentExamCard({ exam, onSampleClick }) {
           </Card.Subtitle>
         )}
         <Card.Text>
-          {remainingToStart > 0 && <p>Remaining to start: {remainingTime} </p>}
+          {remainingToStart > 0 && <p>Remaining Time: {remainingTime} </p>}
           {remainingToStart < 0 && !isFinished && <Alert variant='warning'>Open</Alert>}
           <p>Start Time: {new Date(exam.startTime).toLocaleDateString()} {new Date(exam.startTime).toLocaleTimeString()}</p>
           <p>End Time: {new Date(exam.endTime).toLocaleDateString()} {new Date(exam.endTime).toLocaleTimeString()}</p>
@@ -68,7 +68,7 @@ function StudentExamCard({ exam, onSampleClick }) {
             <Badge variant={isFinished ? 'success' : 'danger'}>{isFinished ? 'Finished' : 'Not Finished'}</Badge>
           </p>
         </Card.Text>
-        {canStart && <Button onClick={handleSample}>Start Exam</Button>}
+        {canStart && <Button onClick={handleSample} className="mr-3 rounded-pill  " >Start Exam</Button> }
       </Card.Body>
     </Card>
   );

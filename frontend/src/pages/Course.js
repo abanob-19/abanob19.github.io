@@ -4,6 +4,10 @@ import { useParams } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import styles from '../pages/Instructor.module.css';
 import InstructorNavbar from "../components/instructorNavbar";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faEdit, faTrashAlt, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { Modal, Button } from 'react-bootstrap';
+
 const Course = () => {
   const [questionBanks, setQuestionBanks] = useState(null);
   const [newQuestionBankName, setNewQuestionBankName] = useState(null);
@@ -11,6 +15,8 @@ const Course = () => {
   const [loading,setLoading]=useState(false)
   const { courseName } = useParams();
   const[version,setVersion]=useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     // Fetch question banks from server and update state
@@ -31,6 +37,7 @@ const[newBank,setNewBank]=useState(false)
     setNewQuestionBankName("");
     setEditingQuestionBankId(null);
     setNewBank(true)
+    setShowModal(true);
   };
 
   const handleNewQuestionBankNameChange = event => {
@@ -39,6 +46,10 @@ const[newBank,setNewBank]=useState(false)
 
    const handleNewQuestionBankSubmit = async () => {
     // Send a POST request to create the new question bank
+    if(newQuestionBankName==null||newQuestionBankName==""){
+      alert("Please enter a name for the question bank")
+      return
+    }
     setLoading(true)
     fetch(`/instructor/addQuestionBank`, {
       method: "POST",
@@ -53,6 +64,7 @@ const[newBank,setNewBank]=useState(false)
         setQuestionBanks([...questionBanks, data]);
         setNewQuestionBankName(null);
         setNewBank(false);
+        setShowModal(false);
         setVersion(version => version + 1);
       })
       .catch(error => console.error(error));
@@ -74,6 +86,10 @@ const[newBank,setNewBank]=useState(false)
 
   const handleQuestionBankSubmit = async (questionBankId) => {
     // Send a PUT request to update the selected question bank
+    if(newQuestionBankName==null||newQuestionBankName==""){
+      alert("Please enter a name for the question bank")
+      return
+    }
     setLoading(true)
     await fetch(`/instructor/editQuestionBank/`, {
       method: "PUT",
@@ -99,8 +115,11 @@ const[newBank,setNewBank]=useState(false)
       })
       .catch(error => console.error(error));
    };
+   
 
   const handleQuestionBankDelete = (questionBankId) => {
+    const confirmed = window.confirm("Are you sure you want to delete this question bank?");
+    if (confirmed) {
     setLoading(true)
     fetch(`/instructor/deleteQuestionBank/`, {
       method: "Delete",
@@ -120,7 +139,7 @@ const[newBank,setNewBank]=useState(false)
         setVersion(version => version + 1);
        
       })
-      .catch(error => console.error(error));
+      .catch(error => console.error(error));}
   };
   if (!questionBanks||loading) {
     return (
@@ -131,37 +150,80 @@ const[newBank,setNewBank]=useState(false)
   }
   return (
     <div>
-      { <InstructorNavbar/> }
-      <h1 style={{ paddingTop: '72px' }}>Question Banks</h1>
-      <button onClick={handleNewQuestionBankClick}>Add Question Bank</button>
-      <br />
-      <br />
-      {newQuestionBankName !== null && newBank&& (
-        <div>
-            
-          <input type="text" value={newQuestionBankName} onChange={handleNewQuestionBankNameChange} />
-          <button onClick={handleNewQuestionBankSubmit}>Add</button>
-          <button onClick={() => {setNewQuestionBankName(null);setNewBank(false);}}>Cancel</button>
-        </div>
-      )}
-      {questionBanks.map(questionBank => (
-        <div key={questionBank._id}>
+    <InstructorNavbar />
+    <div className="d-flex align-items-center justify-content-center mb-3" style={{paddingTop:'72px'}}>
+    <div >
+  <h1 className="text-center mb-0">{courseName.charAt(0).toUpperCase() + courseName.slice(1)}</h1>
+  <h2 className="text-center mb-0">Question Banks</h2>
+  
+</div>
+      
+     
+      
+    </div>
+    <br />
+    <div>
+    
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add New Question Bank</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+  <div className="mb-3">
+    <label htmlFor="newQuestionBankName" className="form-label">Enter New Name</label>
+    <input type="text" className="form-control" id="newQuestionBankName" value={newQuestionBankName} onChange={handleNewQuestionBankNameChange} />
+  </div>
+</Modal.Body>
+        <Modal.Footer>
+          {/* <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button> */}
+          <Button variant="success" onClick={handleNewQuestionBankSubmit}>
+            <FontAwesomeIcon icon={faSave} className="me-2" />
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
+    {questionBanks.map(questionBank => (
+      <div key={questionBank._id} className="card mb-3" style={{ maxWidth: '750px', margin: '0 auto' }}>
+        <div className="card-body">
           {editingQuestionBankId === questionBank._id ? (
-            <div>
-              <input type="text" value={newQuestionBankName} onChange={handleQuestionBankNameChange} />
-              <button onClick={() => handleQuestionBankSubmit(questionBank._id)}>Save</button>
-              <button onClick={() => setEditingQuestionBankId(null)}>Cancel</button>
+            <div className="mb-3">
+              <input type="text" className="form-control me-2" value={newQuestionBankName} onChange={handleQuestionBankNameChange} />
+              <button className="btn btn-success me-2" onClick={() => handleQuestionBankSubmit(questionBank._id)}>
+                <FontAwesomeIcon icon={faSave} className="me-2" />
+                Save
+              </button>
+              <button className="btn btn-danger" onClick={() => setEditingQuestionBankId(null)}>
+                <FontAwesomeIcon icon={faTimes} className="me-2" />
+              </button>
             </div>
           ) : (
-            <div>
-                
-              <Link to={`/QuestionBank/?questionBankName=${questionBank.title}&name=${questionBank.course}`}>{questionBank.title}</Link>
-              <button onClick={() => handleQuestionBankEditClick(questionBank._id)}>Edit</button>
-              <button onClick={() => handleQuestionBankDelete(questionBank._id)}>Delete</button>
-            </div>)}
+            <div className="d-flex align-items-center justify-content-between">
+              <Link to={`/QuestionBank/?questionBankName=${questionBank.title}&name=${questionBank.course}`} className="text-decoration-none">
+                <h5 className="card-title mb-0" style={{cursor: 'pointer',  fontWeight: 'bold' , }}>{questionBank.title}</h5>
+              </Link>
+              <div>
+                <button className="btn btn-primary me-2" onClick={() => handleQuestionBankEditClick(questionBank._id)}>
+                  <FontAwesomeIcon icon={faEdit} />
+                </button>
+                <button className="btn btn-danger" onClick={() => handleQuestionBankDelete(questionBank._id)}>
+                  <FontAwesomeIcon icon={faTrashAlt} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-        ))}
+      </div>
+    ))}
+    <div>
+      {/* your component code */}
+      <button className="btn btn-success d-flex align-items-center fixed-bottom" style={{width:'40px' ,position: 'fixed',  bottom: 0,right: 0, margin: '20px'}} onClick={handleNewQuestionBankClick}>
+        <FontAwesomeIcon icon={faPlus} />
+      </button>
     </div>
-    );
+  </div>
+  );
 };
 export default Course;

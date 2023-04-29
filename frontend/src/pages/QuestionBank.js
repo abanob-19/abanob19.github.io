@@ -5,6 +5,9 @@ import PDFViewer from "./PDFViewer";
 import InstructorNavbar from '../components/instructorNavbar';
 import axios from 'axios';
 import styles from '../pages/Instructor.module.css';
+import { Button, Card, Form, ListGroup } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faEdit, faTrashAlt, faSave, faTimes, faP , faDownload, faUpload} from '@fortawesome/free-solid-svg-icons';
 //import QuestionForm from "../components/QuestionForm";
 import QuestionForm from "../components/QuestionForm";
 import { pdfjs } from 'react-pdf';
@@ -115,6 +118,8 @@ const[loading,setLoading]=useState(false)
             alert("You can't delete more choices");
         else
         {
+          const confirmed = window.confirm("Are you sure you want to delete this choice?");
+    if (confirmed) {
         question.choices.splice(index,1);
         setLoading(true)
         fetch('/instructor/editMcqQuestion', {
@@ -147,7 +152,7 @@ const[loading,setLoading]=useState(false)
             .catch(error => {
               console.error(error);
               alert('Failed to elete choice');
-            });
+            });}
           }  //setVersion(version => version + 1); // force re-render
       };
     //create a function to handle edit question
@@ -156,6 +161,8 @@ const[loading,setLoading]=useState(false)
     }
     //create a function to handle delete question
     const handleDeleteQuestion = (question) => {
+      const confirmed = window.confirm("Are you sure you want to delete this question ?");
+    if (confirmed) {
       setLoading(true)
         fetch('/instructor/deleteMcqQuestion', {
           method: 'Delete',
@@ -182,7 +189,7 @@ const[loading,setLoading]=useState(false)
             console.error(error);
             alert('Failed to delete question');
           });
-      }
+      }}
     
     //create a function to handle add choice
     const[editedQuestionIndexforAddChoice,setEditedQuestionIndexforAddChoice]=useState(null);
@@ -420,7 +427,7 @@ const[loading,setLoading]=useState(false)
               alert('Failed to edit Text');
             });
       // setVersion(version => version + 1); // force re-render
-       setEditedText(null)
+       setEditedText(null);
        setEditedQuestionIndexforEditText(null)
     }
  
@@ -522,175 +529,171 @@ if (!questionBank||loading) {
   // call the handleDownload function when the user clicks a download button or link
   
   return (
-    
-    
-    
-    <div>
-       <InstructorNavbar/>
-      <h1>{questionBankName}</h1>
-      <p>{name}</p>
-      <button onClick={handleAddQuestion}>Add Question</button>
-
-      {displayForm && <QuestionForm onFinish={handleFinish} />}
-
-      {questionBank &&
-        questionBank.questions &&
-        questionBank.questions.map((question,qIndex) => (
-          
-          <div key={question._id}>
-               {editedQuestionIndexforEditText == qIndex && editedText != null ? (
-               
-               <div>
-                 
-               <input
-                 type="text"
-                 value={editedText}
-                 onChange={(e) => setEditedText(e.target.value)}
-               />
-               <button onClick={() => handleFinishEditText(editedText,question)}>
-                 Finish
-               </button>
-             </div>
-             ):(
+    <div  >
+      <InstructorNavbar />
+      <h1 style={{paddingTop:'72px'}}>{name.charAt(0).toUpperCase()+name.slice(1)}</h1>
+      <h2 >{questionBankName}</h2>
+      
+      {displayForm && <QuestionForm onFinish={() => setDisplayForm(false)} />}
+      {questionBank && questionBank.questions && questionBank.questions.map((question, qIndex) => (
+        <Card key={question._id} className={styles.courseCard}  style={{ boxShadow: '0px 0px 24px 24px rgba(0,0,0,0.1)', borderRadius: '10px' , width:'70%'}}>
+          <Card.Body>
+            {editedQuestionIndexforEditText === qIndex && editedText !== null ? (
               <div>
-            <h3>{question.text}</h3>
-            <button onClick={() => handleDeleteQuestion(question._id)}>
-              Delete Question
-            </button> 
-            <button onClick={() => handleEditText(qIndex)}>
-               Edit Text
-             </button>
+                <Form.Control type="text" value={editedText} onChange={(e) => setEditedText(e.target.value)} />
+                <Button variant="primary" onClick={() => handleFinishEditText(editedText, question)}> <FontAwesomeIcon icon={faSave} />Save</Button>
+                <button className="btn btn-danger" onClick={() => {setEditedText(null);setEditedQuestionIndexforEditText(null)}}>
+                <FontAwesomeIcon icon={faTimes} className="me-2" />
+              </button>
+              </div>
+            ) : (
+              <div className="d-flex align-items-center">
+              <h3 className="mb-0 me-2">{question.text}</h3>
+              <div className="d-flex">
+                <FontAwesomeIcon icon={faEdit} className="text-warning ms-2" style={{ cursor: 'pointer' }} onClick={() => {
+                  setEditedText(question.text);
+                  setEditedQuestionIndexforEditText(qIndex);
+                }} />
+                <FontAwesomeIcon icon={faTrashAlt} className="text-danger ms-2" style={{ cursor: 'pointer' }} onClick={() => handleDeleteQuestion(question._id)} />
+              </div>
             </div>
             )}
-            {question.type === "mcq" && (
-  <div>
-    {editedQuestionIndexforAddChoice === qIndex && AddedChoice !== null ? (
-      <div>
-        <input
-          type="text"
-          value={AddedChoice}
-          onChange={(e) => setAddedChoice(e.target.value)}
-        />
-        <button onClick={() => handleFinishAddedChoice(AddedChoice, question)}>
-          Finish
-        </button>
-      </div>
-    ) : (
-      <button onClick={() => handleAddChoice(qIndex)}>
-        Add Choice
-      </button>
-    )}
-  </div>
-)}
-
-
-
-            <ul>
-            {question.type === "mcq" && (
-  <div> {question.choices.map((choice, index) => (
-                <li key={index}>
-                  {editedChoiceIndex == index && editedChoice != null && editedQuestionIndex==qIndex ? (
+            {question.type === "mcq" && 
+            <ListGroup className="my-3" style={{width:'60%'}}>
+              <h2>Choices:</h2>
+              {question.choices.map((choice, cIndex) => (
+                <ListGroup.Item key={cIndex}>
+                  {editedChoiceIndex === cIndex && editedChoice !== null ? (
                     <div>
-                      <input
-                        type="text"
-                        value={editedChoice}
-                        onChange={(e) => setEditedChoice(e.target.value)}
-                      />
-                      <button onClick={() => handleFinishEditChoice(editedChoice,question)}>
-                        Finish
-                      </button>
+                      <Form.Control type="text" value={editedChoice} onChange={(e) => setEditedChoice(e.target.value)} />
+                      <Button variant="primary" onClick={() => handleFinishEditChoice(editedChoice, question, cIndex)}> <FontAwesomeIcon icon={faSave} />Save</Button>
+                      <button className="btn btn-danger" onClick={() => {setEditedChoice(null);setEditedChoiceIndex(null); setEditedQuestionIndex(null);}}>
+                <FontAwesomeIcon icon={faTimes} className="me-2" />
+              </button>
                     </div>
                   ) : (
-                    <div>
+                    <div >
                       {choice}
-                      <button onClick={() => handleEditChoice(index,qIndex)}>Edit</button>
-                      <button onClick={() => handleDeleteChoice(index,question)}>
-                        Delete
-                      </button>
+                      <FontAwesomeIcon icon={faEdit}  style={{ cursor: 'pointer' , marginLeft: '10px' }}onClick={() => {
+                        setEditedChoice(choice);
+                        setEditedChoiceIndex(cIndex);
+                      }}/>
+                      <FontAwesomeIcon icon={faTrashAlt}  style={{ cursor: 'pointer' , marginLeft: '10px' }} onClick={() => handleDeleteChoice(cIndex,question)}/>
                     </div>
                   )}
-                </li>
-              ))} </div>)}
-            </ul>
-            {question.type === "mcq" && (
-  <div>  {editedQuestionIndexforEditAnswer == qIndex && editedAnswer != null ? (
-               
-               <div>
-                 
-               <input
-                 type="text"
-                 value={editedAnswer}
-                 onChange={(e) => setEditedAnswer(e.target.value)}
-               />
-               <button onClick={() => handleFinishEditAnswer(editedAnswer,question)}>
-                 Finish
-               </button>
-             </div>
-             ):(
+                </ListGroup.Item>
+              ))}
+              {editedQuestionIndexforAddChoice === qIndex && AddedChoice !== null ? (
                 <div>
-                Answer: {question.answer}
-             <button onClick={() => handleEditAnswer(qIndex)}>
-               Edit Answer
-             </button>
-             </div>
-             )}</div>)}
-              {editedQuestionIndexforEditCategory == qIndex && editedCategory != null ? (
-               
-               <div>
-                 
-               <input
-                 type="text"
-                 value={editedCategory}
-                 onChange={(e) => setEditedCategory(e.target.value)}
-               />
-               <button onClick={() => handleFinishEditCategory(editedCategory,question)}>
-                 Finish
-               </button>
-             </div>
-             ):(
+                  <Form.Control type="text" value={AddedChoice} onChange={(e) => setAddedChoice(e.target.value)} />
+                  <Button variant="primary" onClick={() => handleFinishAddedChoice(AddedChoice, question)}> <FontAwesomeIcon icon={faSave} /> Save</Button>
+                  <button className="btn btn-danger" onClick={() => {setEditedQuestionIndexforAddChoice(null);setAddedChoice(null)}}>
+                <FontAwesomeIcon icon={faTimes} className="me-2" />
+              </button>
+                </div>
+              ) : (
                 <div>
-                Category: {question.category}
-             <button onClick={() => handleEditCategory(qIndex)}>
-               Edit Category
-             </button>
-             </div>
-             )}
-             {editedQuestionIndexforEditGrade == qIndex && editedGrade != null ? (
-               
-               <div>
-               <input
-                 type="text"
-                 value={editedGrade}
-                 onChange={(e) => setEditedGrade(e.target.value)}
-               />
-               <button onClick={() => handleFinishEditGrade(editedGrade,question)}>
-                 Finish
-               </button>
-             </div>
-             ):(
-                <div>
-                Grade: {question.grade}
-             <button onClick={() => handleEditGrade(qIndex)}>
-             {editedQuestionIndexforEditGrade}
-
-               Edit Grade
-             </button>
-             </div>
-             )}
+                  <Button variant="success" onClick={() => handleAddChoice(qIndex)}> <FontAwesomeIcon icon={faPlus} className="me-2" />Add Choice</Button>
+                </div>
+              )}
+            </ListGroup>}
+            {editedQuestionIndexforEditAnswer === qIndex && editedAnswer !== null ? (
               <div>
-      type: {question.type}
+              <Form.Select value={editedAnswer} onChange={(e) => setEditedAnswer(e.target.value)} style={{width:'20%'}}>
+                {question.choices.map((choice, index) => (
+                  <option key={index} value={choice}>{choice}</option>
+                ))}
+              </Form.Select>
+              <Button variant="primary" onClick={() => handleFinishEditAnswer(editedAnswer, question)}>
+                <FontAwesomeIcon icon={faSave} className="me-2" />Save
+              </Button>
+              <button className="btn btn-danger" onClick={() => {
+                setEditedAnswer(null);
+                setEditedQuestionIndexforEditAnswer(null);
+              }}>
+                <FontAwesomeIcon icon={faTimes} className="me-2" />
+              </button>
+            </div>
+            ) : (
+              <div className="d-flex align-items-center">
+              <h3 className="mb-0 me-2">Answer:</h3>
+              <p className="mb-0">{question.answer}</p>
+              <FontAwesomeIcon icon={faEdit}  style={{ cursor: 'pointer' , marginLeft: '10px' }} onClick={() => {
+                setEditedAnswer(question.answer);
+                setEditedQuestionIndexforEditAnswer(qIndex);
+              }} className="ms-2"/>
+            </div>
+            )}
+            {editedQuestionIndexforEditCategory === qIndex && editedCategory !== null ? (
+              <div>
+                 <Form.Select value={editedCategory} onChange={(e) => setEditedCategory(e.target.value)} style={{width:'8%'}}>
+      <option value="Easy">Easy</option>
+      <option value="Medium">Medium</option>
+      <option value="Hard">Hard</option>
+    </Form.Select>
+                <Button variant="primary" onClick={() => handleFinishEditCategory(editedCategory, question)}><FontAwesomeIcon icon={faSave} />Save</Button>
+                <button className="btn btn-danger" onClick={() => {
+                setEditedCategory(null);
+                setEditedQuestionIndexforEditCategory(null);
+              }}>
+                <FontAwesomeIcon icon={faTimes} className="me-2" />
+              </button>
+              </div>
+            ) : (
+              <div className="d-flex align-items-center">
+              <h3 className="mb-0 me-2">Category:</h3>
+              <p className="mb-0">{question.category}</p>
+                <FontAwesomeIcon icon={faEdit}  style={{ cursor: 'pointer' , marginLeft: '10px' }}onClick={() => {
+                  setEditedCategory(question.category);
+                  setEditedQuestionIndexforEditCategory(qIndex);
+                }}/>
+              </div>
+            )}
+            {editedQuestionIndexforEditGrade === qIndex && editedGrade !== null ? (
+              <div>
+<Form.Control type="number" value={editedGrade} onChange={(e) => setEditedGrade(e.target.value)} style={{ width: '4%' }} />                
+<Button variant="primary" onClick={() => handleFinishEditGrade(editedGrade, question)}><FontAwesomeIcon icon={faSave} className="me-2" />Save</Button>
+<button className="btn btn-danger" onClick={() => {
+                setEditedGrade(null);
+                setEditedQuestionIndexforEditGrade(null);
+              }}>
+                <FontAwesomeIcon icon={faTimes} className="me-2" />
+              </button>
+                
+              </div>
+            ) : (
+              <div className="d-flex align-items-center">
+              <h3 className="mb-0 me-2">Grade:</h3>
+              <p className="mb-0">{question.grade}</p>
+              <FontAwesomeIcon icon={faEdit}  style={{ cursor: 'pointer' , marginLeft: '10px' }} onClick={() => {
+                setEditedGrade(question.grade);
+                setEditedQuestionIndexforEditGrade(qIndex);
+              }} />
+            </div>
+            )}
+           <Form.Group controlId="formFile">
+  <Form.Label>Attachments:</Form.Label>
+  <Form.Control type="file" onChange={(e) => handleFileChange(e)} style={{ width: '35%' }}/>
+  <Button className="my-2" variant="primary" onClick={() => handleUpload(question._id)}>
+    <FontAwesomeIcon icon={faUpload} className="me-2" />
+    Upload
+  </Button>
+  {question.attachment &&
+    <Button variant="danger" onClick={() => handleDownload(question.attachment)}>
+      <FontAwesomeIcon icon={faDownload} className="me-2" />
+      Download
+    </Button>
+  }
+</Form.Group>
+          </Card.Body>
+        </Card>
+      ))}
+       <div>
+      {/* your component code */}
+      <button className="btn btn-success d-flex align-items-center fixed-bottom" style={{width:'40px' ,position: 'fixed',  bottom: 0,right: 0, margin: '20px' , marginLeft:'1450px'} } onClick={() => setDisplayForm(true)} >
+        <FontAwesomeIcon icon={faPlus} />
+      </button>
     </div>
-             
-      <input type="file" onChange={handleFileChange} />
-        <button onClick={() => handleUpload(question._id)}>Upload</button>
-        <div>
-      {question.attachment &&  <button onClick={() => handleDownload(question.attachment)}>Download</button>}
-    </div>
-   
-        {/* Attachment: {(question.attachment)&& <AttachmentViewer binaryData={question.attachment.data} mimeType={question.attachment.mimeType} />} */}
-    
-          </div>
-        ))}
     </div>
   );
 };
