@@ -185,7 +185,7 @@ const seeMyCourses=async(req,res)=>{
       // loop through the specs array
       
       for (let i = 0; i < specsArray.length; i++) {
-        const { chapter, category, numQuestions } = specsArray[i];
+        const { chapter, category, numQuestions , grade} = specsArray[i];
   
         // find the question bank in the questionBanks array by name
         const questionBank = myCourse.questionBanks.find((qb) => qb.title === chapter);
@@ -193,10 +193,14 @@ const seeMyCourses=async(req,res)=>{
         // find the questions in the questions array with the given category and numQuestions
         const questionsForChapter = _.sampleSize(questionBank.questions.filter((q) => q.category === category), numQuestions);
         const selectedQuestions = questionsForChapter.slice(0, numQuestions);
-  
+      //loop over questions to set grade for each question
+        for(let j=0;j<selectedQuestions.length;j++){
+          selectedQuestions[j].grade=grade
+        }
         // add the questions to the array
         questions.push(...selectedQuestions);
       }
+      
       var totalGrade=0;
       //loop over questions to calculate total grade
       for(let i=0;i<questions.length;i++){

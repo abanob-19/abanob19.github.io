@@ -7,7 +7,8 @@ import { Card, Button, Badge, Alert } from 'react-bootstrap';
 function StudentExamCard({ exam, onSampleClick }) {
   const isFinished = new Date() > new Date(exam.endTime);
   const diffInMs = new Date(exam.endTime) - new Date();
-  const remainingToStart = (new Date(exam.startTime) - new Date()) / 1000;
+  const remainingToStart = (new Date(exam.startTime).getTime() + new Date().getTimezoneOffset() * 60 * 1000
+  - new Date()) / 1000;
 
   const duration = (new Date(exam.endTime) - new Date(exam.startTime)) / 3600000;
   const diffInHours = diffInMs / 3600000; // divide by the number of milliseconds in an hour
@@ -60,8 +61,8 @@ function StudentExamCard({ exam, onSampleClick }) {
         <Card.Text>
           {remainingToStart > 0 && <p>Remaining Time: {remainingTime} </p>}
           {remainingToStart < 0 && !isFinished && <Alert variant='warning'>Open</Alert>}
-          <p>Start Time: {new Date(exam.startTime).toLocaleDateString()} {new Date(exam.startTime).toLocaleTimeString()}</p>
-          <p>End Time: {new Date(exam.endTime).toLocaleDateString()} {new Date(exam.endTime).toLocaleTimeString()}</p>
+          <p>Start Time: {new Date(exam.startTime).toLocaleDateString()} {new Date(exam.startTime).toLocaleTimeString([], { timeZone: 'UTC' })}</p>
+          <p>End Time: {new Date(exam.endTime).toLocaleDateString()} {new Date(exam.endTime).toLocaleTimeString([], { timeZone: 'UTC' })}</p>
 
           <p>
             Status:{' '}

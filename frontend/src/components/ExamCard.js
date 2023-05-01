@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
+import { Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card, Button,Badge,ListGroup, ListGroupItem } from "react-bootstrap";
 import {faPencilAlt , faTrash} from '@fortawesome/free-solid-svg-icons';
@@ -14,9 +15,19 @@ function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam , onSampleClick}) 
   const [courseName, setCourseName] = useState(exam.courseName);
   const [startTime, setStartTime] = useState(exam.startTime);
   const [endTime, setEndTime] = useState(exam.endTime);
+  const [examType, setExamType] = useState(exam.type);
   const [specs, setSpecs] = useState(exam.specs);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [questionBanks, setQuestionBanks] = useState([]);
+// useEffect(() => {
+//   console.log("exam card rendered")
+//   const fetchData =  () => { 
+//     fetch(`/instructor/seeCourse/${exam.courseName}`)
+//  .then(async response => await response.json())
+//  .then(data => setQuestionBanks(data))
+//  .catch(error => console.error(error));}
+//  fetchData();
+// }, [courseName])
 const handleSample = async() => {
   console.log("executed sample");
   onSampleClick();
@@ -29,13 +40,65 @@ const handleSample = async() => {
   const handleEditClick = () => {
     setEditing(true);
     onEdit();
+    const fetchData =  () => { 
+      fetch(`/instructor/seeCourse/${exam.courseName}`)
+   .then(async response => await response.json())
+   .then(data => setQuestionBanks(data))
+   .catch(error => console.error(error));}
+   fetchData();
   };
 
-  const handleSaveClick = async() => {
+  const handleSaveClick = async(event) => {
+    event.preventDefault();
+    const startDateTime = Date.parse(startTime);
+    const endDateTime = Date.parse(endTime);
+        var flag=false
+        var flag2=false
+        for (let i = 0; i < specs.length; i++) {
+          if (specs[i].chapter === '' || specs[i].category === '' || specs[i].numQuestions === '' || specs[i].grade === '') {
+            console.log(specs[i].chapter,specs[i].category,specs[i].numQuestions,specs[i].grade)
+           flag=true
+           console.log("specs empty")
+          }
+        }
+        console.log("here")
+        //loop over specs and check if there is a duplicate
+        for (let i = 0; i < specs.length; i++) {
+          for (let j = i+1; j < specs.length; j++) {
+            if (specs[i].chapter === specs[j].chapter && specs[i].category === specs[j].category) {
+              flag2=true
+              console.log("duplicate specs")
+            }
+          }
+        }
+        console.log("here2")
+        if(title==='' || flag){
+          alert("Please fill all fields")
+          console.log("title or specs emoty")
+        }
+        else if (flag2){
+          alert("Please remove duplicate specifications")
+          console.log("duplicate specs")
+        }
+        else if(isNaN(startDateTime) || isNaN(endDateTime)){
+          alert("Please enter a valid date")
+          console .log("invalid date")
+        }
+        else if(startDateTime>endDateTime){
+          alert("Start time must be before end time")
+          console.log("start time after end time")
+        }
+        else if(startDateTime<Date.now()){
+          alert("Start time must be in the future")
+          console.log("start time in the past")
+        }
+        else{
+    
     setIsLoading(true);
     await axios.put(`/instructor/editExam/`, {
         courseName,
         title,
+        type:examType,
          startTime,
          endTime,
          specs,
@@ -53,10 +116,10 @@ const handleSample = async() => {
         setIsLoading(false);
         });
     onFinishEditExam();
-  };
+   } };
 
   const handleAddSpec = () => {
-    setSpecs(prevSpecs => [...prevSpecs, { chapter: '', category: '', numQuestions: 0 }]);
+    setSpecs(prevSpecs => [...prevSpecs, { chapter: '', category: 'Easy', numQuestions: 0 ,grade:0 }]);
   };
   const handleRemoveSpec = (index) => {
     setSpecs(prevSpecs => {
@@ -86,17 +149,12 @@ const handleSample = async() => {
       overlayClassName={styles['overlay']}
     >
       <h2 className={styles['form-title']}>Edit Exam</h2>
-      <div style={{ paddingTop: '72px' }}>
+      <div style={{}}>
       <form onSubmit={handleSaveClick} className={styles['form']} >
         <div className={styles['form-group']}>
           <label className={styles['form-label']}>
-            Course Name:
-            <input
-              type="text"
-              className={styles['form-control']}
-              value={courseName}
-              onChange={(event) => setCourseName(event.target.value)}
-            />
+             {courseName.charAt(0).toUpperCase() + courseName.slice(1)}
+           
           </label>
         </div>
         <div className={styles['form-group']}>
@@ -112,6 +170,23 @@ const handleSample = async() => {
         </div>
         <div className={styles['form-group']}>
           <label className={styles['form-label']}>
+            Exam Type:
+             <select
+            className={styles['form-control']}
+           value={examType}
+            onChange={(event) => setExamType(event.target.value)}
+>
+  
+<option value="Quiz">Quiz</option>
+  <option value="Final">Final</option>
+  <option value="MidTerm">MidTerm</option>
+  <option value="Assignment">Assignment</option>
+ 
+</select>
+          </label>
+        </div>
+        <div className={styles['form-group']}>
+          <label className={styles['form-label']}>
             Start Time:
             <input
   type="datetime-local"
@@ -121,7 +196,6 @@ const handleSample = async() => {
     const inputDate = new Date(event.target.value);
     const inputValue = event.target.value.trim();
     if (inputValue === '' || inputValue === '0') return;
-    const timestamp = inputDate.getTime() - (inputDate.getTimezoneOffset() * 60000);
     setStartTime((inputDate + "z"))
   }}
 />
@@ -142,7 +216,6 @@ const handleSample = async() => {
     const inputDate = new Date(event.target.value);
     const inputValue = event.target.value.trim();
     if (inputValue === '' || inputValue === '0') return;
-    const timestamp = inputDate.getTime() - (inputDate.getTimezoneOffset() * 60000);
     setEndTime((inputDate + "z"))
   }}
 />
@@ -175,13 +248,13 @@ const handleSample = async() => {
           )}
         </div>
         <label className={styles['form-label']}>
-          Chapter:
-          <input
-            type="text"
-            className={styles['form-control']}
-            value={spec.chapter}
-            onChange={(event) => handleSpecChange(index, 'chapter', event.target.value)}
-          />
+          Bank:
+          <Form.Select  value={spec.chapter} onChange={(event) => handleSpecChange( index, 'chapter',event.target.value)} className={styles['form-control']}>
+               <option value="">Select Bank</option>
+                {questionBanks.map((bank,index) => (
+                  <option key={index} value={bank.title}>{bank.title}</option>
+                ))}
+              </Form.Select>
         </label>
         <label className={styles['form-label']}>
   Category:
@@ -203,6 +276,15 @@ const handleSample = async() => {
             className={styles['form-control']}
             value={spec.numQuestions}
             onChange={(event) => handleSpecChange(index, 'numQuestions', parseInt(event.target.value))}
+          />
+        </label>
+        <label className={styles['form-label']}>
+          Grade:
+          <input
+            type="number"
+            className={styles['form-control']}
+            value={spec.grade}
+            onChange={(event) => handleSpecChange( index,'grade', parseInt(event.target.value))}
           />
         </label>
       </div>
@@ -242,27 +324,37 @@ const handleSample = async() => {
           )}
           <Card.Text>Start Time:{new Date(exam.startTime).toLocaleDateString()} {new Date(exam.startTime).toLocaleTimeString([], { timeZone: 'UTC' })}</Card.Text>
           <Card.Text>End Time: {new Date(exam.endTime).toLocaleDateString()} {new Date(exam.endTime).toLocaleTimeString([], { timeZone: 'UTC' })}</Card.Text>
-          <p>
-            Status:{' '}
-            <Badge variant={isFinished ? 'success' : 'danger'}>{isFinished ? 'Finished' : 'Not Finished'}</Badge>
-          </p>
-         
-          <p>
-         
-            <Badge variant='danger'>{ 'Specifications'}</Badge>
-          </p>
+          <Card.Text>Exam Type: {exam.type}</Card.Text>
+
+          <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+  <span>Status:{' '}</span>
+  {!isFinished && (
+    <div style={{  color: 'red', padding: '4px' }}>
+      Not Finished
+    </div>
+  )}
+  {isFinished && (
+    <div style={{ color: 'green', padding: '4px' }}>
+      Finished
+    </div>
+  )}
+</div>
+
           <ListGroup>
             {exam.specs.map((spec, index) => (
               <ListGroupItem key={index}>
                 
                 <div>
-                  <strong>Chapter:</strong> {spec.chapter}
+                  <strong>Bank:</strong> {spec.chapter}
                 </div>
                 <div>
                   <strong>Category:</strong> {spec.category}
                 </div>
                 <div>
-                  <strong>Number of Questions:</strong> {spec.numQuestions}
+                  <strong>Number of Questions:</strong> {parseInt(spec.numQuestions)}
+                </div>
+                <div>
+                  <strong>Grade:</strong> {parseInt(spec.grade)}
                 </div>
               </ListGroupItem>
             ))}

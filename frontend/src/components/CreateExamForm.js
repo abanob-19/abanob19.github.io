@@ -4,7 +4,7 @@ import { useInstructorsContext } from '../hooks/useInstrcutorContext';
 import Modal from 'react-modal';
 import { FaPlus, FaMinus , FaMinusCircle } from 'react-icons/fa';
 import styles from '../pages/Instructor.module.css';
-
+import { Form , Button } from 'react-bootstrap';
 Modal.setAppElement('#root'); // this line is required by react-modal
 
 function CreateExamForm({ onClose }) {
@@ -12,23 +12,73 @@ function CreateExamForm({ onClose }) {
   const [title, setTitle] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
-  const [specs, setSpecs] = useState([{chapter: '', category: '', numQuestions: ''}]); // Default specification
+  const [examType, setExamType] = useState(''); 
+  const [specs, setSpecs] = useState([{chapter: '', category: 'Easy', numQuestions: '',grade:''}]); // Default specification
   const { state,dispatch } = useInstructorsContext()
   const[isLoading,setIsLoading] = useState(false)
-
+  const[user,setUser] = useState(JSON.parse(localStorage.getItem('user')))
+const [questionBanks, setQuestionBanks] = useState([]);
   const handleSubmit = async (event) => {
-    event.preventDefault();
+    //loop over specs and check if all fields are filled
+    event.preventDefault(); 
+    const startDateTime = Date.parse(startTime);
+const endDateTime = Date.parse(endTime);
+    var flag=false
+    var flag2=false
+    for (let i = 0; i < specs.length; i++) {
+      if (specs[i].chapter === '' || specs[i].category === '' || specs[i].numQuestions === '' || specs[i].grade === '') {
+        console.log(specs[i].chapter,specs[i].category,specs[i].numQuestions,specs[i].grade)
+       flag=true
+       console.log("specs empty")
+      }
+    }
+    console.log("here")
+    //loop over specs and check if there is a duplicate
+    for (let i = 0; i < specs.length; i++) {
+      for (let j = i+1; j < specs.length; j++) {
+        if (specs[i].chapter === specs[j].chapter && specs[i].category === specs[j].category) {
+          flag2=true
+          console.log("duplicate specs")
+        }
+      }
+    }
+    console.log("here2")
+    if(title==='' || flag){
+      alert("Please fill all fields")
+      console.log("title or specs emoty")
+    }
+    else if (flag2){
+      alert("Please remove duplicate specifications")
+      console.log("duplicate specs")
+    }
+    else if(isNaN(startDateTime) || isNaN(endDateTime)){
+      alert("Please enter a valid date")
+      console .log("invalid date")
+    }
+    else if(startDateTime>endDateTime){
+      alert("Start time must be before end time")
+      console.log("start time after end time")
+    }
+    else if(startDateTime<Date.now()){
+      alert("Start time must be in the future")
+      console.log("start time in the past")
+    }
+    else{
+
+    console.log('here5');
     setIsLoading(true)
     const specsJson = specs.map(spec => ({
       chapter: spec.chapter,
       category: spec.category,
-      numQuestions: spec.numQuestions
+      numQuestions: spec.numQuestions,
+      grade: spec.grade
     }));
 
     try {
       const response = await axios.post('/instructor/createExam', {
         courseName,
         title,
+        type:examType,
         startTime:startTime+"z",
         endTime:endTime+"z",
         specs: specsJson,
@@ -44,11 +94,12 @@ function CreateExamForm({ onClose }) {
       console.error(error);
       // handle error here
     }
-    onClose();
+    console.log('here');
+    onClose();}
   };
 
   const handleAddSpec = () => {
-    setSpecs([...specs, {chapter: '', category: '', numQuestions: ''}]);
+    setSpecs([...specs, {chapter: '', category: 'Easy', numQuestions: '' , grade:''}]);
   };
 
   const handleRemoveSpec = (index) => {
@@ -77,18 +128,7 @@ function CreateExamForm({ onClose }) {
       )}
       <h2 className={styles['form-title']}>Create New Exam</h2>
       <form onSubmit={handleSubmit} className={styles['form']} >
-        <div className={styles['form-group']}>
-          <label className={styles['form-label']}>
-            Course Name:
-            <input
-              type="text"
-              className={styles['form-control']}
-              value={courseName}
-              onChange={(event) => setCourseName(event.target.value)}
-            />
-          </label>
-        </div>
-        <div className={styles['form-group']}>
+      <div className={styles['form-group']}>
           <label className={styles['form-label']}>
             Exam Title:
             <input
@@ -99,6 +139,46 @@ function CreateExamForm({ onClose }) {
             />
           </label>
         </div>
+        <div className={styles['form-group']}>
+          <label className={styles['form-label']}>
+            Course Name:
+            <select
+            className={styles['form-control']}
+           value={courseName}
+           onChange={(event) =>{ setCourseName(event.target.value);
+            const fetchData =  () => { 
+                 fetch(`/instructor/seeCourse/${event.target.value}`)
+              .then(async response => await response.json())
+              .then(data => setQuestionBanks(data))
+              .catch(error => console.error(error));}
+              fetchData();}}
+>
+  {user.courses.map((course) => (
+    <option key={course} value={course}>
+      {course.charAt(0).toUpperCase() + course.slice(1)}
+    </option>
+  ))}
+</select>
+
+          </label>
+          <label className={styles['form-label']}>
+            Exam Type:
+            <select
+            className={styles['form-control']}
+           value={examType}
+            onChange={(event) => setExamType(event.target.value)}
+>
+  
+<option value="Quiz">Quiz</option>
+  <option value="Final">Final</option>
+  <option value="MidTerm">MidTerm</option>
+  <option value="Assignment">Assignment</option>
+ 
+</select>
+
+          </label>
+        </div>
+        
         <div className={styles['form-group']}>
           <label className={styles['form-label']}>
             Start Time:
@@ -147,13 +227,13 @@ function CreateExamForm({ onClose }) {
           )}
         </div>
         <label className={styles['form-label']}>
-          Chapter:
-          <input
-            type="text"
-            className={styles['form-control']}
-            value={spec.chapter}
-            onChange={(event) => handleSpecChange(event, index, 'chapter')}
-          />
+          Bank:
+          <Form.Select  value={spec.chapter} onChange={(event) => handleSpecChange(event, index, 'chapter')} className={styles['form-control']}>
+               <option value="">Select Bank</option>
+                {questionBanks.map((bank,index) => (
+                  <option key={index} value={bank.title}>{bank.title}</option>
+                ))}
+              </Form.Select>
         </label>
         <label className={styles['form-label']}>
   Category:
@@ -175,6 +255,15 @@ function CreateExamForm({ onClose }) {
             className={styles['form-control']}
             value={spec.numQuestions}
             onChange={(event) => handleSpecChange(event, index, 'numQuestions')}
+          />
+        </label>
+        <label className={styles['form-label']}>
+          Grade:
+          <input
+            type="number"
+            className={styles['form-control']}
+            value={spec.grade}
+            onChange={(event) => handleSpecChange(event, index, 'grade')}
           />
         </label>
       </div>

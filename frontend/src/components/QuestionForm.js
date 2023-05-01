@@ -3,6 +3,7 @@ import Modal from 'react-modal';
 import styles from '../pages/Instructor.module.css';
 import { FaTimes } from 'react-icons/fa';
 import { Form , Button } from 'react-bootstrap';
+import { FaPlus, FaMinus , FaMinusCircle } from 'react-icons/fa';
 const QuestionForm = ({ onFinish ,isOpen}) => {
   const [newQuestion, setNewQuestion] = useState({
     text: '',
@@ -97,20 +98,27 @@ const[numberOfChoices,setNumberOfChoices]=useState(2)
           {newQuestion.type === 'mcq' && (
             <Form.Group controlId="formQuestionChoices">
               <Form.Label>Choices:</Form.Label>
+              <Button variant="primary" type="button" onClick={handleAddChoice}>
+                
+                <FaPlus />
+              </Button>
               <br />
               {newQuestion.choices.map((choice, index) => (
-                <div key={index}>
-                  <Form.Control type="text" value={choice} onChange={(event) => handleNewChoiceChange(event, index)} />
-                  {numberOfChoices > 2 && (
-                    <Button variant="danger" type="button" onClick={() => handleRemoveChoice(index)}>
-                      Remove Choice
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button variant="primary" type="button" onClick={handleAddChoice}>
-                Add Choice
-              </Button>
+  <div key={index} className="d-flex align-items-center mb-2">
+    <Form.Control
+      type="text"
+      value={choice}
+      onChange={(event) => handleNewChoiceChange(event, index)}
+      style={{ marginBottom: '0' }}
+    />
+    {numberOfChoices > 2 && (
+      <Button variant="danger" type="button" onClick={() => handleRemoveChoice(index)} className="ms-3">
+        <FaMinusCircle />
+      </Button>
+    )}
+  </div>
+))}
+              
             </Form.Group>
           )}
           {newQuestion.type === 'mcq' && (

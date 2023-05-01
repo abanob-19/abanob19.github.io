@@ -6,7 +6,7 @@ import styles from '../pages/Instructor.module.css';
 import InstructorNavbar from "../components/instructorNavbar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrashAlt, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button ,OverlayTrigger, Tooltip} from 'react-bootstrap';
 
 const Course = () => {
   const [questionBanks, setQuestionBanks] = useState(null);
@@ -219,11 +219,32 @@ const[newBank,setNewBank]=useState(false)
     ))}
     <div>
       {/* your component code */}
-      <button className="btn btn-success d-flex align-items-center fixed-bottom" style={{width:'40px' ,position: 'fixed',  bottom: 0,right: 0, margin: '20px'}} onClick={handleNewQuestionBankClick}>
+      <OverlayTrigger placement="left" overlay={renderTooltip}>
+      <Button
+        variant="success"
+        className="d-flex align-items-center fixed-bottom"
+        style={{
+          width: "40px",
+          height: "40px",
+          position: "fixed",
+          bottom: "670px",
+          right: "20px",
+          margin: "20px",
+          marginLeft: "1450px",
+          zIndex: "9999",
+        }}
+        onClick={handleNewQuestionBankClick}
+      >
         <FontAwesomeIcon icon={faPlus} />
-      </button>
+      </Button>
+    </OverlayTrigger>
     </div>
   </div>
   );
 };
 export default Course;
+const renderTooltip = (props) => (
+  <Tooltip id="button-tooltip" {...props}>
+    Add new question bank
+  </Tooltip>
+);

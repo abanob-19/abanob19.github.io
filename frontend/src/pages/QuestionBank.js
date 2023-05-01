@@ -5,13 +5,18 @@ import PDFViewer from "./PDFViewer";
 import InstructorNavbar from '../components/instructorNavbar';
 import axios from 'axios';
 import styles from '../pages/Instructor.module.css';
-import { Button, Card, Form, ListGroup } from 'react-bootstrap';
+import { Button, Card, Form, ListGroup,OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrashAlt, faSave, faTimes, faP , faDownload, faUpload} from '@fortawesome/free-solid-svg-icons';
 //import QuestionForm from "../components/QuestionForm";
 import QuestionForm from "../components/QuestionForm";
 import { pdfjs } from 'react-pdf';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+const renderTooltip = (props) => (
+  <Tooltip id="button-tooltip" {...props}>
+    Add new question 
+  </Tooltip>
+);
 const QuestionBank = () => {
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -717,9 +722,24 @@ if (!questionBank||loading) {
       ))}
        <div>
       {/* your component code */}
-      <button className="btn btn-success d-flex align-items-center fixed-bottom" style={{width:'40px' ,position: 'fixed',  bottom: 0,right: 0, margin: '20px' , marginLeft:'1450px'} } onClick={() => setDisplayForm(true)} >
-        <FontAwesomeIcon icon={faPlus} />
-      </button>
+      <OverlayTrigger placement="left" overlay={renderTooltip}>
+      <button
+  className="btn btn-success d-flex align-items-center"
+  style={{
+    width: "40px",
+    height:'40px',
+    position: "fixed",
+    bottom: "670px",
+    right: "20px",
+    margin: "20px",
+    marginLeft: "1450px",
+    zIndex: "9999", // add a high z-index value
+  }}
+  onClick={() => setDisplayForm(true)}
+>
+  <FontAwesomeIcon icon={faPlus} />
+</button>
+</OverlayTrigger>
     </div>
     </div>
   );

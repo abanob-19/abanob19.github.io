@@ -189,10 +189,33 @@ const seeExams=async(req,res)=>{
   if(!course) {
            return res.status(400).json({error: 'No such course'})
         }
-         res.status(200).json(course.exams)
+       // Sort exams by start time
+const exams=course.exams.sort((a, b) => {
+  const dateA = new Date(a.startTime);
+  const dateB = new Date(b.startTime);
+  if (dateA < dateB) {
+    return 1;
+  } else if (dateA > dateB) {
+    return -1;
+  } else {
+    // If the dates are equal, compare the times
+    const timeA = dateA.getTime();
+    const timeB = dateB.getTime();
+    if (timeA < timeB) {
+      return 1;
+    } else if (timeA > timeB) {
+      return -1;
+    } else {
+      return 0;
+    }
+  }
+});
+
+
+         res.status(200).json(exams)
 }
 const createExam=async(req,res)=>{
-  const { courseName,title,startTime,endTime , specs } = req.body
+  const { courseName,title,type,startTime,endTime , specs } = req.body
  
       const course =   await Course.findOne({name : courseName})
       console.log(courseName)
@@ -201,6 +224,7 @@ const createExam=async(req,res)=>{
             }
             const examSpecs = new ExamSpecs()
             examSpecs.title=title
+            examSpecs.type=type
             examSpecs.startTime=startTime
             examSpecs.endTime=endTime
             examSpecs.specs=specs
@@ -212,7 +236,7 @@ const createExam=async(req,res)=>{
 }
 
 const editExam=async(req,res)=>{
-  const { courseName,title,startTime,endTime , specs ,id} = req.body
+  const { courseName,title,type,startTime,endTime , specs ,id} = req.body
  
       const course =   await Course.findOne({name : courseName})
       if(!course) {
@@ -223,6 +247,7 @@ const editExam=async(req,res)=>{
             examSpecs.title=title
             examSpecs.startTime=startTime
             examSpecs.endTime=endTime
+            examSpecs.type=type
             examSpecs.specs=specs
             examSpecs.courseName=courseName
             var targetExam;

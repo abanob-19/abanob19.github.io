@@ -252,79 +252,91 @@ const StudentExam = () => {
   )
 }
 
-  return (
-    
-    <div>
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
-      <video ref={webcamRef} style={{ maxWidth: '100%' }} />
-      {!enabled && <div>
-      You have to enable your webcam to take the exam
-      <button onClick={startExam}>Enable WebCam</button>
-      
-      </div>}
-      {!started && enabled && <div>
-      You Can start the exam now
-      {enabled}
-      <button onClick={handleClickStart}>Start</button>
-      </div>}
-   {started && <div>
-       
-        <h1>{courseName}</h1>
+return (
+  <div className="container">
+    <canvas ref={canvasRef} style={{ display: 'none' }} />
+    <video ref={webcamRef} className={`${started ? styles.invisible : "w-100"}`} />
+    {!enabled && (
+      <div className="alert alert-warning">
+        You have to enable your webcam to take the exam
+        <button className="btn btn-primary ml-3" onClick={startExam}>Enable WebCam</button>
+      </div>
+    )}
+    {!started && enabled && (
+      <div className="alert alert-success">
+        You can start the exam now
+        <button className="btn btn-primary ml-3" onClick={handleClickStart}>Start</button>
+      </div>
+    )}
+    {started && (
+      <div>
+        <h1 className="mt-5">{courseName}</h1>
         <h2>{title}</h2>
         <h2> {started}</h2>
         <h3>Duration: {duration} hours</h3>
-        <h3>remaining time: {(new Date(endTime)-new Date())/3600000}</h3>
+        <h3>Remaining time: {(new Date(endTime)-new Date())/3600000}</h3>
 
-      {questions.map((question, index) => (
-        <div key={question._id}>
-          <h2> ({index + 1}) {question.text}  ({question.grade} grades)</h2>
-          {question.attachment &&  <button onClick={() => handleDownload(question.attachment)}>Download Attachments</button>}
-          <input type="file" onChange={handleFileChange} />
-        <button onClick={() => handleUpload(question._id)}>Upload your answers</button>
-         {question.type=='mcq'&& <ul className={styles['choices-list']}>
-          {question.choices.map((choice, choiceIndex) => (
-            <li key={choiceIndex}>
-              <label>
-              <input type="radio" name={`question${index}`} value={choice} checked={answers[question._id] === choiceIndex}
-                    onChange={() => handleAnswerChange(question._id, choiceIndex)}/>
-                <span className={styles['choice-number']}>  ({String.fromCharCode(97 + choiceIndex)})</span> 
-                <span className={styles['choice-text']}>{choice}</span>
-              </label>
-            </li>
-          ))}
-          </ul>}
-          {question.type=='text'&& <div><input
-                className={styles['answer']}
-                 type="text"
-                 value={answers[question._id]}
-                 onChange={(e) => {setEditedAnswer(e.target.value); setAnswers(prevAnswers => ({
-                  ...prevAnswers,
-                  [question._id]: e.target.value
-                })); }}
-               />
-               <div>
-      <MathQuill
-        latex={equation}
-        onChange={handleChange}
-        config={{ autoCommands: 'pi theta sqrt sum' }}
-      />
-      <textarea
-        value={equation}
-        onChange={(e) => setEquation(e.target.value)}
-      />
-    </div>
-    </div>
-          }
-           
-        </div>
-      ))}
-      {!submitted&&!isSubmitting&&<button className ={styles['button']}onClick={handleSubmit}>{buttonText}</button>}
-      {isSubmitting&&<p className ={styles['button']}>Submitting...</p>}
- 
+        {questions.map((question, index) => (
+          <div key={question._id}>
+            <h2 className="mt-5">({index + 1}) {question.text} ({question.grade} grades)</h2>
+            {question.attachment && (
+              <button className="btn btn-primary" onClick={() => handleDownload(question.attachment)}>Download Attachments</button>
+            )}
+            <input type="file" onChange={handleFileChange} />
+            <button className="btn btn-primary ml-3" onClick={() => handleUpload(question._id)}>Upload your answers</button>
+            {question.type === 'mcq' && (
+              <ul className="list-unstyled mt-3">
+                {question.choices.map((choice, choiceIndex) => (
+                  <li key={choiceIndex}>
+                    <label>
+                      <input type="radio" name={`question${index}`} value={choice} checked={answers[question._id] === choiceIndex} onChange={() => handleAnswerChange(question._id, choiceIndex)} />
+                      <span className="mr-2">{String.fromCharCode(97 + choiceIndex)})</span>
+                      {choice}
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {question.type === 'text' && (
+              <div className="mt-3">
+                <input
+                  className="form-control"
+                  type="text"
+                  value={answers[question._id]}
+                  onChange={(e) => {
+                    setEditedAnswer(e.target.value);
+                    setAnswers(prevAnswers => ({
+                      ...prevAnswers,
+                      [question._id]: e.target.value
+                    }));
+                  }}
+                />
+                <div className="mt-3">
+                  <MathQuill
+                    latex={equation}
+                    onChange={handleChange}
+                    config={{ autoCommands: 'pi theta sqrt sum' }}
+                  />
+                  <textarea
+                    className="form-control mt-2"
+                    value={equation}
+                    onChange={(e) => setEquation(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
 
-    </div>}
-    </div>
-  );
+        {!submitted && !isSubmitting && (
+          <button className="btn btn-primary mt-3" onClick={handleSubmit}>{buttonText}</button>
+        )}
+        {isSubmitting && <p className="mt-3">Submitting...</p>}
+      </div>
+    )}
+  </div>
+);
+
   
 };
 

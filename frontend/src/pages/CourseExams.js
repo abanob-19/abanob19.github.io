@@ -17,6 +17,7 @@ function CourseExams() {
   const[editingId,setEditingId]=useState(null)
   const [isLoading, setIsLoading] = useState(false);
   const { state,dispatch } = useInstructorsContext()
+  const[examType,setExamType]=useState('')
   const onEditExam=(examID)=>{
 setEditingId(examID)
   }
@@ -33,6 +34,8 @@ setEditingId(examID)
     console.log("executed finish edit")
   }
   const onDeleteExam = async (exam) => {
+    const confirmed=window.confirm("Are you sure you want to delete this exam?")
+    if(confirmed){
     setIsLoading(true);
    await axios.delete(`/instructor/deleteExam`,{ data: { courseName:courseName , id: exam._id } })
       .then(response => {
@@ -46,7 +49,7 @@ setEditingId(examID)
       }).finally(() => {
         setIsLoading(false);
       });
-  
+    }
   }
 
   useEffect( () => {
@@ -74,10 +77,24 @@ if(!exams|| isLoading){
   return (
     <div>
       <InstructorNavbar/>
+      <label style={{paddingTop:'70px'}}>Exam Type:
+             <select
+            className={styles['form-control']}
+           value={examType}
+            onChange={(event) => setExamType(event.target.value)}
+>
+<option value="">select option</option>
+<option value="Quiz">Quiz</option>
+  <option value="Final">Final</option>
+  <option value="MidTerm">MidTerm</option>
+  <option value="Assignment">Assignment</option>
+ 
+</select>
+</label>
       <Container fluid className="d-flex flex-wrap justify-content-center" >
       {exams.map(exam => (
         
-        ((!editingId)||(editingId==exam._id))&& <ExamCard key={exam._id} exam={exam} onDelete={() => onDeleteExam(exam)} onEdit={()=>onEditExam(exam._id) } onFinishEditExam={()=>onFinishEditExam(exam._id) } onSampleClick={()=>handleSample(exam._id)}/>
+        ((editingId==exam._id)|| (!editingId && ((exam.type===examType)||(examType==""))))&& <ExamCard key={exam._id} exam={exam} onDelete={() => onDeleteExam(exam)} onEdit={()=>onEditExam(exam._id) } onFinishEditExam={()=>onFinishEditExam(exam._id) } onSampleClick={()=>handleSample(exam._id)} />
         
       ))}
       </Container>

@@ -8,6 +8,10 @@ const examSpecsSchema = new Schema({
     required: true,
     unique:true
   },
+  type: {
+    type: String,
+    required: true
+  },
   startTime:{ 
     type: Date , 
     required : true
