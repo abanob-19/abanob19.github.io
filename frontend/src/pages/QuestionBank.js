@@ -72,6 +72,9 @@ const[loading,setLoading]=useState(false)
       const handleFinishEditChoice = (newChoice,question) => {
         // const updatedQuestionBank = { ...questionBank };
         // updatedQuestionBank.questions[editedChoiceIndex].choices[editedChoice] = newChoice;
+        if(newChoice=="")
+        alert("Choice can't be empty");
+        else{
         question.choices[editedChoiceIndex] = newChoice;
         setLoading(true)
         fetch('/instructor/editMcqQuestion', {
@@ -109,7 +112,7 @@ const[loading,setLoading]=useState(false)
         setEditedChoice(null);
         setEditedChoiceIndex(null);
         setEditedQuestionIndex(null);
-      };
+        }  };
     //create a function to handle delete choice
     const handleDeleteChoice=(index,question)=>{
         // const updatedQuestionBank = { ...questionBank };
@@ -200,6 +203,9 @@ const[loading,setLoading]=useState(false)
    const handleFinishAddedChoice=(AddedChoice,question)=>{
         // const updatedQuestionBank = { ...questionBank };
         // updatedQuestionBank.questions[editedChoiceIndex].choices[editedChoice] = newChoice;
+        if(AddedChoice=="")
+        alert("Choice can't be empty");
+        else{
         question.choices.push(AddedChoice);
         setLoading(true)
         fetch('/instructor/editMcqQuestion', {
@@ -236,7 +242,7 @@ const[loading,setLoading]=useState(false)
        setVersion(version => version + 1); // force re-render
         setAddedChoice(null);
         setEditedQuestionIndexforAddChoice(null);
-      };
+   }};
 
 
     //create a function to handle edit answer
@@ -349,6 +355,9 @@ const[loading,setLoading]=useState(false)
         console.log(editedGrade)
     }
     const handleFinishEditGrade=(newGrade,question)=>{
+      if(newGrade=="")
+      alert("Grade can't be empty");
+      else{
       setLoading(true)
         fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
@@ -384,7 +393,7 @@ const[loading,setLoading]=useState(false)
       // setVersion(version => version + 1); // force re-render
        setEditedGrade(null)
        setEditedQuestionIndexforEditGrade(null)
-    }
+    }}
     const[editedQuestionIndexforEditText,setEditedQuestionIndexforEditText]=useState(null);
     const[editedText,setEditedText]=useState(null);
 
@@ -394,6 +403,11 @@ const[loading,setLoading]=useState(false)
         
     }
     const handleFinishEditText=(newText,question)=>{
+      console.log(newText)
+      console.log(newText=="")
+      if(newText=="")
+      alert("Text can't be empty");
+      else{
       setLoading(true)
         fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
@@ -428,7 +442,7 @@ const[loading,setLoading]=useState(false)
             });
       // setVersion(version => version + 1); // force re-render
        setEditedText(null);
-       setEditedQuestionIndexforEditText(null)
+       setEditedQuestionIndexforEditText(null)}
     }
  
  
@@ -458,7 +472,19 @@ const[loading,setLoading]=useState(false)
   const [displayForm, setDisplayForm] = useState(false);
 
   const handleFinish = (newQuestion) => {
+   
     if(newQuestion){
+      var flag=false;
+      //loop over newQuestion.choices to check if there is an empty choice
+      for(var i=0;i<newQuestion.choices.length;i++){
+        if(newQuestion.choices[i]==""){
+          flag=true;
+          break;
+        }
+      }
+      if((newQuestion.text==""||newQuestion.grade=="")||(flag&&newQuestion.type=="mcq"))
+      alert("please fill all fields");
+      else{
       console.log(newQuestion.type)
       setLoading(true)
     fetch('/instructor/addMcqQuestion', {
@@ -493,7 +519,7 @@ const[loading,setLoading]=useState(false)
         console.error(error);
         alert(error);
       });
-  }
+  }}
   else{
     setDisplayForm(false);
   }
@@ -534,7 +560,7 @@ if (!questionBank||loading) {
       <h1 style={{paddingTop:'72px'}}>{name.charAt(0).toUpperCase()+name.slice(1)}</h1>
       <h2 >{questionBankName}</h2>
       
-      {displayForm && <QuestionForm onFinish={() => setDisplayForm(false)} />}
+      {displayForm&&<QuestionForm onFinish={handleFinish}  />}
       {questionBank && questionBank.questions && questionBank.questions.map((question, qIndex) => (
         <Card key={question._id} className={styles.courseCard}  style={{ boxShadow: '0px 0px 24px 24px rgba(0,0,0,0.1)', borderRadius: '10px' , width:'70%'}}>
           <Card.Body>
@@ -597,6 +623,7 @@ if (!questionBank||loading) {
                 </div>
               )}
             </ListGroup>}
+            {question.type=="mcq"&& <div>
             {editedQuestionIndexforEditAnswer === qIndex && editedAnswer !== null ? (
               <div>
               <Form.Select value={editedAnswer} onChange={(e) => setEditedAnswer(e.target.value)} style={{width:'20%'}}>
@@ -623,7 +650,7 @@ if (!questionBank||loading) {
                 setEditedQuestionIndexforEditAnswer(qIndex);
               }} className="ms-2"/>
             </div>
-            )}
+            )} </div>}
             {editedQuestionIndexforEditCategory === qIndex && editedCategory !== null ? (
               <div>
                  <Form.Select value={editedCategory} onChange={(e) => setEditedCategory(e.target.value)} style={{width:'8%'}}>
@@ -651,7 +678,7 @@ if (!questionBank||loading) {
             )}
             {editedQuestionIndexforEditGrade === qIndex && editedGrade !== null ? (
               <div>
-<Form.Control type="number" value={editedGrade} onChange={(e) => setEditedGrade(e.target.value)} style={{ width: '4%' }} />                
+<Form.Control type="number" value={editedGrade} onChange={(e) => setEditedGrade(e.target.value)} style={{ width: '15%' }} />                
 <Button variant="primary" onClick={() => handleFinishEditGrade(editedGrade, question)}><FontAwesomeIcon icon={faSave} className="me-2" />Save</Button>
 <button className="btn btn-danger" onClick={() => {
                 setEditedGrade(null);
