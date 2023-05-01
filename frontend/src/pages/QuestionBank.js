@@ -18,6 +18,7 @@ const renderTooltip = (props) => (
   </Tooltip>
 );
 const QuestionBank = () => {
+  const xx=''
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const questionBankName = searchParams.get('questionBankName'); 
@@ -29,21 +30,51 @@ const QuestionBank = () => {
     const [editedQuestionIndex, setEditedQuestionIndex] = useState(null);
     const [AddedChoice, setAddedChoice] = useState(null);
     const [file, setFile] = useState(null);
+    const[aurl,setAurl]=useState(null)
 const[loading,setLoading]=useState(false)
+//initialize a state variable to store the question id as key and the image url as value
+const [imageUrl, setImageUrl] = useState({});
+const[attachment,setAttachment]=useState(null)
+const[id,setId]=useState(null)
+// useEffect(() => {
+//   async function fetchImageUrl() {
+//     const response = await axios.get(
+//       `/instructor/getImage/?attachment=${attachment}`
+//     );
+//     setImageUrl(prevState => ({
+//       ...prevState,
+//       [id]: imageUrl,
+//     }));
     
-    
+//   }
+//   if (attachment) 
+//   fetchImageUrl();
+// }, []);
+const isImageAttachment = (attachment) => {
+  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+  const extension = attachment.split('.').pop().toLowerCase();
+  return imageExtensions.includes(extension);
+};
+  const getImageUrl = async (attachment) => {
+    const response = await axios.get(`/instructor/getImage/?attachment=${attachment}`);
+    console.log(response.data);
+    return response.data;
+  };
+
     const handleFileChange = (e) => {
       setFile(e.target.files[0]);
     };
   
-    const handleUpload =  (q) => {
-      if (file){
-      const formData = new FormData();
+    const handleUpload =  (q,newQuestionFile,o) => {
+      if (file||newQuestionFile){
+      const formData = new FormData()
+      if(newQuestionFile)
+      formData.append('attachment', newQuestionFile);
       formData.append('attachment', file);
       formData.append('questionId', q);
       formData.append('questionBankId', questionBank._id);
       formData.append('courseName', name);
-  
+      if(newQuestionFile)
       setLoading(true)
       fetch(`/instructor/uploadFile`, {
         method: 'POST',
@@ -61,8 +92,9 @@ const[loading,setLoading]=useState(false)
           console.error(error);
           alert('Failed to edit question');
         });}
-        else 
-        alert('No file selected');
+        else {
+          if(o)
+        alert('No file selected');}
       }
   
         
@@ -81,6 +113,15 @@ const[loading,setLoading]=useState(false)
         alert("Choice can't be empty");
         else{
         question.choices[editedChoiceIndex] = newChoice;
+        //loop on the choices of the question and check if there is a duplicate
+        for(let i=0;i<question.choices.length;i++){
+          for(let j=i+1;j<question.choices.length;j++){
+            if(question.choices[i]==question.choices[j]){
+              alert("Duplicate choices are not allowed");
+              return;
+            }
+          }
+        }
         setLoading(true)
         fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
@@ -94,7 +135,6 @@ const[loading,setLoading]=useState(false)
               choices: question.choices,
               answer: question.answer,
               category: question.category,
-                grade: question.grade,
               id: question._id,
             })
           })
@@ -211,6 +251,16 @@ const[loading,setLoading]=useState(false)
         if(AddedChoice=="")
         alert("Choice can't be empty");
         else{
+        // question.choices.push(AddedChoice);
+        //loop on the choices of the question and check if there is a duplicate
+        for(let i=0;i<question.choices.length;i++){
+          for(let j=i+1;j<question.choices.length;j++){
+            if(question.choices[i]==question.choices[j]||question.choices[i]==AddedChoice){
+              alert("Duplicate choices are not allowed");
+              return;
+            }
+          }
+        }
         question.choices.push(AddedChoice);
         setLoading(true)
         fetch('/instructor/editMcqQuestion', {
@@ -225,7 +275,6 @@ const[loading,setLoading]=useState(false)
               choices: question.choices,
               answer: question.answer,
               category: question.category,
-                grade: question.grade,
               id: question._id,
             })
           })
@@ -273,7 +322,6 @@ const[loading,setLoading]=useState(false)
               choices: question.choices,
               answer: newAnswer,
               category: question.category,
-                grade: question.grade,
               id: question._id,
             })
           })
@@ -319,7 +367,6 @@ const[loading,setLoading]=useState(false)
               choices: question.choices,
               answer: question.answer,
               category: newCategory,
-                grade: question.grade,
               id: question._id,
             })
           })
@@ -346,59 +393,7 @@ const[loading,setLoading]=useState(false)
     const[editedGrade,setEditedGrade]=useState(null);
 
     //create a function to handle edit category
-    const handleEditGrade = (qIndex) => {
-        console.log(qIndex)
-        if(questionBank.questions[qIndex].grade==undefined||questionBank.questions[qIndex].grade==null){
-            setEditedGrade(0)
-        }
-        else
-        {
-        setEditedGrade(questionBank.questions[qIndex].grade)
-        
-        }
-        setEditedQuestionIndexforEditGrade(qIndex)
-        console.log(editedGrade)
-    }
-    const handleFinishEditGrade=(newGrade,question)=>{
-      if(newGrade=="")
-      alert("Grade can't be empty");
-      else{
-      setLoading(true)
-        fetch('/instructor/editMcqQuestion', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              questionBankName,
-              name,
-              text: question.text,
-              choices: question.choices,
-              answer: question.answer,
-              category: question.category,
-                grade: newGrade,
-              id: question._id,
-            })
-          })
-            .then(response => {
-              if (!response.ok) {
-                throw new Error('Failed to edit Grade');
-              }
-              return response.json();
-            })
-            .then(json => {
-              console.log(json);
-              setDisplayForm(false);
-              setVersion(version => version + 1); // force re-render
-            })
-            .catch(error => {
-              console.error(error);
-              alert('Failed to edit Grade');
-            });
-      // setVersion(version => version + 1); // force re-render
-       setEditedGrade(null)
-       setEditedQuestionIndexforEditGrade(null)
-    }}
+  
     const[editedQuestionIndexforEditText,setEditedQuestionIndexforEditText]=useState(null);
     const[editedText,setEditedText]=useState(null);
 
@@ -426,7 +421,6 @@ const[loading,setLoading]=useState(false)
               choices: question.choices,
               answer: question.answer,
               category: question.category,
-                grade: question.grade,
               id: question._id,
             })
           })
@@ -459,12 +453,30 @@ const[loading,setLoading]=useState(false)
       setQuestionBank(json);
       console.log(json);
       setLoading(false)
+      for(var i=0;i<json.questions.length;i++){
+        if(json.questions[i].attachment&& isImageAttachment(json.questions[i].attachment)){
+         handleurls(json.questions[i]._id,json.questions[i].attachment)
+        }
+      }
     };
+    const handleurls=async function fetchImageUrl(id,qattachment) {
+          const response = await axios.get(
+            `/instructor/getImage/?attachment=${qattachment}`
+          );
+          setImageUrl(prevState => ({
+            ...prevState,
+            [id]: response.data,
+          }));
+          
+        }
     useEffect(() => {
       if (!questionBankName) return; // add a check for undefined
   
       
       fetchData();
+      
+      //loop over questionBank.questions 
+      
     }, [version]);
   
     
@@ -476,7 +488,7 @@ const[loading,setLoading]=useState(false)
 
   const [displayForm, setDisplayForm] = useState(false);
 
-  const handleFinish = (newQuestion) => {
+  const handleFinish = async (newQuestion) => {
    
     if(newQuestion){
       var flag=false;
@@ -487,12 +499,26 @@ const[loading,setLoading]=useState(false)
           break;
         }
       }
-      if((newQuestion.text==""||newQuestion.grade=="")||(flag&&newQuestion.type=="mcq"))
+      //loop over newQuestion.choices to check for duplicate choices
+      var flag2=false
+      for(var i=0;i<newQuestion.choices.length;i++){
+        for(var j=i+1;j<newQuestion.choices.length;j++){
+          if(newQuestion.choices[i]==newQuestion.choices[j]){
+            flag2=true;
+            break;
+          }
+        }
+      }
+
+
+      if((newQuestion.text=="")||(flag&&newQuestion.type=="mcq") ||(newQuestion.answer==""&&newQuestion.type=="mcq"))
       alert("please fill all fields");
+      else if(flag2&&newQuestion.type=="mcq")
+      alert("please enter unique choices");
       else{
       console.log(newQuestion.type)
       setLoading(true)
-    fetch('/instructor/addMcqQuestion', {
+    await fetch('/instructor/addMcqQuestion', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -504,9 +530,8 @@ const[loading,setLoading]=useState(false)
         choices: newQuestion.choices,
         answer: newQuestion.answer,
         category: newQuestion.category,
-        grade: newQuestion.grade,
         type: newQuestion.type,
-        attachment: newQuestion.attachment,
+
       })
     })
       .then(response => {
@@ -517,6 +542,7 @@ const[loading,setLoading]=useState(false)
       })
       .then(json => {
         console.log(json);
+       handleUpload(json[json.length-1]._id , newQuestion.attachment,false)
         setDisplayForm(false);
         setVersion(version => version + 1); // force re-render
       })
@@ -569,6 +595,7 @@ if (!questionBank||loading) {
       {questionBank && questionBank.questions && questionBank.questions.map((question, qIndex) => (
         <Card key={question._id} className={styles.courseCard}  style={{ boxShadow: '0px 0px 24px 24px rgba(0,0,0,0.1)', borderRadius: '10px' , width:'70%'}}>
           <Card.Body>
+          
             {editedQuestionIndexforEditText === qIndex && editedText !== null ? (
               <div>
                 <Form.Control type="text" value={editedText} onChange={(e) => setEditedText(e.target.value)} />
@@ -658,7 +685,7 @@ if (!questionBank||loading) {
             )} </div>}
             {editedQuestionIndexforEditCategory === qIndex && editedCategory !== null ? (
               <div>
-                 <Form.Select value={editedCategory} onChange={(e) => setEditedCategory(e.target.value)} style={{width:'8%'}}>
+                 <Form.Select value={editedCategory} onChange={(e) => setEditedCategory(e.target.value)} style={{width:'15%'}}>
       <option value="Easy">Easy</option>
       <option value="Medium">Medium</option>
       <option value="Hard">Hard</option>
@@ -681,7 +708,7 @@ if (!questionBank||loading) {
                 }}/>
               </div>
             )}
-            {editedQuestionIndexforEditGrade === qIndex && editedGrade !== null ? (
+            {/* {editedQuestionIndexforEditGrade === qIndex && editedGrade !== null ? (
               <div>
 <Form.Control type="number" value={editedGrade} onChange={(e) => setEditedGrade(e.target.value)} style={{ width: '15%' }} />                
 <Button variant="primary" onClick={() => handleFinishEditGrade(editedGrade, question)}><FontAwesomeIcon icon={faSave} className="me-2" />Save</Button>
@@ -702,20 +729,23 @@ if (!questionBank||loading) {
                 setEditedQuestionIndexforEditGrade(qIndex);
               }} />
             </div>
-            )}
+            )} */}
            <Form.Group controlId="formFile">
   <Form.Label>Attachments:</Form.Label>
   <Form.Control type="file" onChange={(e) => handleFileChange(e)} style={{ width: '35%' }}/>
-  <Button className="my-2" variant="primary" onClick={() => handleUpload(question._id)}>
+  <Button className="my-2" variant="primary" onClick={() => handleUpload(question._id,null,true)}>
     <FontAwesomeIcon icon={faUpload} className="me-2" />
     Upload
   </Button>
+  
   {question.attachment &&
     <Button variant="danger" onClick={() => handleDownload(question.attachment)}>
       <FontAwesomeIcon icon={faDownload} className="me-2" />
       Download
     </Button>
   }
+  {question.attachment && isImageAttachment(question.attachment) &&<div style={{ width: "200px", height: "200px" }}> <img src={imageUrl[question._id]}alt="Attachment"   style={{ maxWidth: "100%", maxHeight: "100%" }}/>
+</div>}
 </Form.Group>
           </Card.Body>
         </Card>
@@ -729,7 +759,7 @@ if (!questionBank||loading) {
     width: "40px",
     height:'40px',
     position: "fixed",
-    bottom: "670px",
+    bottom: "615px",
     right: "20px",
     margin: "20px",
     marginLeft: "1450px",

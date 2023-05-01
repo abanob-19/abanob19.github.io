@@ -227,7 +227,7 @@ const[newBank,setNewBank]=useState(false)
           width: "40px",
           height: "40px",
           position: "fixed",
-          bottom: "670px",
+          bottom: "615px",
           right: "20px",
           margin: "20px",
           marginLeft: "1450px",

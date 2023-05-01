@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 import styles from '../pages/Instructor.module.css';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaUpload } from 'react-icons/fa';
 import { Form , Button } from 'react-bootstrap';
-import { FaPlus, FaMinus , FaMinusCircle } from 'react-icons/fa';
+import { FaPlus, FaMinus , FaMinusCircle ,faUpload} from 'react-icons/fa';
 const QuestionForm = ({ onFinish ,isOpen}) => {
   const [newQuestion, setNewQuestion] = useState({
     text: '',
     choices: ['', ''],
     answer: '',
-    category: '',
-    grade: '',
+    category: 'Easy',
     type:'mcq',
+    attachment: null
   });
 const[type,setType]=useState("mcq")
 const[numberOfChoices,setNumberOfChoices]=useState(2)
+const [file, setFile] = useState(null);
   const handleNewQuestionChange = (event) => {
     
     setNewQuestion({
@@ -30,6 +31,13 @@ const[numberOfChoices,setNumberOfChoices]=useState(2)
   //     [event.target.name]: event.target.value
   //   }));
   // };
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+    setNewQuestion({
+      ...newQuestion,
+      attachment: e.target.files[0]
+    });
+  };
   
   const handleNewChoiceChange = (event, index) => {
     const updatedChoices = [...newQuestion.choices];
@@ -125,7 +133,9 @@ const[numberOfChoices,setNumberOfChoices]=useState(2)
             <Form.Group controlId="formQuestionAnswer">
               <Form.Label>Answer:</Form.Label>
               <Form.Select name="answer"  value={newQuestion.answer} onChange={handleNewQuestionChange} style={{width:'20%'}}>
+              <option value="">select option</option>
                 {newQuestion.choices.map((choice, index) => (
+                 
                   <option key={index} value={choice}>{choice}</option>
                 ))}
               </Form.Select>
@@ -141,10 +151,15 @@ const[numberOfChoices,setNumberOfChoices]=useState(2)
     </Form.Select>
             {/* <Form.Control type="text" name="category" value={newQuestion.category} onChange={handleNewQuestionChange} /> */}
           </Form.Group>
-          <Form.Group controlId="formQuestionGrade">
-            <Form.Label>Grade:</Form.Label>
-            <Form.Control type="number" name="grade" value={newQuestion.grade} onChange={handleNewQuestionChange} style={{width:'15%'}} />
-          </Form.Group>
+        
+          <Form.Group controlId="formFile">
+  <Form.Label>Attachments:</Form.Label>
+  <Form.Control type="file" onChange={(e) => handleFileChange(e)} style={{ width: '35%' }}/>
+  <Button className="my-2" variant="primary" >
+    <FaUpload />
+    Upload
+  </Button>
+</Form.Group>
         </Form>
       </div>
       <div className="modal-footer">

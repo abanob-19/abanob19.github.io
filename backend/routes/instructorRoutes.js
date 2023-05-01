@@ -27,6 +27,7 @@ const {
   submitAnswers,
   getScreenshots,
   downloadFile,
+  getImage,
 } = require('../controllers/instructorController')
 const router = express.Router()
 // GET a single instructor for login
@@ -55,4 +56,5 @@ router.get('/getExamTextQuestions/', getExamTextQuestions)
 router.post('/submitAnswers/', submitAnswers)
 router.get('/getScreenshots/', getScreenshots)
 router.get('/downloadFile/', downloadFile)
+router.get('/getImage/', getImage)
 module.exports = router

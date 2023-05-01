@@ -59,6 +59,20 @@ const downloadFile = async (req, res) => {
       }
   });
 }
+const getImage=async(req,res)=>{
+  const { attachment } = req.query;
+const filePath = `${attachment}`;
+console.log(attachment)
+
+    
+    try {
+      
+      res.status(200).send(`data:image/png;base64,${fs.readFileSync(filePath, { encoding: 'base64' })}`);
+    } catch (error) {
+      console.error('Failed to retrieve ', error);
+      res.status(500).send('Failed to retrieve ');
+    }
+}
 const uploadFile = async (req, res) => {
   const courseName = req.body.courseName;
   const questionId = req.body.questionId;
@@ -404,7 +418,7 @@ const editQuestionBank=async(req,res)=>{
 
 }
 const addMcqQuestion=async(req,res)=>{
-  const { questionBankName,name,text,choices,answer,category , grade , type,attachment} = req.body
+  const { questionBankName,name,text,choices,answer,category  , type,attachment} = req.body
   const course =   await Course.findOne({name})
   if(!course) {
            return res.status(400).json({error: 'No such course'})
@@ -424,7 +438,6 @@ const addMcqQuestion=async(req,res)=>{
               question.choices=choices
               question.answer=answer;
               question.category=category;
-              question.grade=grade;
               question.attachment=attachment;
               console.log(question)}
               else if(type=="text"){
@@ -432,7 +445,6 @@ const addMcqQuestion=async(req,res)=>{
                question=new textQuestion()
               question.text=text
               question.category=category;
-              question.grade=grade;
               question.attachment=attachment
               }
               const updatedQuestionList=questionBank.questions
@@ -468,7 +480,7 @@ const addMcqQuestion=async(req,res)=>{
               if (courseUptaded) {
                 res.status(200).json(updatedQuestionList);
               } else {
-                res.status(400);
+                res.status(400)
                 console.log("Error Course not updated");
                 throw new Error("Error occured");
               }
@@ -483,7 +495,7 @@ const addMcqQuestion=async(req,res)=>{
 }
 
 const editMcqQuestion=async(req,res)=>{
-  const { questionBankName,name,text,choices,answer,category,grade,id } = req.body
+  const { questionBankName,name,text,choices,answer,category,id } = req.body
   const course =   await Course.findOne({name})
   if(!course) {
            return res.status(400).json({error: 'No such course'})
@@ -502,14 +514,12 @@ const editMcqQuestion=async(req,res)=>{
               question.choices=choices
               question.answer=answer;
               question.category=category;
-              question.grade=grade;
               question.attachment=questionBank.questions.find(element => element._id == id).attachment
               }
               else if(questionx.type=="text"){
                  question=new textQuestion()
                 question.text=text
                 question.category=category;
-                question.grade=grade;
                 question.attachment=questionBank.questions.find(element => element._id == id).attachment
                 }
                 const updatedQuestionList=questionBank.questions
@@ -978,4 +988,5 @@ module.exports = {
   submitAnswers,
   getScreenshots,
   downloadFile,
+  getImage,
 }

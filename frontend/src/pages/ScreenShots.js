@@ -13,7 +13,7 @@ const Screenshots = () => {
       try {
         console.log(studentId);
         const response = await axios.get(`/instructor/getScreenshots/?courseName=${courseName}&examId=${examId}&studentId=${studentId}`);
-          
+          console.log(response.data.screenshots[0]);
         setScreenshots(response.data.screenshots);
       } catch (error) {
         console.error('Failed to retrieve screenshots', error);
