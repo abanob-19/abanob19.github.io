@@ -571,14 +571,16 @@ const addMcqQuestion=async(req,res)=>{
 }
 
 const editMcqQuestion=async(req,res)=>{
-  const { questionBankName,name,text,choices,answer,category,id , index} = req.body
+  const { questionBankId,name,text,choices,answer,category,id , index} = req.body
   console.log(id)
   const course =   await Course.findOne({name})
   if(!course) {
+    console.log("no such course")
            return res.status(400).json({error: 'No such course'})
+          
         }
         try {
-              const questionBank = (examBank)(course.questionBanks.find(element => element.title == questionBankName));
+              const questionBank = (examBank)(course.questionBanks.find(element => element._id == questionBankId));
               const questionx=questionBank.questions.find(element => element._id == id)
               if(!questionBank){
                 return res.status(400).json({error: 'No such bank'})
@@ -608,8 +610,35 @@ const editMcqQuestion=async(req,res)=>{
               }
               
               if(index){
-                question.choiceAttachments=questionx.choiceAttachments
-                question.choiceAttachments=question.choiceAttachments.splice(index,1)
+                if(questionx.choiceAttachments[index]){
+                fs.unlink(questionx.choiceAttachments[index], (err) => {
+                  if (err) {
+                   console.error(err);
+                 } else {
+                   console.log(`Deleted file at ${questionx.choiceAttachments[index]}`);
+                 }
+                  });}
+                question.choiceAttachments = [
+                  ...questionx.choiceAttachments.slice(0, index),
+                  ...questionx.choiceAttachments.slice(index + 1),
+                ];
+                
+                 
+               
+                console.log(question.choiceAttachments)
+                for (let i = 0; i < question.choiceAttachments.length; i++) {
+                  if(question.choiceAttachments[i]){
+                  const folderPath = `./uploads/choices/${questionBankId}/${id}`;
+                  
+                  const filePath = `${folderPath}/${i}.${question.choiceAttachments[i].split('.').pop()}`;
+                fs.rename(question.choiceAttachments[i], filePath, (err) => {
+                  if (err) {
+                    console.error(err);
+                  } else {
+                    console.log(`Renamed `);
+                  }
+                });
+                question.choiceAttachments[i]=filePath}}
               }
             else
               question.choiceAttachments=questionx.choiceAttachments}
@@ -644,17 +673,18 @@ const editMcqQuestion=async(req,res)=>{
                 targetExamIndex < questionBanks.length;
                 targetExamIndex++
               ) {
-                if (questionBanks[targetExamIndex].title == questionBankName) {
+                if (questionBanks[targetExamIndex]._id == questionBankId) {
                   targetExam = questionBanks[targetExamIndex];
                   break;
                 }
               }
               if (!targetExam) {
                 res.status(400);
+                console.log("Bank does not exist");
                 throw new Error("Bank does not exist");
+                
               }
               targetExam.questions = updatedQuestionList;
-              targetExam.title = questionBankName;
               targetExam.course = name;
               questionBanks[targetExamIndex] = targetExam;
               // (course.questionBanks.find(element => element.title == questionBankName)).questions.push(question);
@@ -670,26 +700,255 @@ const editMcqQuestion=async(req,res)=>{
                 res.status(200).json(course1);
               } else {
                 res.status(400);
+                console.log("Error Course not updated")
                 throw new Error("Error occured");
+                ;
               }
              
             
             } catch (error) {
               res.status(400).json({ error: error.message })
+              console.log(error)
+            }
+
+}
+const editMcqQuestionAttachment=async(req,res)=>{
+  const { questionBankId,name,text,choices,answer,category,id , index} = req.body
+  console.log(id)
+  const course =   await Course.findOne({name})
+  if(!course) {
+    console.log("no such course")
+           return res.status(400).json({error: 'No such course'})
+          
+        }
+        try {
+              const questionBank = (examBank)(course.questionBanks.find(element => element._id == questionBankId));
+              const questionx=questionBank.questions.find(element => element._id == id)
+              if(!questionBank){
+                return res.status(400).json({error: 'No such bank'})
+              }
+              var questionBanks = course.questionBanks;
+              var question=null
+              if(questionx.type=="mcq"){
+               question=new mcqQuestion()
+              question.text=text
+              question._id=id
+              question.choices=choices
+              question.answer=answer;
+              question.category=category;
+              question.attachment=questionBank.questions.find(element => element._id == id).attachment
+              if(questionx.choiceAttachments){
+              const diff=choices.length-questionx.choiceAttachments.length
+              if(diff>0){
+                for(let i=0;i<diff;i++){
+                  if(!question.choiceAttachments){
+                    question.choiceAttachments=new Array(diff).fill(null);
+                    break;
+                  }
+                       
+                  question.choiceAttachments.push(null)
+                }
+              
+              }
+              
+              if(index){
+                if(questionx.choiceAttachments[index]){
+                fs.unlink(questionx.choiceAttachments[index], (err) => {
+                  if (err) {
+                   console.error(err);
+                 } else {
+                   console.log(`Deleted file at ${questionx.choiceAttachments[index]}`);
+                 }
+                  });}
+                question.choiceAttachments = [
+                  ...questionx.choiceAttachments.slice(0, index),
+                  ...questionx.choiceAttachments.slice(index + 1),
+                ];
+                
+                 
+               
+                console.log(question.choiceAttachments)
+              }
+            else
+              question.choiceAttachments=questionx.choiceAttachments}
+              else{
+                question.choiceAttachments=new Array(questionx.choices.length).fill(null);
+              }
+            }
+              else if(questionx.type=="text"){
+                 question=new textQuestion()
+                question.text=text
+                question.category=category;
+                question.attachment=questionBank.questions.find(element => element._id == id).attachment
+                }
+                const updatedQuestionList=questionBank.questions
+             
+              var targetQuestionIndex = 0;
+              for (
+                targetQuestionIndex = 0;
+                targetQuestionIndex < updatedQuestionList.length;
+                targetQuestionIndex++
+              ) {
+                if (updatedQuestionList[targetQuestionIndex]._id == id) {
+                  // targetExam = questionBanks[targetExamIndex];
+                  break;
+                }
+              }
+              updatedQuestionList[targetQuestionIndex]=question;
+              var targetExam;
+              var targetExamIndex = 0;
+              for (
+                targetExamIndex = 0;
+                targetExamIndex < questionBanks.length;
+                targetExamIndex++
+              ) {
+                if (questionBanks[targetExamIndex]._id == questionBankId) {
+                  targetExam = questionBanks[targetExamIndex];
+                  break;
+                }
+              }
+              if (!targetExam) {
+                res.status(400);
+                console.log("Bank does not exist");
+                throw new Error("Bank does not exist");
+                
+              }
+              targetExam.questions = updatedQuestionList;
+              targetExam.course = name;
+              questionBanks[targetExamIndex] = targetExam;
+              // (course.questionBanks.find(element => element.title == questionBankName)).questions.push(question);
+              //  await course.save()
+              const courseUptaded = await Course.findOneAndUpdate(
+                { name: name },
+                { questionBanks: questionBanks }
+                
+              );
+              if (courseUptaded) {
+                const course1 =   await Course.findOne({name})
+             
+                res.status(200).json(course1);
+              } else {
+                res.status(400);
+                console.log("Error Course not updated")
+                throw new Error("Error occured");
+                ;
+              }
+             
+            
+            } catch (error) {
+              res.status(400).json({ error: error.message })
+              console.log(error)
             }
 
 }
 
 
 const deleteMcqQuestion=async(req,res)=>{
-  const { questionBankName,name,id } = req.body
+  const { questionBankId,name,id } = req.body
+  console.log(id)
+  const course =   await Course.findOne({name})
+  if(!course) {
+    console.log("no such course")
+           return res.status(400).json({error: 'No such course'})
+        }
+        try {
+              const questionBank = (examBank)(course.questionBanks.find(element => element._id == questionBankId));
+              
+              if(!questionBank){
+                console.log("no such bank")
+                return res.status(400).json({error: 'No such bank'})
+              }
+              var questionBanks = course.questionBanks;
+              const updatedQuestionList=questionBank.questions
+              var targetQuestionIndex = 0;
+              for (
+                targetQuestionIndex = 0;
+                targetQuestionIndex < updatedQuestionList.length;
+                targetQuestionIndex++
+              ) {
+                if (updatedQuestionList[targetQuestionIndex]._id == id) {
+                  // targetExam = questionBanks[targetExamIndex];
+                  break;
+                }
+              }
+              const folder= `./uploads/choices/${questionBankId}/${id}`
+              var flag=false
+              //loop over choiceAttachments to check that at least one is not null
+              for (let i=0;i<updatedQuestionList[targetQuestionIndex].choiceAttachments.length;i++){
+                if(updatedQuestionList[targetQuestionIndex].choiceAttachments[i]){
+                   flag=true
+                }
+              }
+              if (flag)
+             { 
+              fs.rm(folder, { recursive: true }, (err) => {
+                if (err) {
+                 console.error(err);
+               } else {
+                 console.log(`Deleted file at ${folder}`);
+               }
+                });}
+                if(updatedQuestionList[targetQuestionIndex].attachment){fs.unlink(updatedQuestionList[targetQuestionIndex].attachment, (err) => {
+                  if (err) {
+                   console.error(err);
+                 } else {
+                   console.log(`Deleted file at}`);
+                 }
+                  });}
+              updatedQuestionList.splice(targetQuestionIndex, 1)
+              var targetExam;
+              var targetExamIndex = 0;
+              for (
+                targetExamIndex = 0;
+                targetExamIndex < questionBanks.length;
+                targetExamIndex++
+              ) {
+                if (questionBanks[targetExamIndex]._id == questionBankId) {
+                  targetExam = questionBanks[targetExamIndex];
+                  break;
+                }
+              }
+              if (!targetExam) {
+                console.log("Bank does not exist")
+                res.status(400);
+                throw new Error("Bank does not exist");
+              }
+              targetExam.questions = updatedQuestionList;
+              targetExam.course = name;
+              questionBanks[targetExamIndex] = targetExam;
+              // (course.questionBanks.find(element => element.title == questionBankName)).questions.push(question);
+              //  await course.save()
+              const courseUptaded = await Course.findOneAndUpdate(
+                { name: name },
+                { questionBanks: questionBanks }
+                
+              );
+              if (courseUptaded) {
+                const course1 =   await Course.findOne({name})
+             
+                res.status(200).json(course1);
+              } else {
+                res.status(400);
+                console.log("Error Course not updated")
+                throw new Error("Error occured");
+              }
+             
+            
+            } catch (error) {
+              console.log(error)
+              res.status(400).json({ error: error.message })
+            }
+
+}
+const deleteMcqQuestionAttachment=async(req,res)=>{
+  const { questionBankId,name,id } = req.body
   console.log(id)
   const course =   await Course.findOne({name})
   if(!course) {
            return res.status(400).json({error: 'No such course'})
         }
         try {
-              const questionBank = (examBank)(course.questionBanks.find(element => element.title == questionBankName));
+              const questionBank = (examBank)(course.questionBanks.find(element => element._id == questionBankId));
               
               if(!questionBank){
                 return res.status(400).json({error: 'No such bank'})
@@ -707,7 +966,17 @@ const deleteMcqQuestion=async(req,res)=>{
                   break;
                 }
               }
-              updatedQuestionList.splice(targetQuestionIndex, 1)
+              const q= updatedQuestionList[targetQuestionIndex]
+              
+                fs.unlink(q.attachment, (err) => {
+                  if (err) {
+                   console.error(err);
+                 } else {
+                   console.log(`Deleted file at ${q.attachment}`);
+                 }
+                  });
+              q.attachment=null
+              updatedQuestionList[targetQuestionIndex]=q
               var targetExam;
               var targetExamIndex = 0;
               for (
@@ -715,7 +984,7 @@ const deleteMcqQuestion=async(req,res)=>{
                 targetExamIndex < questionBanks.length;
                 targetExamIndex++
               ) {
-                if (questionBanks[targetExamIndex].title == questionBankName) {
+                if (questionBanks[targetExamIndex]._id == questionBankId) {
                   targetExam = questionBanks[targetExamIndex];
                   break;
                 }
@@ -725,7 +994,6 @@ const deleteMcqQuestion=async(req,res)=>{
                 throw new Error("Bank does not exist");
               }
               targetExam.questions = updatedQuestionList;
-              targetExam.title = questionBankName;
               targetExam.course = name;
               questionBanks[targetExamIndex] = targetExam;
               // (course.questionBanks.find(element => element.title == questionBankName)).questions.push(question);
@@ -1091,4 +1359,6 @@ module.exports = {
   downloadFile,
   getImage,
   uploadChoiceAttachments,
+  editMcqQuestionAttachment,
+  deleteMcqQuestionAttachment,
 }

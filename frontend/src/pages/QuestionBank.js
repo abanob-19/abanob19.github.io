@@ -17,6 +17,11 @@ const renderTooltip = (props) => (
     Add new question 
   </Tooltip>
 );
+const renderTooltip2 = (props) => (
+  <Tooltip id="button-tooltip" {...props}>
+    Delete Attachment 
+  </Tooltip>
+);
 const QuestionBank = () => {
   const xx=''
     const location = useLocation();
@@ -66,7 +71,7 @@ const isImageAttachment = (attachment) => {
       formData.append('questionId', q);
       formData.append('questionBankId', questionBank._id);
       formData.append('courseName', name);
-      if(newQuestionFile)
+      if(file)
       setLoading(true)
       fetch(`/instructor/uploadFile`, {
         method: 'POST',
@@ -123,7 +128,7 @@ const isImageAttachment = (attachment) => {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              questionBankName,
+              questionBankId: questionBank._id,
               name,
               text: question.text,
               choices: question.choices,
@@ -175,7 +180,7 @@ const isImageAttachment = (attachment) => {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              questionBankName,
+              questionBankId:questionBank._id,
               name,
               text: question.text,
               choices: question.choices,
@@ -183,6 +188,7 @@ const isImageAttachment = (attachment) => {
               category: question.category,
                 grade: question.grade,
               id: question._id,
+              index:index
             })
           })
             .then(response => {
@@ -198,9 +204,53 @@ const isImageAttachment = (attachment) => {
             })
             .catch(error => {
               console.error(error);
-              alert('Failed to elete choice');
+              alert('Failed to delete choice');
+              setVersion(version => version + 1); // force re-render
             });}
           }  //setVersion(version => version + 1); // force re-render
+      };
+      const handleDeleteChoiceAttachment=(index,question)=>{
+        // const updatedQuestionBank = { ...questionBank };
+        // updatedQuestionBank.questions[editedChoiceIndex].choices[editedChoice] = newChoice;
+       
+          const confirmed = window.confirm("Are you sure you want to delete this Attachment?");
+    if (confirmed) {
+        
+        setLoading(true)
+        fetch('/instructor/editMcqQuestionAttachment', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              questionBankId:questionBank._id,
+              name,
+              text: question.text,
+              choices: question.choices,
+              answer: question.answer,
+              category: question.category,
+                grade: question.grade,
+              id: question._id,
+              index:index
+            })
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Failed to delete Attachment');
+              }
+              return response.json();
+            })
+            .then(json => {
+              console.log(json);
+              setDisplayForm(false);
+              setVersion(version => version + 1); // force re-render
+            })
+            .catch(error => {
+              console.error(error);
+              alert('Failed to delete choice Attachment');
+              setVersion(version => version + 1); // force re-render
+            });}
+            //setVersion(version => version + 1); // force re-render
       };
     //create a function to handle edit question
     const handleEditQuestion = () => {
@@ -217,7 +267,7 @@ const isImageAttachment = (attachment) => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            questionBankName,
+            questionBankId:questionBank._id,
             name,
             id: question,
           })
@@ -235,9 +285,42 @@ const isImageAttachment = (attachment) => {
           .catch(error => {
             console.error(error);
             alert('Failed to delete question');
+            setVersion(version => version + 1); // force re-render
           });
       }}
-    
+      const handleDeleteQuestionAttachment = (question) => {
+        const confirmed = window.confirm("Are you sure you want to delete this Question Attachment ?");
+      if (confirmed) {
+        setLoading(true)
+          fetch('/instructor/deleteMcqQuestionAttachment', {
+            method: 'Delete',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              questionBankId:questionBank._id,
+              name,
+              id: question,
+            })
+          })
+            .then(response => {
+              if (!response.ok) {
+                alert('Failed to delete question Attachment');
+                throw new Error('Failed to delete question Attachment');
+                
+              }
+              return response.json();
+            })
+            .then(json => {
+              console.log(json);
+              alert('Question Attachment deleted successfully');
+              setVersion(version => version + 1); // force re-render
+            })
+            .catch(error => {
+              console.error(error);
+              alert('Failed to delete question');
+            });
+        }}
     //create a function to handle add choice
     const[editedQuestionIndexforAddChoice,setEditedQuestionIndexforAddChoice]=useState(null);
     const handleAddChoice = (qIndex) => {
@@ -269,7 +352,7 @@ const isImageAttachment = (attachment) => {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              questionBankName,
+              questionBankId:questionBank._id,
               name,
               text: question.text,
               choices: question.choices,
@@ -319,7 +402,7 @@ const isImageAttachment = (attachment) => {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              questionBankName,
+              questionBankId:questionBank._id,
               name,
               text: question.text,
               choices: question.choices,
@@ -364,7 +447,7 @@ const isImageAttachment = (attachment) => {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              questionBankName,
+              questionBankId:questionBank._id,
               name,
               text: question.text,
               choices: question.choices,
@@ -418,7 +501,7 @@ const isImageAttachment = (attachment) => {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              questionBankName,
+              questionBankId:questionBank._id,
               name,
               text: newText,
               choices: question.choices,
@@ -476,7 +559,6 @@ const isImageAttachment = (attachment) => {
 
 // localStorage.setItem('cUrls', {});  
       for (var i=0;i<json.questions.length;i++){
-        console.log(warning)
         if (warning==false&&json.questions[i].type=="mcq"&&json.questions[i].choices.indexOf(json.questions[i].answer) === -1) {
           console.log(i )
           setWarning(true)
@@ -589,11 +671,11 @@ const isImageAttachment = (attachment) => {
 
       })
     })
-      .then(response => {
+      .then( response => {
         if (!response.ok) {
           throw new Error(response);
         }
-        return response.json();
+        return  response.json();
       })
       .then(async json => {
         console.log(json);
@@ -603,8 +685,9 @@ const isImageAttachment = (attachment) => {
          await handleUploadChoiceAttachments(json[json.length-1]._id ,newQuestion.choiceAttachments[i] , false , i )
         }
        }
-        setDisplayForm(false);
+        
         setVersion(version => version + 1); // force re-render
+        setDisplayForm(false);
       })
       .catch(error => {
         console.error(error);
@@ -624,8 +707,7 @@ const handleUploadChoiceAttachments = async (q,newQuestionFile,o,index) => {
   formData.append('questionBankId', questionBank._id);
   formData.append('courseName', name);
   formData.append('choiceIndex', index);
-  if(newQuestionFile)
-  setLoading(true)
+
   await fetch(`/instructor/uploadChoiceAttachments`, {
     method: 'POST',
     'Content-Type': 'multipart/form-data',
@@ -690,7 +772,7 @@ if (!questionBank||loading) {
           
             {editedQuestionIndexforEditText === qIndex && editedText !== null ? (
               <div>
-                 
+                <Form.Label style={{color:'green'}}>If you want to make a variable to be generated randomly during exam Write it like this %%variable%% </Form.Label>
                 <Form.Control type="text" value={editedText} onChange={(e) => setEditedText(e.target.value)} />
                 <Button variant="primary" onClick={() => handleFinishEditText(editedText, question)}> <FontAwesomeIcon icon={faSave} />Save</Button>
                 <button className="btn btn-danger" onClick={() => {setEditedText(null);setEditedQuestionIndexforEditText(null)}}>
@@ -732,7 +814,16 @@ if (!questionBank||loading) {
                         setEditedQuestionIndex(qIndex);
                       }}/>
                       <FontAwesomeIcon icon={faTrashAlt}  style={{ cursor: 'pointer' , marginLeft: '10px' }} onClick={() => handleDeleteChoice(cIndex,question)}/> 
-                      {question.choiceAttachments&& question.choiceAttachments[cIndex]&&<div style={{ width: "200px", height: "200px" }}> <img src={ choicesUrl[question._id][cIndex]}alt="Attachment"   style={{ maxWidth: "100%", maxHeight: "100%" }}/> </div>}
+                      {question.choiceAttachments&& question.choiceAttachments[cIndex]&&<div style={{ width: "200px", height: "200px" }}> <img src={ choicesUrl[question._id][cIndex]}alt="Attachment"   style={{ maxWidth: "100%", maxHeight: "100%" }}/>  
+                      <OverlayTrigger placement="right" overlay={renderTooltip2}>
+  <div style={{width:'20%'}}>
+    <FontAwesomeIcon
+      icon={faTrashAlt}
+      style={{ cursor: 'pointer' , marginLeft: '10px' , color:'red'}}
+      onClick={() => handleDeleteChoiceAttachment(cIndex,question)}
+    />
+  </div>
+</OverlayTrigger>                      </div>}
 
                     </div>
                   )}
@@ -849,6 +940,18 @@ if (!questionBank||loading) {
   }
   {question.attachment && isImageAttachment(question.attachment) &&<div style={{ width: "200px", height: "200px" }}> <img src={imageUrl[question._id]}alt="Attachment"   style={{ maxWidth: "100%", maxHeight: "100%" }}/>
 </div>}
+{question.attachment && (
+  <div>
+    <OverlayTrigger placement="right" overlay={renderTooltip2}>
+      <FontAwesomeIcon
+        icon={faTrashAlt}
+        className="text-danger ms-2"
+        style={{ cursor: 'pointer' }}
+        onClick={() => handleDeleteQuestionAttachment(question._id)}
+      />
+    </OverlayTrigger>
+  </div>
+)}
 </Form.Group>
           </Card.Body>
         </Card>

@@ -29,6 +29,8 @@ const {
   downloadFile,
   getImage,
   uploadChoiceAttachments,
+  editMcqQuestionAttachment,
+  deleteMcqQuestionAttachment,
 } = require('../controllers/instructorController')
 const router = express.Router()
 // GET a single instructor for login
@@ -59,4 +61,6 @@ router.get('/getScreenshots/', getScreenshots)
 router.get('/downloadFile/', downloadFile)
 router.get('/getImage/', getImage)
 router.post('/uploadChoiceAttachments', upload.single('attachment'), uploadChoiceAttachments)
+router.put('/editMcqQuestionAttachment/',editMcqQuestionAttachment)
+router.delete('/deleteMcqQuestionAttachment/',deleteMcqQuestionAttachment)
 module.exports = router
