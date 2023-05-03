@@ -116,7 +116,8 @@ const[choiceFile,setChoiceFile]=useState([null,null])
       <div className="modal-body">
         <Form>
           <Form.Group >
-          <Form.Label style={{color:'green'}}>If you want to make a variable to be generated randomly during exam Write it like this %%variable%% </Form.Label>
+          <Form.Label style={{color:'green'}}>-If you want to make a variable to be generated randomly during exam Write it like this %%variable%% </Form.Label>
+          <Form.Label style={{color:'green'}}>-If you want to make an equation to be computed according to the randomly generated numbers during exam Write it like this equation(your equation), divide is written / , power is written ** </Form.Label>
             <Form.Label>Question Type:</Form.Label>
             <Form.Control as="select" name="type" value={newQuestion.type} onChange={handleNewQuestionChange}>
               <option value="mcq">MCQ</option>

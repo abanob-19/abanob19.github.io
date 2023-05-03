@@ -394,9 +394,9 @@ const isImageAttachment = (attachment) => {
         setEditedQuestionIndexforEditAnswer(qIndex)
         
     }
-    const handleFinishEditAnswer=(newAnswer,question)=>{
-      setLoading(true)
-        fetch('/instructor/editMcqQuestion', {
+    const handleFinishEditAnswer=async(newAnswer,question,index)=>{
+       setLoading(true)
+       await fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json'
@@ -417,10 +417,10 @@ const isImageAttachment = (attachment) => {
               }
               return response.json();
             })
-            .then(json => {
+            .then( json => {
               console.log(json);
               setDisplayForm(false);
-              setVersion(version => version + 1); // force re-render
+              window.location.reload(); // force re-render
             })
             .catch(error => {
               console.error(error);
@@ -772,8 +772,9 @@ if (!questionBank||loading) {
           
             {editedQuestionIndexforEditText === qIndex && editedText !== null ? (
               <div>
-                <Form.Label style={{color:'green'}}>If you want to make a variable to be generated randomly during exam Write it like this %%variable%% </Form.Label>
-                <Form.Control type="text" value={editedText} onChange={(e) => setEditedText(e.target.value)} />
+                <Form.Label style={{color:'green'}}>-If you want to make a variable to be generated randomly during exam Write it like this %%variable%% </Form.Label>
+                <Form.Label style={{color:'green'}}>-If you want to make an equation to be computed according to the randomly generated numbers during exam Write it like this equation(your equation), divide is written / , power is written ** </Form.Label>
+                <Form.Control type="text" value={editedText} onChange={(e) => setEditedText(e.target.value)} style={{width:'60%'}}/>
                 <Button variant="primary" onClick={() => handleFinishEditText(editedText, question)}> <FontAwesomeIcon icon={faSave} />Save</Button>
                 <button className="btn btn-danger" onClick={() => {setEditedText(null);setEditedQuestionIndexforEditText(null)}}>
                 <FontAwesomeIcon icon={faTimes} className="me-2" />
@@ -798,7 +799,9 @@ if (!questionBank||loading) {
                 <ListGroup.Item key={cIndex}>
                   {editedChoiceIndex === cIndex && editedChoice !== null && editedQuestionIndex===qIndex ? (
                     <div>
-                      <Form.Control type="text" value={editedChoice} onChange={(e) => setEditedChoice(e.target.value)} />
+                         <Form.Label style={{color:'green'}}>-If you want to make a variable to be generated randomly during exam Write it like this %%variable%% </Form.Label>
+                <Form.Label style={{color:'green'}}>-If you want to make an equation to be computed according to the randomly generated numbers during exam Write it like this equation(your equation), divide is written / , power is written ** </Form.Label>
+                      <Form.Control type="text" value={editedChoice} onChange={(e) => setEditedChoice(e.target.value)} style={{ width: '80%' }} />
                       <Form.Control type="file" onChange={(e) => setEditedFile(e.target.files[0])} style={{ width: '80%' }} />
                       <Button variant="primary" onClick={() => handleFinishEditChoice(editedChoice, question, cIndex)}> <FontAwesomeIcon icon={faSave} />Save</Button>
                       <button className="btn btn-danger" onClick={() => {setEditedChoice(null);setEditedChoiceIndex(null); setEditedQuestionIndex(null);setEditedFile(null)}}>
@@ -831,7 +834,9 @@ if (!questionBank||loading) {
               ))}
               {editedQuestionIndexforAddChoice === qIndex && AddedChoice !== null ? (
                 <div>
-                  <Form.Control type="text" value={AddedChoice} onChange={(e) => setAddedChoice(e.target.value)} />
+                     <Form.Label style={{color:'green'}}>-If you want to make a variable to be generated randomly during exam Write it like this %%variable%% </Form.Label>
+                <Form.Label style={{color:'green'}}>-If you want to make an equation to be computed according to the randomly generated numbers during exam Write it like this equation(your equation) divide is written / , power is written ** </Form.Label>
+                  <Form.Control type="text" value={AddedChoice} onChange={(e) => setAddedChoice(e.target.value)} style={{ width: '80%' }}/>
                   <Form.Control type="file" onChange={(e) => setEditedFile(e.target.files[0])} style={{ width: '80%' }} />
                   <Button variant="primary" onClick={() => handleFinishAddedChoice(AddedChoice, question)}> <FontAwesomeIcon icon={faSave} /> Save</Button>
                   <button className="btn btn-danger" onClick={() => {setEditedQuestionIndexforAddChoice(null);setAddedChoice(null);setEditedFile(null)}}>
@@ -852,7 +857,7 @@ if (!questionBank||loading) {
                   <option key={index} value={choice}>{choice}</option>
                 ))}
               </Form.Select>
-              <Button variant="primary" onClick={() => handleFinishEditAnswer(editedAnswer, question)}>
+              <Button variant="primary" onClick={() => handleFinishEditAnswer(editedAnswer, question,qIndex)}>
                 <FontAwesomeIcon icon={faSave} className="me-2" />Save
               </Button>
               <button className="btn btn-danger" onClick={() => {

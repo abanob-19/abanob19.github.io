@@ -59,7 +59,6 @@ const SampleExam = () => {
           <h2>{question.text}</h2>
           {question.attachment &&  <button onClick={() => handleDownload(question.attachment)}>Download Attachments</button>}
           <p>Category: {question.category}</p>
-          <p>Grade: {question.grade}</p>
          {question.type=='mcq'&& <ul>
             {question.choices.map((choice, index) => (
               <li key={index}>
