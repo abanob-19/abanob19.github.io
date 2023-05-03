@@ -28,6 +28,7 @@ const {
   getScreenshots,
   downloadFile,
   getImage,
+  uploadChoiceAttachments,
 } = require('../controllers/instructorController')
 const router = express.Router()
 // GET a single instructor for login
@@ -57,4 +58,5 @@ router.post('/submitAnswers/', submitAnswers)
 router.get('/getScreenshots/', getScreenshots)
 router.get('/downloadFile/', downloadFile)
 router.get('/getImage/', getImage)
+router.post('/uploadChoiceAttachments', upload.single('attachment'), uploadChoiceAttachments)
 module.exports = router

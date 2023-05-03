@@ -40,6 +40,9 @@ const mcqQuestionSchema = new Schema({
   StudentAttachment: {
     type: String,
   },
+  choiceAttachments: {
+    type: [],
+  },
 
 });
 const textQuestionSchema = new Schema({

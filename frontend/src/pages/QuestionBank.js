@@ -27,29 +27,21 @@ const QuestionBank = () => {
     const [version, setVersion] = useState(0);
     const [editedChoice, setEditedChoice] = useState(null);
     const [editedChoiceIndex, setEditedChoiceIndex] = useState(null);
+    const [editedFile, setEditedFile] = useState(null);
     const [editedQuestionIndex, setEditedQuestionIndex] = useState(null);
     const [AddedChoice, setAddedChoice] = useState(null);
     const [file, setFile] = useState(null);
     const[aurl,setAurl]=useState(null)
+    const[warning,setWarning]=useState(false)
+    const[warningIndex,setWarningIndex]=useState(null)
 const[loading,setLoading]=useState(false)
 //initialize a state variable to store the question id as key and the image url as value
 const [imageUrl, setImageUrl] = useState({});
+const [choicesUrl, setChoicesUrl] = useState({});
 const[attachment,setAttachment]=useState(null)
-const[id,setId]=useState(null)
-// useEffect(() => {
-//   async function fetchImageUrl() {
-//     const response = await axios.get(
-//       `/instructor/getImage/?attachment=${attachment}`
-//     );
-//     setImageUrl(prevState => ({
-//       ...prevState,
-//       [id]: imageUrl,
-//     }));
-    
-//   }
-//   if (attachment) 
-//   fetchImageUrl();
-// }, []);
+const[question,setQuestion]=useState(null)
+const [index, setIndex] = useState(null);
+
 const isImageAttachment = (attachment) => {
   const imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
   const extension = attachment.split('.').pop().toLowerCase();
@@ -104,9 +96,10 @@ const isImageAttachment = (attachment) => {
         setEditedChoiceIndex(index);
         setEditedChoice(questionBank.questions[qIndex].choices[index]);
         setEditedQuestionIndex(qIndex);
+        console.log(choicesUrl)
       };
     
-      const handleFinishEditChoice = (newChoice,question) => {
+      const handleFinishEditChoice =async (newChoice,question) => {
         // const updatedQuestionBank = { ...questionBank };
         // updatedQuestionBank.questions[editedChoiceIndex].choices[editedChoice] = newChoice;
         if(newChoice=="")
@@ -123,7 +116,8 @@ const isImageAttachment = (attachment) => {
           }
         }
         setLoading(true)
-        fetch('/instructor/editMcqQuestion', {
+        console.log(question._id);
+        await fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json'
@@ -136,6 +130,7 @@ const isImageAttachment = (attachment) => {
               answer: question.answer,
               category: question.category,
               id: question._id,
+              index:null
             })
           })
             .then(response => {
@@ -144,7 +139,10 @@ const isImageAttachment = (attachment) => {
               }
               return response.json();
             })
-            .then(json => {
+            .then(async json => {
+              console.log(editedFile);
+              console.log(question._id);
+              await handleUploadChoiceAttachments(question._id,editedFile,false,editedChoiceIndex)
               console.log(json);
               setDisplayForm(false);
               setVersion(version => version + 1); // force re-render
@@ -157,6 +155,7 @@ const isImageAttachment = (attachment) => {
         setEditedChoice(null);
         setEditedChoiceIndex(null);
         setEditedQuestionIndex(null);
+        setEditedFile(null);
         }  };
     //create a function to handle delete choice
     const handleDeleteChoice=(index,question)=>{
@@ -244,8 +243,9 @@ const isImageAttachment = (attachment) => {
     const handleAddChoice = (qIndex) => {
         setAddedChoice("")
         setEditedQuestionIndexforAddChoice(qIndex);
+        console.log(choicesUrl)
     }
-   const handleFinishAddedChoice=(AddedChoice,question)=>{
+   const handleFinishAddedChoice=async (AddedChoice,question)=>{
         // const updatedQuestionBank = { ...questionBank };
         // updatedQuestionBank.questions[editedChoiceIndex].choices[editedChoice] = newChoice;
         if(AddedChoice=="")
@@ -263,7 +263,7 @@ const isImageAttachment = (attachment) => {
         }
         question.choices.push(AddedChoice);
         setLoading(true)
-        fetch('/instructor/editMcqQuestion', {
+        await fetch('/instructor/editMcqQuestion', {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json'
@@ -276,6 +276,7 @@ const isImageAttachment = (attachment) => {
               answer: question.answer,
               category: question.category,
               id: question._id,
+              index:null
             })
           })
             .then(response => {
@@ -284,8 +285,9 @@ const isImageAttachment = (attachment) => {
               }
               return response.json();
             })
-            .then(json => {
+            .then(async json => {
               console.log(json);
+              await handleUploadChoiceAttachments(question._id,editedFile,false,question.choices.length-1)
               setDisplayForm(false);
               setVersion(version => version + 1); // force re-render
             })
@@ -296,6 +298,7 @@ const isImageAttachment = (attachment) => {
        setVersion(version => version + 1); // force re-render
         setAddedChoice(null);
         setEditedQuestionIndexforAddChoice(null);
+        setEditedFile(null)
    }};
 
 
@@ -452,21 +455,73 @@ const isImageAttachment = (attachment) => {
       const json = await response.json();
       setQuestionBank(json);
       console.log(json);
-      setLoading(false)
+      
+      
       for(var i=0;i<json.questions.length;i++){
+        
         if(json.questions[i].attachment&& isImageAttachment(json.questions[i].attachment)){
          handleurls(json.questions[i]._id,json.questions[i].attachment)
         }
+      
       }
+     
+//         const initialChoicesUrl = {};
+// for (let i = 0; i < json.questions.length; i++) {
+//   if (json.questions[i].type=="mcq"){
+// console.log(i)
+// initialChoicesUrl[json.questions[i]._id] = new Array(json.questions[i].choices.length).fill(null);}
+// }
+// console.log(initialChoicesUrl)
+// setChoicesUrl(initialChoicesUrl);
+
+// localStorage.setItem('cUrls', {});  
+      for (var i=0;i<json.questions.length;i++){
+        console.log(warning)
+        if (warning==false&&json.questions[i].type=="mcq"&&json.questions[i].choices.indexOf(json.questions[i].answer) === -1) {
+          console.log(i )
+          setWarning(true)
+          setWarningIndex(i)
+        }
+        if(json.questions[i].type=="mcq"){
+        for (var j=0;j<json.questions[i].choices.length;j++){
+         
+          if(json.questions[i].choiceAttachments&&json.questions[i].choiceAttachments[j]&& isImageAttachment(json.questions[i].choiceAttachments[j])){
+            await handleChoiceUrls(json.questions[i]._id,j,json.questions[i].choiceAttachments[j],json.questions[i].choices.length)
+            
+           }
+        }}
+        
+      }
+      setLoading(false)
     };
     const handleurls=async function fetchImageUrl(id,qattachment) {
           const response = await axios.get(
             `/instructor/getImage/?attachment=${qattachment}`
           );
+         
           setImageUrl(prevState => ({
             ...prevState,
             [id]: response.data,
           }));
+          
+        }
+        
+        const handleChoiceUrls=async function fetchImageUrl(id,index,qattachment,length) {
+          const response = await axios.get(
+            `/instructor/getImage/?attachment=${qattachment}`
+          );
+         
+        
+         
+          setChoicesUrl(prevState => {
+            const newState = {...prevState};
+            if (!newState[id]) {
+              newState[id] = new Array(length);
+            }
+            newState[id][index] = response.data;
+            return newState;
+          });
+          
           
         }
     useEffect(() => {
@@ -540,9 +595,14 @@ const isImageAttachment = (attachment) => {
         }
         return response.json();
       })
-      .then(json => {
+      .then(async json => {
         console.log(json);
        handleUpload(json[json.length-1]._id , newQuestion.attachment,false)
+       for (let i=0;i<newQuestion.choiceAttachments.length;i++){
+        if(newQuestion.choiceAttachments[i]){
+         await handleUploadChoiceAttachments(json[json.length-1]._id ,newQuestion.choiceAttachments[i] , false , i )
+        }
+       }
         setDisplayForm(false);
         setVersion(version => version + 1); // force re-render
       })
@@ -555,6 +615,36 @@ const isImageAttachment = (attachment) => {
     setDisplayForm(false);
   }
 }
+const handleUploadChoiceAttachments = async (q,newQuestionFile,o,index) => {
+  if (newQuestionFile){
+  const formData = new FormData()
+  if(newQuestionFile)
+  formData.append('attachment', newQuestionFile);
+  formData.append('questionId', q);
+  formData.append('questionBankId', questionBank._id);
+  formData.append('courseName', name);
+  formData.append('choiceIndex', index);
+  if(newQuestionFile)
+  setLoading(true)
+  await fetch(`/instructor/uploadChoiceAttachments`, {
+    method: 'POST',
+    'Content-Type': 'multipart/form-data',
+    body: formData, 
+
+
+  })
+    .then(json => {
+      console.log(json);
+      setVersion(version => version + 1); // force re-render
+    })
+    .catch(error => {
+      console.error(error);
+      alert('Failed to edit question');
+    });}
+    else {
+      if(o)
+    alert('No file selected');}
+  }
 if (!questionBank||loading) {
   return (
     <div className={styles['container']}>
@@ -590,14 +680,17 @@ if (!questionBank||loading) {
       <InstructorNavbar />
       <h1 style={{paddingTop:'72px'}}>{name.charAt(0).toUpperCase()+name.slice(1)}</h1>
       <h2 >{questionBankName}</h2>
-      
+      {warning&&<div style={{display:'flex',justifyContent:'space-between'}}>
+      <h3 style={{color:'red'}}> You have Errors in Question {warningIndex+1}</h3> 
+      </div>}
       {displayForm&&<QuestionForm onFinish={handleFinish}  />}
-      {questionBank && questionBank.questions && questionBank.questions.map((question, qIndex) => (
+      {questionBank && questionBank.questions && questionBank.questions.map(( question, qIndex) => (
         <Card key={question._id} className={styles.courseCard}  style={{ boxShadow: '0px 0px 24px 24px rgba(0,0,0,0.1)', borderRadius: '10px' , width:'70%'}}>
           <Card.Body>
           
             {editedQuestionIndexforEditText === qIndex && editedText !== null ? (
               <div>
+                 
                 <Form.Control type="text" value={editedText} onChange={(e) => setEditedText(e.target.value)} />
                 <Button variant="primary" onClick={() => handleFinishEditText(editedText, question)}> <FontAwesomeIcon icon={faSave} />Save</Button>
                 <button className="btn btn-danger" onClick={() => {setEditedText(null);setEditedQuestionIndexforEditText(null)}}>
@@ -606,7 +699,7 @@ if (!questionBank||loading) {
               </div>
             ) : (
               <div className="d-flex align-items-center">
-              <h3 className="mb-0 me-2">{question.text}</h3>
+              <h3 className="mb-0 me-2">{qIndex+1})   {question.text}</h3>
               <div className="d-flex">
                 <FontAwesomeIcon icon={faEdit} className="text-warning ms-2" style={{ cursor: 'pointer' }} onClick={() => {
                   setEditedText(question.text);
@@ -621,11 +714,12 @@ if (!questionBank||loading) {
               <h2>Choices:</h2>
               {question.choices.map((choice, cIndex) => (
                 <ListGroup.Item key={cIndex}>
-                  {editedChoiceIndex === cIndex && editedChoice !== null ? (
+                  {editedChoiceIndex === cIndex && editedChoice !== null && editedQuestionIndex===qIndex ? (
                     <div>
                       <Form.Control type="text" value={editedChoice} onChange={(e) => setEditedChoice(e.target.value)} />
+                      <Form.Control type="file" onChange={(e) => setEditedFile(e.target.files[0])} style={{ width: '80%' }} />
                       <Button variant="primary" onClick={() => handleFinishEditChoice(editedChoice, question, cIndex)}> <FontAwesomeIcon icon={faSave} />Save</Button>
-                      <button className="btn btn-danger" onClick={() => {setEditedChoice(null);setEditedChoiceIndex(null); setEditedQuestionIndex(null);}}>
+                      <button className="btn btn-danger" onClick={() => {setEditedChoice(null);setEditedChoiceIndex(null); setEditedQuestionIndex(null);setEditedFile(null)}}>
                 <FontAwesomeIcon icon={faTimes} className="me-2" />
               </button>
                     </div>
@@ -635,8 +729,11 @@ if (!questionBank||loading) {
                       <FontAwesomeIcon icon={faEdit}  style={{ cursor: 'pointer' , marginLeft: '10px' }}onClick={() => {
                         setEditedChoice(choice);
                         setEditedChoiceIndex(cIndex);
+                        setEditedQuestionIndex(qIndex);
                       }}/>
-                      <FontAwesomeIcon icon={faTrashAlt}  style={{ cursor: 'pointer' , marginLeft: '10px' }} onClick={() => handleDeleteChoice(cIndex,question)}/>
+                      <FontAwesomeIcon icon={faTrashAlt}  style={{ cursor: 'pointer' , marginLeft: '10px' }} onClick={() => handleDeleteChoice(cIndex,question)}/> 
+                      {question.choiceAttachments&& question.choiceAttachments[cIndex]&&<div style={{ width: "200px", height: "200px" }}> <img src={ choicesUrl[question._id][cIndex]}alt="Attachment"   style={{ maxWidth: "100%", maxHeight: "100%" }}/> </div>}
+
                     </div>
                   )}
                 </ListGroup.Item>
@@ -644,8 +741,9 @@ if (!questionBank||loading) {
               {editedQuestionIndexforAddChoice === qIndex && AddedChoice !== null ? (
                 <div>
                   <Form.Control type="text" value={AddedChoice} onChange={(e) => setAddedChoice(e.target.value)} />
+                  <Form.Control type="file" onChange={(e) => setEditedFile(e.target.files[0])} style={{ width: '80%' }} />
                   <Button variant="primary" onClick={() => handleFinishAddedChoice(AddedChoice, question)}> <FontAwesomeIcon icon={faSave} /> Save</Button>
-                  <button className="btn btn-danger" onClick={() => {setEditedQuestionIndexforAddChoice(null);setAddedChoice(null)}}>
+                  <button className="btn btn-danger" onClick={() => {setEditedQuestionIndexforAddChoice(null);setAddedChoice(null);setEditedFile(null)}}>
                 <FontAwesomeIcon icon={faTimes} className="me-2" />
               </button>
                 </div>
@@ -658,7 +756,7 @@ if (!questionBank||loading) {
             {question.type=="mcq"&& <div>
             {editedQuestionIndexforEditAnswer === qIndex && editedAnswer !== null ? (
               <div>
-              <Form.Select value={editedAnswer} onChange={(e) => setEditedAnswer(e.target.value)} style={{width:'20%'}}>
+              <Form.Select value={editedAnswer} onChange={(e) => {setEditedAnswer(e.target.value)}} style={{width:'20%'}}>
                 {question.choices.map((choice, index) => (
                   <option key={index} value={choice}>{choice}</option>
                 ))}
@@ -676,10 +774,15 @@ if (!questionBank||loading) {
             ) : (
               <div className="d-flex align-items-center">
               <h3 className="mb-0 me-2">Answer:</h3>
-              <p className="mb-0">{question.answer}</p>
+              <p className="mb-0">{question.answer}</p> {question.choices.indexOf(question.answer) === -1 &&
+      <p className="mb-0 text-danger">Warning: Invalid answer</p>
+    }
+    
               <FontAwesomeIcon icon={faEdit}  style={{ cursor: 'pointer' , marginLeft: '10px' }} onClick={() => {
                 setEditedAnswer(question.answer);
                 setEditedQuestionIndexforEditAnswer(qIndex);
+                if (question.choices.indexOf(question.answer) === -1)
+              setEditedAnswer(question.choices[0])
               }} className="ms-2"/>
             </div>
             )} </div>}

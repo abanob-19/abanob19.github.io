@@ -140,6 +140,81 @@ const uploadFile = async (req, res) => {
   }
   
 };
+const uploadChoiceAttachments = async (req, res) => {
+  const courseName = req.body.courseName;
+  const questionId = req.body.questionId;
+  const questionBankId = req.body.questionBankId;
+  const choiceIndex = req.body.choiceIndex;
+  // const attachment = {
+  //   filename: req.file.filename,
+  // };
+  console.log(questionId)
+  const course = await Course.findOne({ name: courseName });
+  if (!course) {
+    console.log("no such course")
+    return res.status(400).json({ error: 'No such course' });
+  }
+  const questionBank = course.questionBanks.find(qb => qb._id == questionBankId);
+  if (!questionBank) {
+    console.log("no such question bank")
+    return res.status(400).json({ error: 'No such question bank' });
+  }
+  const question = questionBank.questions.find(q => q._id == questionId);
+  if (!question) {
+    console.log("no such question")
+    return res.status(400).json({ error: 'No such question' });
+  }
+  const folderPath = `./uploads/choices/${questionBankId}/${questionId}`;
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath, { recursive: true });
+  }
+  const filePath = `${folderPath}/${choiceIndex}.${req.file.originalname.split('.').pop()}`;
+  fs.renameSync(req.file.path, filePath);
+  console.log("rename done")
+  var questionBanks = course.questionBanks;
+  // question.attachment = filePath;
+  var targetExamIndex = 0;
+  var targetExam;
+  for (
+    targetExamIndex = 0;
+    targetExamIndex < course.questionBanks.length;
+    targetExamIndex++
+  ) {
+    if (course.questionBanks[targetExamIndex]._id == questionBankId) {
+      targetExam = questionBanks[targetExamIndex];
+      break;
+    }
+  }
+  const updatedQuestionList = questionBanks[targetExamIndex].questions;
+
+  var targetQuestionIndex = 0;
+  for (
+    targetQuestionIndex = 0;
+    targetQuestionIndex < updatedQuestionList.length;
+    targetQuestionIndex++
+  ) {
+    if (updatedQuestionList[targetQuestionIndex]._id == questionId) {
+      break;
+    }
+  }
+  updatedQuestionList[targetQuestionIndex].choiceAttachments[choiceIndex] = filePath;
+  targetExam.questions = updatedQuestionList;
+  questionBanks[targetExamIndex] = targetExam;
+  const courseUptaded = await Course.findOneAndUpdate(
+    { name: courseName },
+    { questionBanks: questionBanks }
+  );
+  if (courseUptaded) {
+    const course1 = await Course.findOne({ name: courseName });
+    res.status(200).json(course1);
+  } else {
+    res.status(400);
+    console.log("error occuredx")
+    throw new Error('Error occured');
+    
+  }
+  
+};
 
 
 const getinstructors = async (req, res) => {
@@ -439,6 +514,7 @@ const addMcqQuestion=async(req,res)=>{
               question.answer=answer;
               question.category=category;
               question.attachment=attachment;
+              question.choiceAttachments=new Array(question.choices.length).fill(null),
               console.log(question)}
               else if(type=="text"){
                 console.log("text")
@@ -495,7 +571,8 @@ const addMcqQuestion=async(req,res)=>{
 }
 
 const editMcqQuestion=async(req,res)=>{
-  const { questionBankName,name,text,choices,answer,category,id } = req.body
+  const { questionBankName,name,text,choices,answer,category,id , index} = req.body
+  console.log(id)
   const course =   await Course.findOne({name})
   if(!course) {
            return res.status(400).json({error: 'No such course'})
@@ -511,11 +588,35 @@ const editMcqQuestion=async(req,res)=>{
               if(questionx.type=="mcq"){
                question=new mcqQuestion()
               question.text=text
+              question._id=id
               question.choices=choices
               question.answer=answer;
               question.category=category;
               question.attachment=questionBank.questions.find(element => element._id == id).attachment
+              if(questionx.choiceAttachments){
+              const diff=choices.length-questionx.choiceAttachments.length
+              if(diff>0){
+                for(let i=0;i<diff;i++){
+                  if(!question.choiceAttachments){
+                    question.choiceAttachments=new Array(diff).fill(null);
+                    break;
+                  }
+                       
+                  question.choiceAttachments.push(null)
+                }
+              
               }
+              
+              if(index){
+                question.choiceAttachments=questionx.choiceAttachments
+                question.choiceAttachments=question.choiceAttachments.splice(index,1)
+              }
+            else
+              question.choiceAttachments=questionx.choiceAttachments}
+              else{
+                question.choiceAttachments=new Array(questionx.choices.length).fill(null);
+              }
+            }
               else if(questionx.type=="text"){
                  question=new textQuestion()
                 question.text=text
@@ -989,4 +1090,5 @@ module.exports = {
   getScreenshots,
   downloadFile,
   getImage,
+  uploadChoiceAttachments,
 }
