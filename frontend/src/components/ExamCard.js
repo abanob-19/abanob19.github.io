@@ -7,7 +7,7 @@ import { Card, Button,Badge,ListGroup, ListGroupItem } from "react-bootstrap";
 import {faPencilAlt , faTrash} from '@fortawesome/free-solid-svg-icons';
 import styles from '../pages/Instructor.module.css'; 
 import { FaPlus,FaMinusCircle } from 'react-icons/fa';
-function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam , onSampleClick}) {
+function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam , onSampleClick,questionBanks2 ,yourIndex  }) {
   const isFinished = new Date() > new Date(exam.endTime);
 
   const [editing, setEditing] = useState(false);
@@ -19,15 +19,16 @@ function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam , onSampleClick}) 
   const [specs, setSpecs] = useState(exam.specs);
   const [isLoading, setIsLoading] = useState(false);
   const [questionBanks, setQuestionBanks] = useState([]);
-// useEffect(() => {
-//   console.log("exam card rendered")
-//   const fetchData =  () => { 
-//     fetch(`/instructor/seeCourse/${exam.courseName}`)
-//  .then(async response => await response.json())
-//  .then(data => setQuestionBanks(data))
-//  .catch(error => console.error(error));}
-//  fetchData();
-// }, [courseName])
+  const[warning,setWarning]=useState(false)
+useEffect(() => {
+ //loop over specs and check if there is a questionBank name that is not in the questionBanks2 array
+  for (let i = 0; i < specs.length; i++) {
+    if (!questionBanks2.includes(specs[i].chapter)) {
+      setWarning(true)
+      console.log("question bank not found")
+    }
+  }
+}, [])
 const handleSample = async() => {
   console.log("executed sample");
   onSampleClick();
@@ -316,6 +317,8 @@ const handleSample = async() => {
           <FontAwesomeIcon onClick={handleDeleteClick} icon={faTrash} className={styles['nav-link-hover']} />
 
         </Card.Header>
+        {warning && <p style={{color:'red', fontSize: '0.8em'}}>One of Question Banks declared not found, please edit</p>}
+
         <Card.Body>
           {exam.courseName && (
             <Card.Subtitle className='mb-2 text-muted'>

@@ -1313,6 +1313,7 @@ const submitAnswers = async (req, res) => {
           let exams=student.exams
           let exam=null
           var j=0;
+          var flag=true
           for(j=0;j<student.exams.length;j++){
             
             if((student.exams[j].examId.equals(examId.trim()))&&(student.exams[j].courseName==courseName) ){
@@ -1324,10 +1325,18 @@ const submitAnswers = async (req, res) => {
                   exam.studentGrades[k]=parseInt(grade)
                   exam.questions[k].graded=true
                   exam.totalGrade=exam.totalGrade+parseInt(grade)
-                  exams[j]=exam
+                  
                   break;
                 }
               }
+              for(k=0;k<student.exams[j].questions.length;k++){
+                if(exam.questions[k].graded==false){
+                  flag=false
+                }
+              }
+              if (flag)
+              exam.graded=true
+              exams[j]=exam
               console.log(exam)
               //update student exams array with the new exam
               student.exams=exams

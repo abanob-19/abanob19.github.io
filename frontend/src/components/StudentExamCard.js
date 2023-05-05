@@ -7,12 +7,16 @@ import { Card, Button, Badge, Alert } from 'react-bootstrap';
 function StudentExamCard({ exam, onSampleClick }) {
   const isFinished = new Date() > new Date(exam.endTime);
   const diffInMs = new Date(exam.endTime) - new Date();
-  const remainingToStart = (new Date(exam.startTime).getTime() + new Date().getTimezoneOffset() * 60 * 1000
-  - new Date()) / 1000;
+  const now = Date.now() - (1 * 60 * 60 * 1000); 
+const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // convert to milliseconds
+const startTime = new Date(exam.startTime).getTime() + timezoneOffset;
+const remainingToStart = startTime > now ? (startTime - now) / 1000 : 0;
+const endTime = new Date(exam.endTime).getTime() + timezoneOffset;
+const remainingToEnd = endTime > now ? (endTime - now) / 1000 : 0;
 
   const duration = (new Date(exam.endTime) - new Date(exam.startTime)) / 3600000;
   const diffInHours = diffInMs / 3600000; // divide by the number of milliseconds in an hour
-  const canStart = diffInHours > duration / 2 && remainingToStart < 0;
+  const canStart = diffInHours > duration / 2 && remainingToStart == 0;
   const [isLoading, setIsLoading] = useState(false);
   const [remainingTime, setRemainingTime] = useState(null);
   const handleSample = async () => {
@@ -20,6 +24,7 @@ function StudentExamCard({ exam, onSampleClick }) {
     onSampleClick();
   };
   useEffect(() => {
+    console.log('remaining to start', remainingToStart);
     const intervalId = setInterval(() => {
       const timeLeft = remainingToStart;
 
@@ -60,7 +65,7 @@ function StudentExamCard({ exam, onSampleClick }) {
         )}
         <Card.Text>
           {remainingToStart > 0 && <p>Remaining Time: {remainingTime} </p>}
-          {remainingToStart < 0 && !isFinished && <Alert variant='warning'>Open</Alert>}
+          {remainingToStart == 0 && !isFinished && <Alert variant='warning'>Open</Alert>}
           <p>Start Time: {new Date(exam.startTime).toLocaleDateString()} {new Date(exam.startTime).toLocaleTimeString([], { timeZone: 'UTC' })}</p>
           <p>End Time: {new Date(exam.endTime).toLocaleDateString()} {new Date(exam.endTime).toLocaleTimeString([], { timeZone: 'UTC' })}</p>
 

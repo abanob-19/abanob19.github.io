@@ -311,7 +311,7 @@ return (
                     }));
                   }}
                 />
-                <div className="mt-3">
+                {/* <div className="mt-3">
                   <MathQuill
                     latex={equation}
                     onChange={handleChange}
@@ -322,7 +322,7 @@ return (
                     value={equation}
                     onChange={(e) => setEquation(e.target.value)}
                   />
-                </div>
+                </div> */}
               </div>
             )}
           </div>

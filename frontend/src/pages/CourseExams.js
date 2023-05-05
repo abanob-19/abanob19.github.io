@@ -18,6 +18,8 @@ function CourseExams() {
   const [isLoading, setIsLoading] = useState(false);
   const { state,dispatch } = useInstructorsContext()
   const[examType,setExamType]=useState('')
+  const [questionBanks, setQuestionBanks] = useState(null);
+  const [warningIndex, setWarningIndex] = useState(null);
   const onEditExam=(examID)=>{
 setEditingId(examID)
   }
@@ -27,6 +29,10 @@ setEditingId(examID)
   navigate(`/SampleExam/?courseName=${courseName}&examId=${examId}`)
    console.log(`/SampleExam/?courseName=${courseName}&examId=${examId}`)
 
+  }
+  const handleWrningClick = (index) => {
+    setWarningIndex(index);
+    
   }
   const onFinishEditExam=(examID)=>{
     setEditingId(null)
@@ -63,11 +69,33 @@ setEditingId(examID)
       })
       .catch(error => {
         console.error(error);
+        alert("Error fetching data");
+        setIsLoading(false);
       })
       .finally(() => {
         setIsLoading(false);
       });
   }, [version, state.secVersion]);
+  useEffect(() => {
+    // Fetch question banks from server and update state
+    const fetchData = async () => { 
+      setIsLoading(true)
+        await fetch(`/instructor/seeCourse/${courseName}`)
+      .then(async response => await response.json())
+      .then(data => {
+        //loop over the data and get the question banks titles in an array
+        var questionBanks2=[]
+        for(let i=0;i<data.length;i++){
+          let questionBank=data[i]
+          questionBanks2.push(questionBank.title)
+        }
+        setQuestionBanks(questionBanks2)})
+      .catch(error => console.error(error));}
+      fetchData();
+      console.log(questionBanks);
+      setIsLoading(false)
+     
+  }, [version]);
 if(!exams|| isLoading){
   return  <div className={styles['container']}>
   <div className={styles['loader']}></div>
@@ -92,11 +120,14 @@ if(!exams|| isLoading){
 </select>
 </label>
       <Container fluid className="d-flex flex-wrap justify-content-center" >
-      {exams.map(exam => (
+       
+      {exams.map((exam,index) => (
         
-        ((editingId==exam._id)|| (!editingId && ((exam.type===examType)||(examType==""))))&& <ExamCard key={exam._id} exam={exam} onDelete={() => onDeleteExam(exam)} onEdit={()=>onEditExam(exam._id) } onFinishEditExam={()=>onFinishEditExam(exam._id) } onSampleClick={()=>handleSample(exam._id)} />
+        ((editingId==exam._id)|| (!editingId && ((exam.type===examType)||(examType==""))))&& <ExamCard key={exam._id} exam={exam} onDelete={() => onDeleteExam(exam)} onEdit={()=>onEditExam(exam._id) } onFinishEditExam={()=>onFinishEditExam(exam._id) } onSampleClick={()=>handleSample(exam._id)}  yourIndex={index} questionBanks2={questionBanks} />
+        
         
       ))}
+      
       </Container>
     </div>
   );

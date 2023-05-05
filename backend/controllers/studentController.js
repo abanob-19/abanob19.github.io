@@ -198,7 +198,50 @@ const seeMyCourses=async(req,res)=>{
           selectedQuestions[j].grade=grade
         }
         // add the questions to the array
-        questions.push(...selectedQuestions);
+        for (let j = 0; j < selectedQuestions.length; j++) {
+          const question = selectedQuestions[j];
+          const variables = {};
+  
+          // replace variables in the question text
+          question.text = question.text.replace(/%%([^%]+)%%/g, (match, variable) => {
+            if (!variables[variable]) {
+              variables[variable] = Math.floor(Math.random() * 1000);
+            }
+            return variables[variable];
+          });
+          const regex = /equation\((.*?)\)/g; // matches any text inside 'equation(...)' and captures it
+  
+           question.text = question.text.replace(regex, (match, equation) => {
+            return eval(equation); // evaluates the captured equation and returns its result
+          });
+          // check if the question type is mcq
+          if (question.type === "mcq") {
+            // loop through the choices
+            for (let k = 0; k < question.choices.length; k++) {
+              const choice = question.choices[k];
+             
+              // replace variables in the choice text
+              question.choices[k] = choice.replace(/%%([^%]+)%%/g, (match, variable) => {
+                if (!variables[variable]) {
+                  variables[variable] = Math.floor(Math.random() * 1000);
+                }
+                return variables[variable];
+              });
+              const regex = /equation\((.*?)\)/g; // matches any text inside 'equation(...)' and captures it
+              const choice2=question.choices[k]
+               question.choices[k]= choice2.replace(regex, (match, equation) => {
+               return eval(equation); // evaluates the captured equation and returns its result
+             });
+              if(question.answer==choice)
+              question.answer = question.choices[k];
+  
+            }
+          }
+  
+          // add the modified question to the array
+          question.graded=false
+          questions.push(question);
+        }
       }
       
       var totalGrade=0;
@@ -273,6 +316,7 @@ const seeMyCourses=async(req,res)=>{
       if (correctAnswer===choice) {
         examx.studentGrades[index] = parseInt(question.grade);;
         totalGrade+=parseInt(question.grade);
+        examx.questions[i].graded=true
       } else {
         examx.studentGrades[index] = 0;
       }}
