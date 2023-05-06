@@ -1,4 +1,4 @@
-import React, { useState, useRef,useEffect } from 'react';
+import React, { useState, useRef,useEffect , useCallback} from 'react';
 import { useLocation } from 'react-router-dom';
 import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import styles from '../pages/Instructor.module.css';
@@ -8,6 +8,7 @@ import axios from 'axios';
 import EditMathField from 'react-mathquill'
 import  MathQuill  from 'react-mathquill';
 import VirtualKeyboard from 'react-virtual-keyboard';
+import Drawing from './drawing';
 const StudentExam = () => {
   const [questions, setQuestions] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -24,12 +25,45 @@ const StudentExam = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
   const [submitted, setSubmitted] = useState(false);
   const[isSubmitting,setIsSubmitting]=useState(false);
-  const[editedAnswer,setEditedAnswer]=useState('');
-  const[equation,setEquation]=useState(''); 
+  const [imageUrl, setImageUrl] = useState({});
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
-  const [enabled, setEnabled] = useState(false);
-  const [started, setStarted] = useState(false);
+ const [enabled, setEnabled] = useState(false);
+ const [started, setStarted] = useState(false);
+ const [drawings, setDrawings] = useState({});
+ const [choicesUrl, setChoicesUrl] = useState({});
+ const isImageAttachment = (attachment) => {
+  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+  const extension = attachment.split('.').pop().toLowerCase();
+  return imageExtensions.includes(extension);
+};
+const handlePrint = useCallback((event) => {
+  console.log(drawings);},[drawings])
+const handleChoiceUrls=async function fetchImageUrl(id,index,qattachment,length) {
+  const response = await axios.get(
+    `/instructor/getImage/?attachment=${qattachment}`
+  );
+ 
+
+ 
+  setChoicesUrl(prevState => {
+    const newState = {...prevState};
+    if (!newState[id]) {
+      newState[id] = new Array(length);
+    }
+    newState[id][index] = response.data;
+    return newState;
+  });
+  
+  
+}
+const handleDrawingUpdate = useCallback((question, data) => {
+  setDrawings((prevDrawings) => ({
+    ...prevDrawings,
+    [question]: data,
+  }));
+  console.log(drawings);
+}, []);
   const [file, setFile] = useState(null);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -148,15 +182,23 @@ const StudentExam = () => {
       webcamRef.current.srcObject = null;
     }
   };
-  function handleChange(mathField) {
-    setEquation(mathField.latex())
+  const handleurls=async function fetchImageUrl(id,qattachment) {
+    const response = await axios.get(
+      `/instructor/getImage/?attachment=${qattachment}`
+    );
+   
+    setImageUrl(prevState => ({
+      ...prevState,
+      [id]: response.data,
+    }));
+    
   }
   useEffect(() => {
     async function fetchData() {
       const response = await fetch(`/student/getQuestionsForExam?courseName=${courseName}&examId=${examId}&Id=${user._id}`);
       const data = await response.json()
       const q=data.Questions;
-      setQuestions(q);
+     
       
     setSubmitted(data.submitted);
     
@@ -166,6 +208,25 @@ const StudentExam = () => {
         }
       setAnswers(answers);
       console.log(answers);
+      for(var i=0;i<data.Questions.length;i++){
+        
+        if(data.Questions[i].attachment&& isImageAttachment(data.Questions[i].attachment)){
+         handleurls(data.Questions[i]._id,data.Questions[i].attachment)
+        }
+      
+      }
+      for (var i=0;i<data.Questions.length;i++){
+        if(data.Questions[i].type=="mcq"){
+        for (var j=0;j<data.Questions[i].choices.length;j++){
+         
+          if(data.Questions[i].choiceAttachments&&data.Questions[i].choiceAttachments[j]&& isImageAttachment(data.Questions[i].choiceAttachments[j])){
+            await handleChoiceUrls(data.Questions[i]._id,j,data.Questions[i].choiceAttachments[j],data.Questions[i].choices.length)
+            
+           }
+        }}
+        
+      }
+      setQuestions(q);
      
     }
     fetchData();
@@ -193,7 +254,8 @@ const StudentExam = () => {
           examId,
           Id: user._id,
           answers: answers,
-          sumbitted:true
+          sumbitted:true,
+          drawings:drawings
         })
       })
       .then(response => {
@@ -209,6 +271,7 @@ const StudentExam = () => {
         // handle error
         console.log(error);
       });
+      
     console.log(answers);
   };
   const handleDownload = async (attachment) => {
@@ -282,6 +345,8 @@ return (
             {question.attachment && (
               <button className="btn btn-primary" onClick={() => handleDownload(question.attachment)}>Download Attachments</button>
             )}
+              {question.attachment && isImageAttachment(question.attachment) &&<div style={{ width: "200px", height: "200px" }}> <img src={imageUrl[question._id]}alt="Attachment"   style={{ maxWidth: "100%", maxHeight: "100%" }}/>
+              </div>}
             <input type="file" onChange={handleFileChange} />
             <button className="btn btn-primary ml-3" onClick={() => handleUpload(question._id)}>Upload your answers</button>
             {question.type === 'mcq' && (
@@ -293,6 +358,8 @@ return (
                       <span className="mr-2">{String.fromCharCode(97 + choiceIndex)})</span>
                       {choice}
                     </label>
+                    {question.choiceAttachments&& question.choiceAttachments[choiceIndex]&&<div style={{ width: "200px", height: "200px" }}> <img src={ choicesUrl[question._id][choiceIndex]}alt="Attachment"   style={{ maxWidth: "100%", maxHeight: "100%" }}/>  
+              </div>}
                   </li>
                 ))}
               </ul>
@@ -304,35 +371,28 @@ return (
                   type="text"
                   value={answers[question._id]}
                   onChange={(e) => {
-                    setEditedAnswer(e.target.value);
                     setAnswers(prevAnswers => ({
                       ...prevAnswers,
                       [question._id]: e.target.value
                     }));
                   }}
                 />
-                {/* <div className="mt-3">
-                  <MathQuill
-                    latex={equation}
-                    onChange={handleChange}
-                    config={{ autoCommands: 'pi theta sqrt sum' }}
-                  />
-                  <textarea
-                    className="form-control mt-2"
-                    value={equation}
-                    onChange={(e) => setEquation(e.target.value)}
-                  />
-                </div> */}
+              
+        <Drawing onUpdate={(data) => handleDrawingUpdate( question._id,data)}/>
+
+     
+                
               </div>
             )}
           </div>
         ))}
-
         {!submitted && !isSubmitting && (
           <button className="btn btn-primary mt-3" onClick={handleSubmit}>{buttonText}</button>
         )}
         {isSubmitting && <p className="mt-3">Submitting...</p>}
+        <Button onClick={handlePrint}>Print</Button>
       </div>
+      
     )}
   </div>
 );

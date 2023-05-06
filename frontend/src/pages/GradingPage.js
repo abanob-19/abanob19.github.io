@@ -19,6 +19,7 @@ const [selectedOption, setSelectedOption] = useState([]);
 const [allGraded, setAllGraded] = useState(false);
 const [subVersion, setSubVersion] = useState(0);
 const [allStudentsGraded, setAllStudentsGraded] = useState(false);
+const[drawings, setDrawings] = useState([]);
   useEffect(() => {
     // Fetch questions from backend API
     const fetchQuestions = async () => {
@@ -29,7 +30,8 @@ const [allStudentsGraded, setAllStudentsGraded] = useState(false);
           const response = await axios.get(`/instructor/getExamTextQuestions/?studentId=${currentStudentId}&courseName=${courseName}&examId=${examId}`);
           setLoading(false);
           setQuestions(response.data.questions);
-          setAnswers(response.data.answers)
+          setAnswers(response.data.answers);
+          setDrawings(response.data.drawings);
        //   allGraded(response.data.questions);
           setSelectedOption(new Array(response.data.questions.length).fill(null))
           // Assuming response.data contains the fetched data
@@ -179,6 +181,7 @@ setLoading(false);
         <div key={index}> 
          {question.studentAttachment &&  <button onClick={() => handleDownload(question.studentAttachment)}>Download Attachments</button>}
           <Question question={question} answer={answers[index]} onChoose={(option)=>handleOptionSelect(index,option)} />
+          <img src={drawings[index]} alt="Student Drawing" />
           {!question.graded && selectedOption[index] && <button onClick={() => handleSubmitAnswers(question._id, index)}>Submit</button>}
           {question.graded && <p>graded</p>}
         </div>

@@ -18,6 +18,7 @@ import WebCam from './pages/WebCam'
 import ScreenShots from './pages/ScreenShots'
 import ExamStudents from './pages/ExamStudents'
 import StudentGrades from './pages/StudentGrades'
+import Drawing from './pages/drawing' 
 function App() {
 
   return (
@@ -89,6 +90,10 @@ function App() {
             <Route
               path="/StudentGrades/:courseName"
               element={<StudentGrades/>}
+              />
+               <Route
+              path="/Drawing"
+              element={<Drawing/>}
               />
           </Routes>
         </div>

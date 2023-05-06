@@ -74,6 +74,10 @@ const textQuestionSchema = new Schema({
     type:Boolean,
     default:false,
   },
+  drawing:{
+    type:String,
+  },
+  
 });
 const examBankSchema = new Schema({
     title: {

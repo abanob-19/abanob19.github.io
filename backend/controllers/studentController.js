@@ -117,7 +117,27 @@ const seeMyCourses=async(req,res)=>{
     if(!course) {
              return res.status(400).json({error: 'No such course'})
           }
-    res.status(200).json(course.exams)
+          const exams=course.exams.sort((a, b) => {
+            const dateA = new Date(a.endTime);
+            const dateB = new Date(b.endTime);
+            if (dateA < dateB) {
+              return -1;
+            } else if (dateA > dateB) {
+              return 1;
+            } else {
+              // If the dates are equal, compare the times
+              const timeA = dateA.getTime();
+              const timeB = dateB.getTime();
+              if (timeA < timeB) {
+                return -1;
+              } else if (timeA > timeB) {
+                return 1;
+              } else {
+                return 0;
+              }
+            }
+          });
+    res.status(200).json(exams)
   }
 
   const getQuestionsForExam = async (req, res) => {
@@ -276,6 +296,7 @@ const seeMyCourses=async(req,res)=>{
     const answers=req.body.answers
     const courseName = req.body.courseName;
     const  id  = req.body.Id
+    const drawings=req.body.drawings
   // if (!mongoose.Types.ObjectId.isValid(id.trim())) {
   //         return res.status(400).json({error: ' Invalid Id No such student'})     }
   const student =   await Student.findById({_id: id.trim()})
@@ -319,7 +340,15 @@ const seeMyCourses=async(req,res)=>{
         examx.questions[i].graded=true
       } else {
         examx.studentGrades[index] = 0;
+        examx.questions[i].graded=true
       }}
+      else if(question.type=='text'){
+        if(drawings){
+          if(drawings[questionId]){
+           examx.questions[i].drawing=drawings[questionId]
+          }
+        }
+      }
      
     }
     examx.totalGrade=totalGrade

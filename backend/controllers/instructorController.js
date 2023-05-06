@@ -1250,6 +1250,7 @@ const getExamTextQuestions = async (req, res) => {
   console.log(examId , courseName,studentId);
   var questions=[]
   var answers=[]
+  var drawings=[]
   let exams=null
   let exam=null
   try {
@@ -1272,6 +1273,7 @@ const getExamTextQuestions = async (req, res) => {
                   console.log(student.exams[j].studentAnswers)
                   questions.push(student.exams[j].questions[k])
                   answers.push(student.exams[j].studentAnswers[k])
+                  drawings.push(student.exams[j].questions[k].drawing)
                 }
               }
             }
@@ -1285,7 +1287,7 @@ const getExamTextQuestions = async (req, res) => {
     await student.save()
   }
        
-  return res.send({questions:questions,answers:answers});
+  return res.send({questions:questions,answers:answers,drawings:drawings});
 })
       .catch((error) => {
         // handle error
