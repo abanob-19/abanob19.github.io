@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import styles from '../pages/Instructor.module.css';
 import { Link } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
+import { Button,Card } from 'react-bootstrap';
 import axios from 'axios';
 import EditMathField from 'react-mathquill'
 import  MathQuill  from 'react-mathquill';
@@ -19,7 +19,11 @@ const StudentExam = () => {
   const examId = searchParams.get('examId');
   const duration = searchParams.get('duration'); 
     const title = searchParams.get('title');
-    const endTime = searchParams.get('endTime');
+    const end = searchParams.get('endTime');
+    const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+    const endTime = new Date(end).getTime() + timezoneOffset;
+    const now = Date.now() - (1 * 60 * 60 * 1000); 
+    const remainingToEnd = endTime > now ? (endTime - now) / 1000 : 0;
   const [version, setVersion] = useState(0);    
   const { state, dispatch } = useInstructorsContext()
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
@@ -32,6 +36,25 @@ const StudentExam = () => {
  const [started, setStarted] = useState(false);
  const [drawings, setDrawings] = useState({});
  const [choicesUrl, setChoicesUrl] = useState({});
+ const [remainingTime, setRemainingTime] = useState(null);
+ useEffect(() => {
+  console.log('remaining to end', remainingToEnd);
+  const intervalId = setInterval(() => {
+    const timeLeft = remainingToEnd;
+
+    if (timeLeft <= 0) {
+      clearInterval(intervalId);
+      setRemainingTime(null);
+    } else {
+      const hours = Math.floor(timeLeft / 3600);
+      const minutes = Math.floor((timeLeft % 3600) / 60);
+      const seconds = Math.floor(timeLeft % 60);
+      setRemainingTime(`${hours}:${minutes}:${seconds}`);
+    }
+  }, 1000);
+
+  return () => clearInterval(intervalId);
+}, [remainingToEnd]);
  const isImageAttachment = (attachment) => {
   const imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
   const extension = attachment.split('.').pop().toLowerCase();
@@ -295,6 +318,7 @@ const handleDrawingUpdate = useCallback((question, data) => {
   };
   const handleClickStart = () => {
     setStarted(true);
+    window.scrollTo(0, 0);
   };
   if (!questions) {
     return (
@@ -316,83 +340,159 @@ const handleDrawingUpdate = useCallback((question, data) => {
 }
 
 return (
-  <div className="container">
+  <div className="container"  style={{ overflow: 'auto' }}>
     <canvas ref={canvasRef} style={{ display: 'none' }} />
-    <video ref={webcamRef} className={`${started ? styles.invisible : "w-100"}`} />
+    <video ref={webcamRef} className={`${started ? styles.invisible : 'w-100'}`} />
     {!enabled && (
       <div className="alert alert-warning">
-        You have to enable your webcam to take the exam
-        <button className="btn btn-primary ml-3" onClick={startExam}>Enable WebCam</button>
+        You have to enable your webcam to take the exam{' '}
+        <button className="btn btn-primary ml-3" onClick={startExam}>
+          Enable WebCam
+        </button>
       </div>
     )}
     {!started && enabled && (
       <div className="alert alert-success">
-        You can start the exam now
-        <button className="btn btn-primary ml-3" onClick={handleClickStart}>Start</button>
+        You can start the exam now{' '}
+        <button className="btn btn-primary ml-3" onClick={handleClickStart}>
+          Start
+        </button>
       </div>
     )}
     {started && (
       <div>
-        <h1 className="mt-5">{courseName}</h1>
-        <h2>{title}</h2>
-        <h2> {started}</h2>
-        <h3>Duration: {duration} hours</h3>
-        <h3>Remaining time: {(new Date(endTime)-new Date())/3600000}</h3>
+      <div style={{
+  display: 'flex',
+  justifyContent: 'center', // center the headings horizontally
+  alignItems: 'center', // center the headings vertically
+  flexDirection: 'column', // stack the headings vertically
+}}>
+  <h1 style={{
+    fontSize: '3rem', // increase the font size of the h1 element
+    fontWeight: 'bold', // make the text bold
+    marginBottom: '0.5rem', // add some margin at the bottom
+    color: '#333', // set the text color to a dark gray
+  }}>{courseName.charAt(0).toUpperCase()+courseName.slice(1)}</h1>
+  <h2 style={{
+    fontSize: '2.5rem', // increase the font size of the h2 element
+    fontWeight: 'bold', // make the text bold
+    marginBottom: '0.5rem', // add some margin at the bottom
+    color: '#007b55', // set the text color to blue
+  }}>{title} Exam</h2>
+  <h2 style={{
+    fontSize: '1.5rem', // increase the font size of the h2 element
+    fontWeight: 'normal', // make the text normal weight
+    marginBottom: '0.5rem', // add some margin at the bottom
+    color: '#555', // set the text color to a lighter gray
+  }}>{started}</h2>
+</div>
+<div style={{
+  display: 'flex',
+  justifyContent: 'flex-end', // align the element to the right
+  alignItems: 'center', // center the element vertically
+}}>
+  <h3 style={{
+    fontSize: '1.3rem', // decrease the font size of the h3 element
+    fontWeight: 'normal', // make the text normal weight
+    marginRight: '0.5rem', // add some margin to the right
+    color: 'black', // set the text color to a lighter gray
+    position: 'fixed', // position the element fixed
+    top: '1rem', // set the top position
+    right: '1rem',
+    zIndex:'9999' // set the right position
+  }}>{`Duration: ${remainingTime} `}</h3>
+</div>
 
         {questions.map((question, index) => (
-          <div key={question._id}>
-            <h2 className="mt-5">({index + 1}) {question.text} ({question.grade} grades)</h2>
-            {question.attachment && (
-              <button className="btn btn-primary" onClick={() => handleDownload(question.attachment)}>Download Attachments</button>
-            )}
-              {question.attachment && isImageAttachment(question.attachment) &&<div style={{ width: "200px", height: "200px" }}> <img src={imageUrl[question._id]}alt="Attachment"   style={{ maxWidth: "100%", maxHeight: "100%" }}/>
-              </div>}
-            <input type="file" onChange={handleFileChange} />
-            <button className="btn btn-primary ml-3" onClick={() => handleUpload(question._id)}>Upload your answers</button>
-            {question.type === 'mcq' && (
-              <ul className="list-unstyled mt-3">
-                {question.choices.map((choice, choiceIndex) => (
-                  <li key={choiceIndex}>
-                    <label>
-                      <input type="radio" name={`question${index}`} value={choice} checked={answers[question._id] === choiceIndex} onChange={() => handleAnswerChange(question._id, choiceIndex)} />
-                      <span className="mr-2">{String.fromCharCode(97 + choiceIndex)})</span>
-                      {choice}
-                    </label>
-                    {question.choiceAttachments&& question.choiceAttachments[choiceIndex]&&<div style={{ width: "200px", height: "200px" }}> <img src={ choicesUrl[question._id][choiceIndex]}alt="Attachment"   style={{ maxWidth: "100%", maxHeight: "100%" }}/>  
-              </div>}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {question.type === 'text' && (
-              <div className="mt-3">
-                <input
-                  className="form-control"
-                  type="text"
-                  value={answers[question._id]}
-                  onChange={(e) => {
-                    setAnswers(prevAnswers => ({
-                      ...prevAnswers,
-                      [question._id]: e.target.value
-                    }));
-                  }}
-                />
-              
-        <Drawing onUpdate={(data) => handleDrawingUpdate( question._id,data)}/>
-
-     
-                
-              </div>
-            )}
-          </div>
+          <Card key={question._id} className="mt-5">
+            <Card.Body>
+              <Card.Title>
+                ({index + 1}) {question.text} ({question.grade} grades)
+              </Card.Title>
+              {question.attachment && (
+                <Button variant="primary" onClick={() => handleDownload(question.attachment)}>
+                  Download Attachments
+                </Button>
+              )}
+              {question.attachment && isImageAttachment(question.attachment) && (
+                <div style={{ width: '200px', height: '200px' }}>
+                  <Card.Img src={imageUrl[question._id]} alt="Attachment" fluid />
+                </div>
+              )}
+              <input type="file" onChange={handleFileChange} />
+              <Button variant="primary" className="ml-3" onClick={() => handleUpload(question._id)}>
+                Upload your answers
+              </Button>
+              {question.type === 'mcq' && (
+                <ul className="list-unstyled mt-3">
+                  {question.choices.map((choice, choiceIndex) => (
+                    <li key={choiceIndex}>
+                      <label>
+                        <input
+                          type="radio"
+                          name={`question${index}`}
+                          value={choice}
+                          checked={answers[question._id] === choiceIndex}
+                          onChange={() => handleAnswerChange(question._id, choiceIndex)}
+                        />
+                        <span className="mr-2">{String.fromCharCode(97 + choiceIndex)})</span>
+                        {choice}
+                      </label>
+                      {question.choiceAttachments && question.choiceAttachments[choiceIndex] && (
+                        <div style={{ width: '200px', height: '200px' }}>
+                          <Card.Img
+                            src={choicesUrl[question._id][choiceIndex]}
+                            alt="Attachment"
+                            fluid
+                          />
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {question.type === 'text' && (
+                <div className="mt-3">
+                  <label>Your answer:</label>
+                  <input
+  
+  type="text"
+  value={answers[question._id]}
+  onChange={(e) => {
+    setAnswers((prevAnswers) => ({
+      ...prevAnswers,
+      [question._id]: e.target.value,
+    }));
+  }}
+  style={{
+    height: '80px', // set the height of the input element to 80 pixels
+    width: '85%', // set the width of the input element to 100% of its container
+    resize: 'none', // disable resizing of the input element
+    textAlign: 'left',
+    verticalAlign: 'top',
+    paddingBottom: '40px',  // left-align the text inside the input element
+  }}
+/>
+                  <Drawing onUpdate={(data) => handleDrawingUpdate(question._id, data)} />
+                </div>
+              )}
+            </Card.Body>
+          </Card>
         ))}
         {!submitted && !isSubmitting && (
-          <button className="btn btn-primary mt-3" onClick={handleSubmit}>{buttonText}</button>
+          <Button className="btn btn-primary mt-3" variant='success' onClick={handleSubmit} style={{
+            width: '100%', // set the width of the button to 100% of its container
+            paddingBottom:'40px',
+            height:'2px', // center the button horizontally
+            fontSize: '1.2rem', // set the font size of the button
+            fontWeight: 'bold', // make the text bold
+          }}>
+            {buttonText}
+          </Button>
         )}
         {isSubmitting && <p className="mt-3">Submitting...</p>}
-        <Button onClick={handlePrint}>Print</Button>
+       
       </div>
-      
     )}
   </div>
 );

@@ -1,4 +1,5 @@
 import React, { useState, useRef,useEffect , useCallback } from 'react';
+import{Button} from 'react-bootstrap';
 import styles from '../pages/Instructor.module.css'
  const Drawing = ({onUpdate}) => {
     const canvasRef1 = useRef(null);
@@ -16,6 +17,7 @@ const [lastX, setLastX] = useState(0);
     if (!isDrawing) return;
     const canvas = canvasRef1.current;
     const context = canvas.getContext('2d');
+    
     if (isErasing) { // Use different color or composite operation for eraser tool
         context.globalCompositeOperation = 'destination-out';
         context.strokeStyle = 'rgba(0,0,0,1)';
@@ -63,10 +65,24 @@ const [lastX, setLastX] = useState(0);
   }, [startDrawing, draw, endDrawing]);
   return (
     <div>
-        <canvas ref={canvasRef1} width="500" height="500" style={styles.canvas1}/>
-        <button onClick={clearCanvas}>Clear Canvas</button>
-        <button onClick={toggleEraser}>{isErasing ? 'Disable Eraser' : 'Enable Eraser'}</button>
+      <label> Your handwritten answers (if any) in this square: </label>
+      <canvas ref={canvasRef1} width="500" height="500" style={{
+        border: '1px solid black',
+        marginTop: '20px', // add margin to create space between canvas and buttons
+      }}/>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center', // center the buttons horizontally
+        marginTop: '10px', // add margin to create space between buttons
+      }}>
+        <Button style={{
+          margin: '0 10px', // add margin to create space between the buttons
+        }} onClick={clearCanvas}>Clear</Button>
+        <Button style={{
+          margin: '0 10px', // add margin to create space between the buttons
+        }} onClick={toggleEraser}>{isErasing ? 'Disable Eraser' : 'Enable Eraser'}</Button>
+      </div>
     </div>
-    );
+  );
 }
 export default Drawing;

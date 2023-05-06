@@ -7,7 +7,7 @@ import { Card, Button, Badge, Alert } from 'react-bootstrap';
 function StudentExamCard({ exam, onSampleClick }) {
   const isFinished = new Date() > new Date(exam.endTime);
   const diffInMs = new Date(exam.endTime) - new Date();
-  const now = Date.now() - (1 * 60 * 60 * 1000); 
+  const now = Date.now() - (2 * 60 * 60 * 1000); 
 const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // convert to milliseconds
 const startTime = new Date(exam.startTime).getTime() + timezoneOffset;
 const remainingToStart = startTime > now ? (startTime - now) / 1000 : 0;
