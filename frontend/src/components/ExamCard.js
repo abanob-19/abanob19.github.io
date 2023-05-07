@@ -28,6 +28,9 @@ useEffect(() => {
       console.log("question bank not found")
     }
   }
+  if(specs.length==0){
+    setWarning(true)
+  }
 }, [])
 const handleSample = async() => {
   console.log("executed sample");

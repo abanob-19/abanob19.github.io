@@ -8,6 +8,7 @@ import axios from 'axios';
 import EditMathField from 'react-mathquill'
 import  MathQuill  from 'react-mathquill';
 import VirtualKeyboard from 'react-virtual-keyboard';
+import StudentNavbar from '../components/StudentNavbar';
 import Drawing from './drawing';
 const StudentExam = () => {
   const [questions, setQuestions] = useState(null);
@@ -328,15 +329,27 @@ const handleDrawingUpdate = useCallback((question, data) => {
     );
   }
   if (submitted)      { 
-  return (
-    <div>
-    <h1>{courseName}</h1>
-        <h2>{title}</h2>
-  <Button as={Link} to={`/StudentPage/`} variant="success">submitted, return to home page</Button>
-  
- 
-  </div>
-  )
+  return  (
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <StudentNavbar />
+
+      {/* Course name */}
+      <h1 style={{ paddingTop: '72px', marginBottom: '36px', textAlign: 'center' }}>{courseName.charAt(0).toUpperCase()+courseName.slice(1)}</h1>
+
+      {/* Title */}
+      <h2 style={{ marginBottom: '72px', textAlign: 'center' }}>{title.charAt(0).toUpperCase()+title.slice(1)}</h2>
+
+      {/* Return button */}
+      <Button
+        as={Link}
+        to={`/StudentPage/`}
+        variant="success"
+        style={{ marginTop: '24px' }}
+      >
+        Submitted, Return to Home Page
+      </Button>
+    </div>
+  );
 }
 
 return (

@@ -13,7 +13,11 @@ function GradeExams() {
   const[version,setVersion]=useState(0)
   const { state,dispatch } = useInstructorsContext()
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
+  const [selectedCourse, setSelectedCourse] = useState("all");
 
+  const handleCourseChange = (event) => {
+    setSelectedCourse(event.target.value);
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -36,22 +40,67 @@ function GradeExams() {
   }
 
   return (
-    <div>
-      <InstructorNavbar/>
-      <h1>Courses Exams</h1>
-      {exams.map(exam => (
-        <div key={exam._id}>
-            
-            EXAM:
-          <Link to={`/GradingPage/?courseName=${exam.courseName}&examId=${exam._id}`}>
-            {exam.title}
-          </Link> 
-          <Button as={Link} to={`/ExamStudents/?courseName=${exam.courseName}&examId=${exam._id}`} variant="primary">Screen Shots</Button>
-          <div>
-          Course:{exam.courseName} 
-        </div>
-        </div>
-      ))}
+    <div className="container mt-5">
+      <InstructorNavbar />
+      <h1 className="text-center mb-4" style={{paddingTop:'32px'}}>{selectedCourse.charAt(0).toUpperCase()+selectedCourse.slice(1)} Exams</h1>
+      <div className="d-flex justify-content-center mb-4">
+        <label htmlFor="courseSelect" className="me-2">
+          Select Course:
+        </label>
+        <select
+          id="courseSelect"
+          value={selectedCourse}
+          onChange={handleCourseChange}
+        >
+          <option value="all">All</option>
+          {user.courses.map((course) => (
+            <option key={course._id} value={course}>
+              {course.charAt(0).toUpperCase()+course.slice(1)}
+            </option>
+          ))}
+        </select>
+      </div>
+      <table className="table table-bordered table-hover mx-auto">
+        <thead>
+          <tr>
+            <th scope="col">Exam</th>
+            <th scope="col">Course</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {exams
+            .filter((exam) =>
+              selectedCourse === "all"
+                ? true
+                : exam.courseName === selectedCourse
+            )
+            .map((exam) => (
+              <tr key={exam._id}>
+                <td>
+                  
+                    {exam.title}
+                  
+                </td>
+                <td>{exam.courseName.charAt(0).toUpperCase()+exam.courseName.slice(1)}</td>
+                <td>
+                  <Link
+                    to={`/ExamStudents/?courseName=${exam.courseName}&examId=${exam._id}`}
+                    className="btn btn-primary me-2"
+                  >
+                    Screen Shots
+                  </Link>
+                  <Link
+                    to={`/GradingPage/?courseName=${exam.courseName}&examId=${exam._id}`}
+                    className="btn btn-secondary"
+                  >
+                    Grade Exam
+                  </Link>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
     </div>
   );
 }

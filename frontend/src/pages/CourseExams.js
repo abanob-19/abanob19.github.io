@@ -23,10 +23,10 @@ function CourseExams() {
   const onEditExam=(examID)=>{
 setEditingId(examID)
   }
-  function handleSample  (examId)  {
+  function handleSample  (examId,title)  {
     console.log("executed sample");
     // onSampleClick();
-  navigate(`/SampleExam/?courseName=${courseName}&examId=${examId}`)
+  navigate(`/SampleExam/?courseName=${courseName}&examId=${examId}&title=${title}`)
    console.log(`/SampleExam/?courseName=${courseName}&examId=${examId}`)
 
   }
@@ -57,12 +57,14 @@ setEditingId(examID)
       });
     }
   }
-
+const[x,setX]=useState(0)
   useEffect( () => {
+    
     setIsLoading(true);
     axios.get(`/instructor/seeExams/${courseName}`)
-      .then(response => {
+      .then(async response => {
         setExams(response.data);
+        setX(x=>x+1)
         console.log("executed get")
        // console.log(state.secVersion)
 
@@ -91,12 +93,14 @@ setEditingId(examID)
         }
         setQuestionBanks(questionBanks2)})
       .catch(error => console.error(error));}
+      console.log(x)
+      if(x>0){
       fetchData();
       console.log(questionBanks);
-      setIsLoading(false)
+      setIsLoading(false)}
      
-  }, [version]);
-if(!exams|| isLoading){
+  }, [x]);
+if(!exams|| isLoading||!questionBanks){
   return  <div className={styles['container']}>
   <div className={styles['loader']}></div>
 </div>
@@ -123,7 +127,7 @@ if(!exams|| isLoading){
        
       {exams.map((exam,index) => (
         
-        ((editingId==exam._id)|| (!editingId && ((exam.type===examType)||(examType==""))))&& <ExamCard key={exam._id} exam={exam} onDelete={() => onDeleteExam(exam)} onEdit={()=>onEditExam(exam._id) } onFinishEditExam={()=>onFinishEditExam(exam._id) } onSampleClick={()=>handleSample(exam._id)}  yourIndex={index} questionBanks2={questionBanks} />
+        ((editingId==exam._id)|| (!editingId && ((exam.type===examType)||(examType==""))))&& <ExamCard key={exam._id} exam={exam} onDelete={() => onDeleteExam(exam)} onEdit={()=>onEditExam(exam._id) } onFinishEditExam={()=>onFinishEditExam(exam._id) } onSampleClick={()=>handleSample(exam._id,exam.title)}  yourIndex={index} questionBanks2={questionBanks} />
         
         
       ))}

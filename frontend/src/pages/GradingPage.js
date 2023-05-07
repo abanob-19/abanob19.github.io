@@ -181,7 +181,7 @@ setLoading(false);
         <div key={index}> 
          {question.studentAttachment &&  <button onClick={() => handleDownload(question.studentAttachment)}>Download Attachments</button>}
           <Question question={question} answer={answers[index]} onChoose={(option)=>handleOptionSelect(index,option)} />
-          <img src={drawings[index]} alt="Student Drawing" />
+         {question.drawing&& <img src={drawings[index]} alt="Student Drawing" />}
           {!question.graded && selectedOption[index] && <button onClick={() => handleSubmitAnswers(question._id, index)}>Submit</button>}
           {question.graded && <p>graded</p>}
         </div>

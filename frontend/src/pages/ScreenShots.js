@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import { Row, Col } from 'react-bootstrap';
 const Screenshots = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -24,11 +25,13 @@ const Screenshots = () => {
   }, [courseName, studentId, examId]);
 
   return (
-    <>
-      {screenshots.map((screenshot) => (
-        <img src={screenshot} alt="Screenshot" />
+    <Row className="mt-5">
+      {screenshots.map((screenshot, index) => (
+        <Col key={index} xs={12} md={6} lg={4} className="mb-4">
+          <img src={screenshot} alt={`Screenshot ${index + 1}`} className="img-fluid" />
+        </Col>
       ))}
-    </>
+    </Row>
   );
 };
 export default Screenshots;

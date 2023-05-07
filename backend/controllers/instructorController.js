@@ -255,9 +255,9 @@ const seeExamsForGrade=async(req,res)=>{
       const course = await Course.findOne({name: instructor.courses[i]})
       if (course){
       for (var j = 0; j < course.exams.length; j++) {
-       // if(course.exams[j].graded==false){
+        if(course.exams[j].graded==false &&new Date(course.exams[j].endTime) > new Date()){
           exams.push(course.exams[j])
-       // }
+        }
       }
     }}
     res.status(200).json(exams)
