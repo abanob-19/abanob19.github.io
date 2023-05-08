@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useLocation } from 'react-router-dom';
+import { Card, ListGroup , Button, Container, Row, Col  } from 'react-bootstrap';
 import styles from '../pages/Instructor.module.css';
 import InstructorNavbar from "../components/instructorNavbar";
 const GradingPage = () => {
@@ -9,6 +10,7 @@ const GradingPage = () => {
   const searchParams = new URLSearchParams(location.search);
   const courseName = searchParams.get('courseName'); 
   const examId = searchParams.get('examId');
+  const title = searchParams.get('title');
   const [currentStudentId, setCurrentStudentId] = useState(null);
   const [students, setStudents] = useState(null);
   const[index, setIndex] = useState(0);
@@ -19,6 +21,7 @@ const [selectedOption, setSelectedOption] = useState([]);
 const [allGraded, setAllGraded] = useState(false);
 const [subVersion, setSubVersion] = useState(0);
 const [allStudentsGraded, setAllStudentsGraded] = useState(false);
+const [imageUrl, setImageUrl] = useState({});
 const[drawings, setDrawings] = useState([]);
   useEffect(() => {
     // Fetch questions from backend API
@@ -28,6 +31,13 @@ const[drawings, setDrawings] = useState([]);
         if (currentStudentId) {
             setLoading(true);
           const response = await axios.get(`/instructor/getExamTextQuestions/?studentId=${currentStudentId}&courseName=${courseName}&examId=${examId}`);
+          for(var i=0;i<response.data.questions.length;i++){
+        
+            if(response.data.questions[i].studentAttachment&& isImageAttachment(response.data.questions[i].studentAttachment)){
+             handleurls(response.data.questions[i]._id,response.data.questions[i].studentAttachment)
+            }
+          
+          }
           setLoading(false);
           setQuestions(response.data.questions);
           setAnswers(response.data.answers);
@@ -83,7 +93,22 @@ const[drawings, setDrawings] = useState([]);
   
     fetchStudents();
   }, [version]);
-  
+  const isImageAttachment = (attachment) => {
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    const extension = attachment.split('.').pop().toLowerCase();
+    return imageExtensions.includes(extension);
+  };
+  const handleurls=async function fetchImageUrl(id,qattachment) {
+    const response = await axios.get(
+      `/instructor/getImage/?attachment=${qattachment}`
+    );
+   
+    setImageUrl(prevState => ({
+      ...prevState,
+      [id]: response.data,
+    }));
+    
+  }
   const handleNextStudent = () => {
     // Update current student ID
     console.log(index);
@@ -167,26 +192,53 @@ setLoading(false);
   }
   if (allStudentsGraded) {
     return (
-        <div>
-            <InstructorNavbar />
-            <h1>All Students Graded</h1>
+      <Container className="d-flex flex-column justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <InstructorNavbar />
+        <div className="text-center">
+          <h1>{title}</h1>
+          <h1>All Students Graded</h1>
         </div>
-      );
+      </Container>
+    );
   }
   return (
     <div>
-    <InstructorNavbar />
-      <h1>Exam Questions</h1>
-      {questions.map((question, index) => (
-        <div key={index}> 
-         {question.studentAttachment &&  <button onClick={() => handleDownload(question.studentAttachment)}>Download Attachments</button>}
-          <Question question={question} answer={answers[index]} onChoose={(option)=>handleOptionSelect(index,option)} />
-         {question.drawing&& <img src={drawings[index]} alt="Student Drawing" />}
-          {!question.graded && selectedOption[index] && <button onClick={() => handleSubmitAnswers(question._id, index)}>Submit</button>}
-          {question.graded && <p>graded</p>}
-        </div>
-      ))}
-        {/* {allGraded && <button onClick={handleNextStudent}> Next Student</button>} */}
+      <InstructorNavbar />
+      <Container className="mt-5" style={{paddingTop:'72px'}}>
+      <h1 style={{textAlign: 'center'}}>{title}</h1>
+      <h1 style={{textAlign: 'center'}}>Exam Questions</h1>
+
+        {questions.map((question, index) => (
+          <div key={index} className="my-5">
+            {question.studentAttachment && (
+              <Button variant="primary" onClick={() => handleDownload(question.studentAttachment)}>
+                Download Attachments
+              </Button>
+            )}
+            <Question question={question} answer={answers[index]}  onChoose={(option) => handleOptionSelect(index, option)} />
+            {question.studentAttachment && isImageAttachment(question.studentAttachment) && (
+              <div className="mt-3">
+                <label>Attachment:</label>
+                <img src={imageUrl[question._id]} alt="Attachment" style={{ width: '50%', maxWidth: '300px' }}  />
+              </div>
+            )}
+            <label>Student Drawings:</label>
+            {question.drawing && (
+              
+              <div className="mt-3">
+                
+                <img style={{backgroundColor:'white'}} src={drawings[index]} alt="Student Drawing"  />
+              </div>
+            )}
+            {!question.graded && selectedOption[index] && (
+              <Button variant="success" onClick={() => handleSubmitAnswers(question._id, index)} className="mt-3">
+                Submit
+              </Button>
+            )}
+            {question.graded && <p>graded</p>}
+          </div>
+        ))}
+      </Container>
     </div>
   );
 
@@ -204,17 +256,20 @@ const Question = ({ question, answer,onChoose }) => {
     };
   
     return (
-      <div>
-        <h3> Question : {question.text}</h3>
-        <p>Answer : {answer} </p>
-        <p>choose grade</p>
-        {(!question.graded)&&<ul>
-          {options.map((option, index) => (
-            <AnswerOption key={index} option={option} onSelect={handleOptionSelect} selectedOption={selectedOption} /> // Pass the callback function to the AnswerOption component
-          ))}
-        </ul>}
-        
-      </div>
+      <Card>
+        <Card.Body>
+          <Card.Title>Question: {question.text}</Card.Title>
+          <Card.Text>Answer: {answer}</Card.Text>
+          <Card.Text>Choose Grade:</Card.Text>
+          {!question.graded && (
+            <ListGroup>
+              {options.map((option, index) => (
+                <AnswerOption key={index} option={option} onSelect={handleOptionSelect} selectedOption={selectedOption} />
+              ))}
+            </ListGroup>
+          )}
+        </Card.Body>
+      </Card>
     );
   };
   
@@ -227,10 +282,22 @@ const Question = ({ question, answer,onChoose }) => {
     };
   
     return (
-      <div>
-        <label>{option}</label>
-        <input type="radio" name={option} value={option} onChange={handleSelect} checked={option==parseInt(selectedOption)} />
-      </div>
+      <ListGroup.Item>
+        <div className="custom-control custom-radio">
+          <input
+            type="radio"
+            id={option}
+            name={option}
+            value={option}
+            className="custom-control-input"
+            onChange={handleSelect}
+            checked={option==parseInt(selectedOption)} 
+          />
+          <label className="custom-control-label" htmlFor={option}>
+            {option}
+          </label>
+        </div>
+      </ListGroup.Item>
     );
   };
   

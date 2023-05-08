@@ -13,6 +13,7 @@ const path = require('path');
 const { promisify } = require('util');
 const readFile = promisify(fs.readFile)
 const _ = require('lodash');
+const { log } = require('console')
 
 const viewPdf=async(req,res)=>{
   const { courseName,qb_id,q_id } = req.params
@@ -215,12 +216,6 @@ const uploadChoiceAttachments = async (req, res) => {
   }
   
 };
-
-
-const getinstructors = async (req, res) => {
-  const instructors = await Instructor.find({}).sort({createdAt: -1})
-  res.status(200).json(instructors)
-}
 const getinstructor = async (req, res) => {
   const { username , password} = req.body
   const instructor =   await Instructor.findOne({ username , password })
@@ -254,14 +249,27 @@ const seeExamsForGrade=async(req,res)=>{
     for (var i = 0; i < instructor.courses.length; i++) {
       const course = await Course.findOne({name: instructor.courses[i]})
       if (course){
+        //get all students in this course
+        const students = await Student.find({ courses: { $in: [instructor.courses[i]] } });
       for (var j = 0; j < course.exams.length; j++) {
-        if(course.exams[j].graded==false &&new Date(course.exams[j].endTime) > new Date()){
+        //loop over students and check if they have taken this exam and if it is graded or not
+        var flag =true
+        for (var k = 0; k < students.length; k++) {
+          // get exam in student.exams with the same id as course.exams[j]._id
+          const exam = students[k].exams.find(e => e.examId .equals(course.exams[j]._id))
+          console.log(exam)
+      if(exam)
+          { if (!exam.graded||exam.graded==false){
+           flag=false
+         }}
+        }
+        console.log(flag   , course.exams[j].title)
+        if((flag==false) &&(new Date(course.exams[j].endTime)).setHours((new Date(course.exams[j].endTime)).getHours() - 3 )< new Date(Date.now())){
           exams.push(course.exams[j])
         }
       }
     }}
     res.status(200).json(exams)
-
 }
 const seeCourse=async(req,res)=>{
   const { name } = req.params
@@ -333,6 +341,7 @@ const editExam=async(req,res)=>{
             }
             console.log(id)
             const examSpecs = new ExamSpecs()
+            examSpecs._id=id
             examSpecs.title=title
             examSpecs.startTime=startTime
             examSpecs.endTime=endTime
@@ -355,6 +364,7 @@ const editExam=async(req,res)=>{
               res.status(400);
               throw new Error("Exam does not exist");
             }
+       console.log(id , examSpecs._id)     
        course.exams[targetExamIndex] =examSpecs
        await course.save();    
        res.status(200).json(course);
@@ -1164,13 +1174,16 @@ const getStudentsForExam = async (req, res) => {
       for(j=0;j<students[i].exams.length;j++){
         if(students[i].exams[j].examId.equals(examId.trim())){
           var k=0;
+         console.log(students[i].exams[j].questions.length)
           for(k=0;k<students[i].exams[j].questions.length;k++){
-            if(students[i].exams[j].questions[k].type=="text" && (!students[i].exams[j].questions[k].graded)){
+            console.log(students[i].exams[j].questions[k].type, students[i].exams[j].questions[k].graded)
+            if(students[i].exams[j].questions[k].type=="text" && (students[i].exams[j].questions[k].graded==false)){
           studentsTakingExam.push(students[i]._id)
         break ;}
         }
       }
     }}
+    
     console.log(studentsTakingExam)
     return res.send(studentsTakingExam);
 

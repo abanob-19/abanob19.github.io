@@ -8,7 +8,14 @@ import {faPencilAlt , faTrash} from '@fortawesome/free-solid-svg-icons';
 import styles from '../pages/Instructor.module.css'; 
 import { FaPlus,FaMinusCircle } from 'react-icons/fa';
 function ExamCard({ exam, onDelete , onEdit ,onFinishEditExam , onSampleClick,questionBanks2 ,yourIndex  }) {
-  const isFinished = new Date() > new Date(exam.endTime);
+  const now = new Date (Date.now())  
+
+  const startTime1 = (new Date(exam.startTime)).setHours((new Date(exam.startTime)).getHours() - 3) ;
+  const remainingToStart = startTime1 > now ? (startTime1 - now) / 1000 : 0;
+  const endTime1 =  (new Date(exam.endTime)).setHours((new Date(exam.endTime)).getHours() - 3) ;
+  const remainingToEnd = endTime1 > now ? (endTime1 - now) / 1000 : 0;
+const isFinished = (remainingToEnd == 0);
+  
 
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(exam.title);
@@ -92,10 +99,7 @@ const handleSample = async() => {
           alert("Start time must be before end time")
           console.log("start time after end time")
         }
-        else if(startDateTime<Date.now()){
-          alert("Start time must be in the future")
-          console.log("start time in the past")
-        }
+      
         else{
     
     setIsLoading(true);

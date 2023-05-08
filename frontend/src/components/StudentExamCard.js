@@ -5,18 +5,19 @@ import { Navigate } from 'react-router-dom';
 import { Card, Button, Badge, Alert } from 'react-bootstrap';
 
 function StudentExamCard({ exam, onSampleClick }) {
-  const isFinished = new Date() > new Date(exam.endTime);
+ 
   const diffInMs = new Date(exam.endTime) - new Date();
-  const now = Date.now() - (2 * 60 * 60 * 1000); 
-const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // convert to milliseconds
-const startTime = new Date(exam.startTime).getTime() + timezoneOffset;
+  const now = new Date (Date.now()) 
+const startTime = (new Date(exam.startTime)).setHours((new Date(exam.startTime)).getHours() - 3) ;
 const remainingToStart = startTime > now ? (startTime - now) / 1000 : 0;
-const endTime = new Date(exam.endTime).getTime() + timezoneOffset;
+const endTime =  (new Date(exam.endTime)).setHours((new Date(exam.endTime)).getHours() - 3) ;
 const remainingToEnd = endTime > now ? (endTime - now) / 1000 : 0;
+const isFinished = (remainingToEnd == 0);
 
   const duration = (new Date(exam.endTime) - new Date(exam.startTime)) / 3600000;
   const diffInHours = diffInMs / 3600000; // divide by the number of milliseconds in an hour
-  const canStart = diffInHours > duration / 2 && remainingToStart == 0;
+  // const canStart = diffInHours > duration / 2 && remainingToStart == 0;
+  const canStart =!isFinished&& remainingToStart == 0
   const [isLoading, setIsLoading] = useState(false);
   const [remainingTime, setRemainingTime] = useState(null);
   const handleSample = async () => {
@@ -24,10 +25,12 @@ const remainingToEnd = endTime > now ? (endTime - now) / 1000 : 0;
     onSampleClick();
   };
   useEffect(() => {
-    console.log('remaining to start', remainingToStart);
+    //console.log('remaining to start', remainingToStart);
+    //console.log('remaining to end', remainingToEnd , exam.endTime , exam.title);
+   
     const intervalId = setInterval(() => {
       const timeLeft = remainingToStart;
-
+      const timeLeft2 = remainingToEnd;
       if (timeLeft <= 0) {
         clearInterval(intervalId);
         setRemainingTime(null);

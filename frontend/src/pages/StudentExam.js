@@ -21,9 +21,10 @@ const StudentExam = () => {
   const duration = searchParams.get('duration'); 
     const title = searchParams.get('title');
     const end = searchParams.get('endTime');
-    const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
-    const endTime = new Date(end).getTime() + timezoneOffset;
-    const now = Date.now() - (1 * 60 * 60 * 1000); 
+    const now = new Date (Date.now()) 
+    // const startTime = (new Date(exam.startTime)).setHours((new Date(exam.startTime)).getHours() - 3) ;
+    // const remainingToStart = startTime > now ? (startTime - now) / 1000 : 0;
+    const endTime =  (new Date(end)).setHours((new Date(end)).getHours() - 3) ;
     const remainingToEnd = endTime > now ? (endTime - now) / 1000 : 0;
   const [version, setVersion] = useState(0);    
   const { state, dispatch } = useInstructorsContext()
@@ -169,8 +170,10 @@ const handleDrawingUpdate = useCallback((question, data) => {
     console.log(file);
   };
 
-  const handleUpload =  (q) => {
+  const handleUpload = async (q) => {
+    console.log(file);
     if(file){
+      console.log("file is not null");
     const formData = new FormData();
     console.log(file);
     formData.append('attachment', file);
@@ -179,7 +182,7 @@ const handleDrawingUpdate = useCallback((question, data) => {
     formData.append('courseName', courseName);
     formData.append('studentId', user._id);
     
-    fetch(`/student/uploadFile`, {
+    await fetch(`/student/uploadFile`, {
       method: 'POST',
       'Content-Type': 'multipart/form-data',
       body: formData, 

@@ -91,7 +91,7 @@ function GradeExams() {
                     Screen Shots
                   </Link>
                   <Link
-                    to={`/GradingPage/?courseName=${exam.courseName}&examId=${exam._id}`}
+                    to={`/GradingPage/?courseName=${exam.courseName}&examId=${exam._id}&title=${exam.title}`}
                     className="btn btn-secondary"
                   >
                     Grade Exam
