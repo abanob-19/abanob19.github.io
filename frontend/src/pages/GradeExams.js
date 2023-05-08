@@ -14,11 +14,17 @@ function GradeExams() {
   const { state,dispatch } = useInstructorsContext()
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
   const [selectedCourse, setSelectedCourse] = useState("all");
-
+ 
   const handleCourseChange = (event) => {
     setSelectedCourse(event.target.value);
   };
   useEffect(() => {
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "instructor")
+     { navigate('/StudentPage'); return  ;}
     const fetchData = async () => {
       try {
         const response = await axios.get(`/instructor/seeExamsForGrade/${user._id}`);

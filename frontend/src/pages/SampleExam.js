@@ -8,7 +8,10 @@ import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import styles from '../pages/Instructor.module.css';
 import InstructorNavbar from '../components/instructorNavbar';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 const SampleExam = () => {
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
+  const navigate = useNavigate();
   const [questions, setQuestions] = useState(null);
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -21,6 +24,12 @@ const SampleExam = () => {
   const [choicesUrl, setChoicesUrl] = useState({});
 
   useEffect(() => {
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "instructor")
+     { navigate('/StudentPage'); return  ;}
     console.log("Component mounted");
     async function fetchData() {
       const response = await fetch(`/instructor/getQuestionsForExam?courseName=${courseName}&examId=${examId}`);

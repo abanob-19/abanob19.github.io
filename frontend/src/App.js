@@ -75,10 +75,6 @@ function App() {
               path="/StudentCourseExams/:courseName" 
               element={<StudentCourseExams />} 
             />
-           <Route 
-              path="/WebCam"
-              element={<WebCam />}
-            />
             <Route
               path="/ScreenShots"
               element={<ScreenShots/>}
@@ -91,10 +87,7 @@ function App() {
               path="/StudentGrades/:courseName"
               element={<StudentGrades/>}
               />
-               <Route
-              path="/Drawing"
-              element={<Drawing/>}
-              />
+               
           </Routes>
         </div>
       </BrowserRouter>

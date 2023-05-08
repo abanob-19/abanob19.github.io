@@ -4,7 +4,10 @@ import { useLocation } from 'react-router-dom';
 import { Card, ListGroup , Button, Container, Row, Col  } from 'react-bootstrap';
 import styles from '../pages/Instructor.module.css';
 import InstructorNavbar from "../components/instructorNavbar";
+import { useNavigate } from "react-router-dom";
 const GradingPage = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
     const location = useLocation();
   const [questions, setQuestions] = useState(null);
   const searchParams = new URLSearchParams(location.search);
@@ -25,6 +28,12 @@ const [imageUrl, setImageUrl] = useState({});
 const[drawings, setDrawings] = useState([]);
   useEffect(() => {
     // Fetch questions from backend API
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "instructor")
+     { navigate('/StudentPage'); return  ;}
     const fetchQuestions = async () => {
         // if(currentStudentId && students[0] && currentStudentId._id.equals(students[0]))
       try {
@@ -70,6 +79,12 @@ const[drawings, setDrawings] = useState([]);
   }, [currentStudentId , subVersion]);
   
   useEffect(() => {
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "instructor")
+     { navigate('/StudentPage'); return  ;}
     // Fetch questions from backend API
     const fetchStudents = async () => {
       try {

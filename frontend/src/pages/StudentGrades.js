@@ -21,6 +21,12 @@ function StudentGrades() {
 
 
   useEffect( () => {
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "student")
+     { navigate('/InstructorCourses'); return  ;}
     setIsLoading(true);
     axios.get(`/student/seeExamsForGrades/?courseName=${courseName}&studentId=${user._id}`)
       .then(response => {

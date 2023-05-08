@@ -1,11 +1,11 @@
 import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from "react"
 import { Link } from 'react-router-dom';
-import PDFViewer from "./PDFViewer";
 import InstructorNavbar from '../components/instructorNavbar';
 import axios from 'axios';
 import styles from '../pages/Instructor.module.css';
 import { Button, Card, Form, ListGroup,OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrashAlt, faSave, faTimes, faP , faDownload, faUpload} from '@fortawesome/free-solid-svg-icons';
 //import QuestionForm from "../components/QuestionForm";
@@ -39,6 +39,8 @@ const QuestionBank = () => {
     const[aurl,setAurl]=useState(null)
     const[warning,setWarning]=useState(false)
     const[warningIndex,setWarningIndex]=useState(null)
+    const[user,setUser]=useState(JSON.parse(localStorage.getItem('user')));
+    const navigate = useNavigate();
 const[loading,setLoading]=useState(false)
 //initialize a state variable to store the question id as key and the image url as value
 const [imageUrl, setImageUrl] = useState({});
@@ -607,6 +609,12 @@ const isImageAttachment = (attachment) => {
           
         }
     useEffect(() => {
+      if (!user)
+      { 
+        navigate('/'); return  ; 
+      }
+      else if (user.role != "instructor")
+       { navigate('/StudentPage'); return  ;}
       if (!questionBankName) return; // add a check for undefined
   
       

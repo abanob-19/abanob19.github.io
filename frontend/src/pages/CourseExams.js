@@ -10,7 +10,8 @@ import { useParams } from "react-router-dom";
 import { Container } from 'react-bootstrap';
 function CourseExams() {
  // const { navigate } = useInRouterContext();
-  const navigate = useNavigate();
+ const navigate = useNavigate();
+  const user =localStorage.getItem('user')
   const [exams, setExams] = useState(null);
   const { courseName } = useParams();
   const[version,setVersion]=useState(0)
@@ -59,7 +60,12 @@ setEditingId(examID)
   }
 const[x,setX]=useState(0)
   useEffect( () => {
-    
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "instructor")
+     { navigate('/StudentPage'); return  ;}
     setIsLoading(true);
     axios.get(`/instructor/seeExams/${courseName}`)
       .then(async response => {
@@ -80,6 +86,12 @@ const[x,setX]=useState(0)
   }, [version, state.secVersion]);
   useEffect(() => {
     // Fetch question banks from server and update state
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "instructor")
+     { navigate('/StudentPage'); return  ;}
     const fetchData = async () => { 
       setIsLoading(true)
         await fetch(`/instructor/seeCourse/${courseName}`)

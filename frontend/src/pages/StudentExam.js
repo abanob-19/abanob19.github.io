@@ -4,6 +4,7 @@ import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import styles from '../pages/Instructor.module.css';
 import { Link } from 'react-router-dom';
 import { Button,Card } from 'react-bootstrap';
+import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import EditMathField from 'react-mathquill'
 import  MathQuill  from 'react-mathquill';
@@ -29,6 +30,7 @@ const StudentExam = () => {
   const [version, setVersion] = useState(0);    
   const { state, dispatch } = useInstructorsContext()
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
+const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const[isSubmitting,setIsSubmitting]=useState(false);
   const [imageUrl, setImageUrl] = useState({});
@@ -40,6 +42,12 @@ const StudentExam = () => {
  const [choicesUrl, setChoicesUrl] = useState({});
  const [remainingTime, setRemainingTime] = useState(null);
  useEffect(() => {
+  if (!user)
+  { 
+    navigate('/'); return  ; 
+  }
+  else if (user.role != "student")
+   { navigate('/InstructorCourses'); return  ;}
   console.log('remaining to end', remainingToEnd);
   const intervalId = setInterval(() => {
     const timeLeft = remainingToEnd;
@@ -91,6 +99,12 @@ const handleDrawingUpdate = useCallback((question, data) => {
 }, []);
   const [file, setFile] = useState(null);
   useEffect(() => {
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "student")
+     { navigate('/InstructorCourses'); return  ;}
     const interval = setInterval(() => {
       if (started){
       captureScreenshot();}
@@ -221,6 +235,12 @@ const handleDrawingUpdate = useCallback((question, data) => {
     
   }
   useEffect(() => {
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "student")
+     { navigate('/InstructorCourses'); return  ;}
     async function fetchData() {
       const response = await fetch(`/student/getQuestionsForExam?courseName=${courseName}&examId=${examId}&Id=${user._id}`);
       const data = await response.json()

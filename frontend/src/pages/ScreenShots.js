@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import { Row, Col } from 'react-bootstrap';
+import { useNavigate } from "react-router-dom";
 const Screenshots = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -9,7 +10,15 @@ const Screenshots = () => {
   const courseName = searchParams.get('courseName'); 
   const examId = searchParams.get('examId');
   const studentId = searchParams.get('studentId');
+  const navigate = useNavigate();
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
   useEffect(() => {
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "instructor")
+     { navigate('/StudentPage'); return  ;}
     const fetchScreenshots = async () => {
       try {
         console.log(studentId);

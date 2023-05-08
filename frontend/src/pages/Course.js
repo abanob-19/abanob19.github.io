@@ -7,8 +7,10 @@ import InstructorNavbar from "../components/instructorNavbar";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrashAlt, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Modal, Button ,OverlayTrigger, Tooltip} from 'react-bootstrap';
-
+import { useNavigate } from 'react-router-dom';
 const Course = () => {
+  const navigate = useNavigate();
+  const user =localStorage.getItem('user')
   const [questionBanks, setQuestionBanks] = useState(null);
   const [newQuestionBankName, setNewQuestionBankName] = useState(null);
   const [editingQuestionBankId, setEditingQuestionBankId] = useState(null);
@@ -21,17 +23,26 @@ const Course = () => {
   useEffect(() => {
     // Fetch question banks from server and update state
     const fetchData = async () => { 
+ 
       setLoading(true)
         await fetch(`/instructor/seeCourse/${courseName}`)
       .then(async response => await response.json())
       .then(data => setQuestionBanks(data))
       .catch(error => console.error(error));}
+      if (!user)
+      { 
+        navigate('/'); return  ; 
+      }
+      else if (user.role != "instructor")
+       { navigate('/StudentPage'); return  ;}
       fetchData();
       console.log(questionBanks);
       setLoading(false)
      
   }, [version]);
+
 const[newBank,setNewBank]=useState(false)
+
   const handleNewQuestionBankClick = () => {
     // Show the new question bank input field
     setNewQuestionBankName("");

@@ -10,12 +10,19 @@ import { FaClipboardList, FaChartLine } from 'react-icons/fa';
 import { FaPlusCircle } from 'react-icons/fa';
 import { Flipper, Flipped } from 'react-flip-toolkit';
 import{faTrophy} from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 const StudentPage = () => {
-  
+  const navigate = useNavigate();
   const { state, dispatch } = useInstructorsContext()
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
   useEffect(() => {
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "student")
+     { navigate('/InstructorCourses'); return  ;}
     console.log(state.userx)
   }, [])
   

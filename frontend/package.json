@@ -26,7 +26,7 @@
     "react-mathquill": "^1.0.3",
     "react-modal": "^3.16.1",
     "react-pdf": "^6.2.2",
-    "react-router-dom": "^6.9.0",
+    "react-router-dom": "^6.11.1",
     "react-scripts": "5.0.1",
     "react-virtual-keyboard": "^1.0.2",
     "web-vitals": "^2.1.4"

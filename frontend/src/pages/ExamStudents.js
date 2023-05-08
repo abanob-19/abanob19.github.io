@@ -5,14 +5,23 @@ import { Button } from 'react-bootstrap';
 import { Link } from "react-router-dom";
 import styles from '../pages/Instructor.module.css';
 import InstructorNavbar from '../components/instructorNavbar';
+import { useNavigate } from "react-router-dom";
 const ExamStudents = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const user =localStorage.getItem('user')
   const searchParams = new URLSearchParams(location.search);
   const [students, setStudents] = useState(null);
   const courseName = searchParams.get('courseName'); 
   const examId = searchParams.get('examId');
   
   useEffect(() => {
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "instructor")
+     { navigate('/StudentPage'); return  ;}
     const fetchScreenshots = async () => {
       try {
         const response = await axios.get(`/instructor/getStudentsForExam2/?courseName=${courseName}&examId=${examId}`);

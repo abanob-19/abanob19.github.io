@@ -10,6 +10,7 @@ import { useParams } from "react-router-dom";
 import { Container } from 'react-bootstrap';
 function StudentCourseExams() {
  // const { navigate } = useInRouterContext();
+ const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
   const navigate = useNavigate();
   const [exams, setExams] = useState(null);
   const { courseName } = useParams();
@@ -26,6 +27,12 @@ function StudentCourseExams() {
 
 
   useEffect( () => {
+    if (!user)
+    { 
+      navigate('/'); return  ; 
+    }
+    else if (user.role != "student")
+     { navigate('/InstructorCourses'); return  ;}
     setIsLoading(true);
     axios.get(`/student/seeExams/${courseName}`)
       .then(response => {
