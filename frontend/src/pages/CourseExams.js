@@ -32,7 +32,6 @@ setEditingId(examID)
   }
   const handleWrningClick = (index) => {
     setWarningIndex(index);
-    
   }
   const onFinishEditExam=(examID)=>{
     setEditingId(null)
