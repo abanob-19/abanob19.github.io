@@ -21,7 +21,7 @@ const handleClick = () => {
     setLoading(true);
     dispatch({type: 'LOG_OUT'})
     console.log( state.userx)
-    localStorage.removeItem('user');
+    localStorage.setItem('user',null);
     setLoading(false);
     navigate("/");
     

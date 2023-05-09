@@ -5,11 +5,7 @@ import { Card, Button, Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import StudentNavbar from "../components/StudentNavbar";
 import styles from './Instructor.module.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaClipboardList, FaChartLine } from 'react-icons/fa';
-import { FaPlusCircle } from 'react-icons/fa';
-import { Flipper, Flipped } from 'react-flip-toolkit';
-import{faTrophy} from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 const StudentPage = () => {
   const navigate = useNavigate();
@@ -17,16 +13,18 @@ const StudentPage = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
   useEffect(() => {
+    
     if (!user)
     { 
       navigate('/'); return  ; 
     }
     else if (user.role != "student")
-     { navigate('/InstructorCourses'); return  ;}
+     { navigate('/InstructorCourses'); return   ;}
     console.log(state.userx)
   }, [])
   
-  return (
+  if(user&&user.role=="student")
+  {return (
     <div>
       <StudentNavbar />
       <h1 style={{ paddingTop: '72px' }} className={styles.courses} >My Courses</h1>
@@ -49,7 +47,7 @@ const StudentPage = () => {
         ))}
       </Container>
     </div>
-  )
+  )}
   
 }
 

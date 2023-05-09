@@ -10,7 +10,7 @@ import { Modal, Button ,OverlayTrigger, Tooltip} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 const Course = () => {
   const navigate = useNavigate();
-  const user =localStorage.getItem('user')
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
   const [questionBanks, setQuestionBanks] = useState(null);
   const [newQuestionBankName, setNewQuestionBankName] = useState(null);
   const [editingQuestionBankId, setEditingQuestionBankId] = useState(null);
@@ -164,8 +164,8 @@ const[newBank,setNewBank]=useState(false)
     <InstructorNavbar />
     <div className="d-flex align-items-center justify-content-center mb-3" style={{paddingTop:'72px'}}>
     <div >
-  <h1 className="text-center mb-0">{courseName.charAt(0).toUpperCase() + courseName.slice(1)}</h1>
-  <h2 className="text-center mb-0">Question Banks</h2>
+  <h1 className="text-center mb-0" style={{color:'#B2D1EE'}}>{courseName.charAt(0).toUpperCase() + courseName.slice(1)}</h1>
+  <h2 className="text-center mb-0" style={{color:'#B2D1EE'}}>Question Banks</h2>
   
 </div>
       

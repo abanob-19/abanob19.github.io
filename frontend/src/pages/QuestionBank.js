@@ -768,14 +768,14 @@ if (!questionBank||loading) {
   return (
     <div  >
       <InstructorNavbar />
-      <h1 style={{paddingTop:'72px'}}>{name.charAt(0).toUpperCase()+name.slice(1)}</h1>
-      <h2 >{questionBankName}</h2>
+      <h1 style={{paddingTop:'72px', textAlign: 'center' , color:'#B2D1EE'}}>{name.charAt(0).toUpperCase()+name.slice(1)}</h1>
+  <h2 style={{textAlign: 'center',color:'#B2D1EE'}}>{questionBankName}</h2>
       {warning&&<div style={{display:'flex',justifyContent:'space-between'}}>
       <h3 style={{color:'red'}}> You have Errors in Question {warningIndex+1}</h3> 
       </div>}
       {displayForm&&<QuestionForm onFinish={handleFinish}  />}
       {questionBank && questionBank.questions && questionBank.questions.map(( question, qIndex) => (
-        <Card key={question._id} className={styles.courseCard}  style={{ boxShadow: '0px 0px 24px 24px rgba(0,0,0,0.1)', borderRadius: '10px' , width:'70%'}}>
+        <Card key={question._id} className={styles.courseCard}  style={{ boxShadow: '0px 0px 24px 24px rgba(0,0,0,0.1)', borderRadius: '10px' , width:'70%', margin: '0 auto', marginBottom: '24px'}}>
           <Card.Body>
           
             {editedQuestionIndexforEditText === qIndex && editedText !== null ? (

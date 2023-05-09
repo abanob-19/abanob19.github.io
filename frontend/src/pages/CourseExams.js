@@ -11,7 +11,7 @@ import { Container } from 'react-bootstrap';
 function CourseExams() {
  // const { navigate } = useInRouterContext();
  const navigate = useNavigate();
-  const user =localStorage.getItem('user')
+ const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
   const [exams, setExams] = useState(null);
   const { courseName } = useParams();
   const[version,setVersion]=useState(0)
@@ -86,6 +86,7 @@ const[x,setX]=useState(0)
   }, [version, state.secVersion]);
   useEffect(() => {
     // Fetch question banks from server and update state
+   
     if (!user)
     { 
       navigate('/'); return  ; 

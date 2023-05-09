@@ -10,15 +10,17 @@ const InstructorCourses = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 const navigate = useNavigate();
     useEffect(() => {
+    
+     
       if (!user)
       { 
         navigate('/'); return  ; 
       }
       else if (user.role != "instructor")
-       { navigate('/StudentPage'); return  ;}        console.log(state.userx)
+       { navigate('/StudentPage'); return  ;}        console.log(user.role != "instructor")
     }, [])
-
-    return (
+if (user &&user.role== "instructor")
+   { return (
         <div>
              { <InstructorNavbar/> }
              <h1 style={{ paddingTop: '72px' }} className={styles.courses} >My Courses</h1>
@@ -37,7 +39,7 @@ const navigate = useNavigate();
       </Container>
            
         </div>
-    )
+    )}
 }
 
 export default InstructorCourses

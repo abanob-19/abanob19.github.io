@@ -17,7 +17,7 @@ function StudentNavbar() {
   const handleClick = () => {
     dispatch({type: 'LOG_OUT'})
     console.log(state.userx)
-    localStorage.removeItem('user');
+    localStorage.setItem('user',null);
     navigate("/");
   }
   const handleClick1 = async () => {

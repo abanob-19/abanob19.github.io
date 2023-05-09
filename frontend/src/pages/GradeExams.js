@@ -48,9 +48,9 @@ function GradeExams() {
   return (
     <div className="container mt-5">
       <InstructorNavbar />
-      <h1 className="text-center mb-4" style={{paddingTop:'32px'}}>{selectedCourse.charAt(0).toUpperCase()+selectedCourse.slice(1)} Exams</h1>
+      <h1 className="text-center mb-4" style={{paddingTop:'32px' , color:'#B2D1EE'}}>{selectedCourse.charAt(0).toUpperCase()+selectedCourse.slice(1)} Exams</h1>
       <div className="d-flex justify-content-center mb-4">
-        <label htmlFor="courseSelect" className="me-2">
+        <label htmlFor="courseSelect" className="me-2" style={{color:'#B2D1EE'}}>
           Select Course:
         </label>
         <select
@@ -66,7 +66,7 @@ function GradeExams() {
           ))}
         </select>
       </div>
-      <table className="table table-bordered table-hover mx-auto">
+      <table className="table table-bordered table-hover mx-auto" style={{backgroundColor:'#B2D1EE'}}>
         <thead>
           <tr>
             <th scope="col">Exam</th>

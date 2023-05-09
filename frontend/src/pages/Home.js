@@ -7,12 +7,15 @@ import { useNavigate } from "react-router-dom";
 const Home = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
+  useEffect( () => {
+
  if (user){ if (user.role == "instructor")
   { 
-    navigate('/instructorPage'); return  ; 
+    navigate('/InstructorCourses'); return  ; 
   }
   else if (user.role == "student")
    { navigate('/StudentPage'); return  ;}}
+}, []);
 
   return (
    
