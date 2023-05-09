@@ -26,7 +26,6 @@ setEditingId(examID)
   }
   function handleSample  (examId,title)  {
     console.log("executed sample");
-    // onSampleClick();
   navigate(`/SampleExam/?courseName=${courseName}&examId=${examId}&title=${title}`)
    console.log(`/SampleExam/?courseName=${courseName}&examId=${examId}`)
 
