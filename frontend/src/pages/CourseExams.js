@@ -64,6 +64,7 @@ const[x,setX]=useState(0)
     }
     else if (user.role != "instructor")
      { navigate('/StudentPage'); return  ;}
+     document.title = "Online Assessment Simulator";
     setIsLoading(true);
     axios.get(`/instructor/seeExams/${courseName}`)
       .then(async response => {
@@ -91,6 +92,7 @@ const[x,setX]=useState(0)
     }
     else if (user.role != "instructor")
      { navigate('/StudentPage'); return  ;}
+     document.title = "Online Assessment Simulator";
     const fetchData = async () => { 
       setIsLoading(true)
         await fetch(`/instructor/seeCourse/${courseName}`)

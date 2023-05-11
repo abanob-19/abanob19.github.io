@@ -10,8 +10,11 @@ import EditMathField from 'react-mathquill'
 import  MathQuill  from 'react-mathquill';
 import VirtualKeyboard from 'react-virtual-keyboard';
 import StudentNavbar from '../components/StudentNavbar';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Drawing from './drawing';
 const StudentExam = () => {
+  
   const [questions, setQuestions] = useState(null);
   const [answers, setAnswers] = useState({});
   const [buttonText, setButtonText] = useState('Submit');
@@ -48,6 +51,7 @@ const navigate = useNavigate();
   }
   else if (user.role != "student")
    { navigate('/InstructorCourses'); return  ;}
+   document.title = "Online Assessment Simulator";
   console.log('remaining to end', remainingToEnd);
   const intervalId = setInterval(() => {
     const timeLeft = remainingToEnd;
@@ -105,6 +109,7 @@ const handleDrawingUpdate = useCallback((question, data) => {
     }
     else if (user.role != "student")
      { navigate('/InstructorCourses'); return  ;}
+     document.title = "Online Assessment Simulator";
     const interval = setInterval(() => {
       if (started){
       captureScreenshot();}
@@ -205,6 +210,9 @@ const handleDrawingUpdate = useCallback((question, data) => {
     })
       .then(json => {
         console.log(json);
+        toast.success('Uploaded successfully!', {
+          position: toast.POSITION.TOP_RIGHT
+        });
         setFile(null);
         setVersion(version => version + 1); // force re-render
       })
@@ -213,7 +221,9 @@ const handleDrawingUpdate = useCallback((question, data) => {
         alert('Failed to edit question');
       });}
       else 
-      alert('No file selected');
+      toast.error('no file selected', {
+        position: toast.POSITION.TOP_RIGHT
+      });
     }
   const stopCamera = () => {
     const stream = webcamRef.current.srcObject;
@@ -241,6 +251,7 @@ const handleDrawingUpdate = useCallback((question, data) => {
     }
     else if (user.role != "student")
      { navigate('/InstructorCourses'); return  ;}
+     document.title = "Online Assessment Simulator";
     async function fetchData() {
       const response = await fetch(`/student/getQuestionsForExam?courseName=${courseName}&examId=${examId}&Id=${user._id}`);
       const data = await response.json()
@@ -459,6 +470,7 @@ return (
               <Button variant="primary" className="ml-3" onClick={() => handleUpload(question._id)}>
                 Upload your answers
               </Button>
+              <ToastContainer />
               {question.type === 'mcq' && (
                 <ul className="list-unstyled mt-3">
                   {question.choices.map((choice, choiceIndex) => (

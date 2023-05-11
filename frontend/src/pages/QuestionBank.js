@@ -85,6 +85,7 @@ const isImageAttachment = (attachment) => {
         .then(json => {
           console.log(json);
           setFile(null);
+          alert('File uploaded successfully');
           setVersion(version => version + 1); // force re-render
         })
         .catch(error => {
@@ -152,6 +153,7 @@ const isImageAttachment = (attachment) => {
               await handleUploadChoiceAttachments(question._id,editedFile,false,editedChoiceIndex)
               console.log(json);
               setDisplayForm(false);
+              alert('Question edited successfully');
               setVersion(version => version + 1); // force re-render
             })
             .catch(error => {
@@ -202,6 +204,7 @@ const isImageAttachment = (attachment) => {
             .then(json => {
               console.log(json);
               setDisplayForm(false);
+              alert('Choice deleted successfully');
               setVersion(version => version + 1); // force re-render
             })
             .catch(error => {
@@ -245,6 +248,7 @@ const isImageAttachment = (attachment) => {
             .then(json => {
               console.log(json);
               setDisplayForm(false);
+              alert('Attachment deleted successfully');
               setVersion(version => version + 1); // force re-render
             })
             .catch(error => {
@@ -282,6 +286,7 @@ const isImageAttachment = (attachment) => {
           })
           .then(json => {
             console.log(json);
+            alert('Question deleted successfully');
             setVersion(version => version + 1); // force re-render
           })
           .catch(error => {
@@ -307,7 +312,6 @@ const isImageAttachment = (attachment) => {
           })
             .then(response => {
               if (!response.ok) {
-                alert('Failed to delete question Attachment');
                 throw new Error('Failed to delete question Attachment');
                 
               }
@@ -320,7 +324,7 @@ const isImageAttachment = (attachment) => {
             })
             .catch(error => {
               console.error(error);
-              alert('Failed to delete question');
+              alert('Failed to delete question attachment');
             });
         }}
     //create a function to handle add choice
@@ -374,6 +378,7 @@ const isImageAttachment = (attachment) => {
               console.log(json);
               await handleUploadChoiceAttachments(question._id,editedFile,false,question.choices.length-1)
               setDisplayForm(false);
+              alert('Question edited successfully');
               setVersion(version => version + 1); // force re-render
             })
             .catch(error => {
@@ -422,6 +427,7 @@ const isImageAttachment = (attachment) => {
             .then( json => {
               console.log(json);
               setDisplayForm(false);
+              alert('Answer edited successfully');
               window.location.reload(); // force re-render
             })
             .catch(error => {
@@ -467,6 +473,7 @@ const isImageAttachment = (attachment) => {
             .then(json => {
               console.log(json);
               setDisplayForm(false);
+              alert('Category edited successfully');
               setVersion(version => version + 1); // force re-render
             })
             .catch(error => {
@@ -521,6 +528,7 @@ const isImageAttachment = (attachment) => {
             .then(json => {
               console.log(json);
               setDisplayForm(false);
+              alert('Text edited successfully');
               setVersion(version => version + 1); // force re-render
             })
             .catch(error => {
@@ -615,6 +623,7 @@ const isImageAttachment = (attachment) => {
       }
       else if (user.role != "instructor")
        { navigate('/StudentPage'); return  ;}
+       document.title = "Online Assessment Simulator";
       if (!questionBankName) return; // add a check for undefined
   
       
@@ -693,7 +702,7 @@ const isImageAttachment = (attachment) => {
          await handleUploadChoiceAttachments(json[json.length-1]._id ,newQuestion.choiceAttachments[i] , false , i )
         }
        }
-        
+        alert('Question added successfully');
         setVersion(version => version + 1); // force re-render
         setDisplayForm(false);
       })

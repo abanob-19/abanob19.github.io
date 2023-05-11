@@ -19,6 +19,7 @@ const Screenshots = () => {
     }
     else if (user.role != "instructor")
      { navigate('/StudentPage'); return  ;}
+     document.title = "Online Assessment Simulator";
     const fetchScreenshots = async () => {
       try {
         console.log(studentId);

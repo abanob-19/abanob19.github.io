@@ -107,7 +107,7 @@ const seeMyCourses=async(req,res)=>{
            return res.status(400).json({error: 'No such student'})
         }
       //  return student.exams that have courseName = name
-      const exams = student.exams.filter((exam) => exam.courseName === courseName.trim() && exam.submitted===true);
+      const exams = student.exams.filter((exam) => exam.courseName === courseName.trim() && exam.graded===true);
 
     res.status(200).json(exams)
   }

@@ -9,19 +9,22 @@ import { useNavigate } from "react-router-dom";
 const ExamStudents = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const user =localStorage.getItem('user')
+  const [user,setUser] =useState(JSON.parse(localStorage.getItem('user')));
   const searchParams = new URLSearchParams(location.search);
   const [students, setStudents] = useState(null);
   const courseName = searchParams.get('courseName'); 
   const examId = searchParams.get('examId');
   
   useEffect(() => {
+    console.log("exam students");
     if (!user)
     { 
       navigate('/'); return  ; 
     }
     else if (user.role != "instructor")
      { navigate('/StudentPage'); return  ;}
+     
+     document.title = "Online Assessment Simulator";
     const fetchScreenshots = async () => {
       try {
         const response = await axios.get(`/instructor/getStudentsForExam2/?courseName=${courseName}&examId=${examId}`);

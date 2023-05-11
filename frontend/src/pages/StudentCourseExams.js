@@ -33,6 +33,7 @@ function StudentCourseExams() {
     }
     else if (user.role != "student")
      { navigate('/InstructorCourses'); return  ;}
+     document.title = "Online Assessment Simulator";
     setIsLoading(true);
     axios.get(`/student/seeExams/${courseName}`)
       .then(response => {

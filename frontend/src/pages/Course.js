@@ -35,6 +35,7 @@ const Course = () => {
       }
       else if (user.role != "instructor")
        { navigate('/StudentPage'); return  ;}
+       document.title = "Online Assessment Simulator";
       fetchData();
       console.log(questionBanks);
       setLoading(false)

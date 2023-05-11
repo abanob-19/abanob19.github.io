@@ -17,7 +17,9 @@ const navigate = useNavigate();
         navigate('/'); return  ; 
       }
       else if (user.role != "instructor")
-       { navigate('/StudentPage'); return  ;}        console.log(user.role != "instructor")
+       { navigate('/StudentPage'); return  ;} 
+       document.title = "Online Assessment Simulator";
+      console.log(user.role != "instructor")
     }, [])
 if (user &&user.role== "instructor")
    { return (

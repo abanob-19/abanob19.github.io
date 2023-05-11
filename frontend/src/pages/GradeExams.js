@@ -25,6 +25,7 @@ function GradeExams() {
     }
     else if (user.role != "instructor")
      { navigate('/StudentPage'); return  ;}
+     document.title = "Online Assessment Simulator";
     const fetchData = async () => {
       try {
         const response = await axios.get(`/instructor/seeExamsForGrade/${user._id}`);

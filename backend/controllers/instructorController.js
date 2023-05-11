@@ -254,7 +254,7 @@ const seeExamsForGrade=async(req,res)=>{
       for (var j = 0; j < course.exams.length; j++) {
         //loop over students and check if they have taken this exam and if it is graded or not
         var flag =true
-        for (var k = 0; k < students.length; k++) {
+        for (var k = 0; k < students.length; k++) { 
           // get exam in student.exams with the same id as course.exams[j]._id
           const exam = students[k].exams.find(e => e.examId .equals(course.exams[j]._id))
           console.log(exam)

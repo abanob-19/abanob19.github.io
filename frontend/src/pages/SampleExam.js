@@ -30,6 +30,7 @@ const SampleExam = () => {
     }
     else if (user.role != "instructor")
      { navigate('/StudentPage'); return  ;}
+     document.title = "Online Assessment Simulator";
     console.log("Component mounted");
     async function fetchData() {
       const response = await fetch(`/instructor/getQuestionsForExam?courseName=${courseName}&examId=${examId}`);

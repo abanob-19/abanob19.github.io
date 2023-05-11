@@ -34,6 +34,7 @@ const[drawings, setDrawings] = useState([]);
     }
     else if (user.role != "instructor")
      { navigate('/StudentPage'); return  ;}
+     document.title = "Online Assessment Simulator";
     const fetchQuestions = async () => {
         // if(currentStudentId && students[0] && currentStudentId._id.equals(students[0]))
       try {
@@ -85,6 +86,7 @@ const[drawings, setDrawings] = useState([]);
     }
     else if (user.role != "instructor")
      { navigate('/StudentPage'); return  ;}
+     document.title = "Online Assessment Simulator";
     // Fetch questions from backend API
     const fetchStudents = async () => {
       try {

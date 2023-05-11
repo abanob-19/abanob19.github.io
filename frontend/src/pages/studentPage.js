@@ -20,6 +20,7 @@ const StudentPage = () => {
     }
     else if (user.role != "student")
      { navigate('/InstructorCourses'); return   ;}
+     document.title = "Online Assessment Simulator";
     console.log(state.userx)
   }, [])
   
