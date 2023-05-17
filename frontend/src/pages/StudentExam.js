@@ -9,18 +9,21 @@ import axios from 'axios';
 import EditMathField from 'react-mathquill'
 import  MathQuill  from 'react-mathquill';
 import VirtualKeyboard from 'react-virtual-keyboard';
+import StudentNavbar2 from '../components/StudentNavbar2';
 import StudentNavbar from '../components/StudentNavbar';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Drawing from './drawing';
 const StudentExam = () => {
-  
+  const[numOfSaved,setNumOfSaved]=useState(0)
   const [questions, setQuestions] = useState(null);
   const [answers, setAnswers] = useState({});
+  const [saved,setSaved]=useState([])
   const [buttonText, setButtonText] = useState('Submit');
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const courseName = searchParams.get('courseName'); 
+  const [isButtonClickable, setIsButtonClickable] = useState(false);
   const examId = searchParams.get('examId');
   const duration = searchParams.get('duration'); 
     const title = searchParams.get('title');
@@ -44,6 +47,7 @@ const navigate = useNavigate();
  const [drawings, setDrawings] = useState({});
  const [choicesUrl, setChoicesUrl] = useState({});
  const [remainingTime, setRemainingTime] = useState(null);
+ const [drawingsForStudent,setDrawingsForStudent]=useState(null)
  useEffect(() => {
   if (!user)
   { 
@@ -59,6 +63,7 @@ const navigate = useNavigate();
     if (timeLeft <= 0) {
       clearInterval(intervalId);
       setRemainingTime(null);
+      handleSubmit();
     } else {
       const hours = Math.floor(timeLeft / 3600);
       const minutes = Math.floor((timeLeft % 3600) / 60);
@@ -111,8 +116,8 @@ const handleDrawingUpdate = useCallback((question, data) => {
      { navigate('/InstructorCourses'); return  ;}
      document.title = "Online Assessment Simulator";
     const interval = setInterval(() => {
-      if (started){
-      captureScreenshot();}
+      // if (started){
+      // captureScreenshot();}
     }, 15000); // take screenshot every 15 seconds
 
     return () => clearInterval(interval);
@@ -256,7 +261,8 @@ const handleDrawingUpdate = useCallback((question, data) => {
       const response = await fetch(`/student/getQuestionsForExam?courseName=${courseName}&examId=${examId}&Id=${user._id}`);
       const data = await response.json()
       const q=data.Questions;
-     
+     const drawingsForStudent1=data.drawingsForStudent;
+     setDrawingsForStudent(drawingsForStudent1);
       
     setSubmitted(data.submitted);
     
@@ -296,7 +302,42 @@ const handleDrawingUpdate = useCallback((question, data) => {
       ...prevAnswers,
       [questionId]: choiceIndex
     }));
+   
   };
+  useEffect(() => {
+    handleSaveAnswers();
+  
+    const interval = setInterval(() => {
+      const answerEntries = Object.entries(answers);
+      const questionAnswers = answerEntries.map(([questionId, answer]) => ({ questionId, answer }));
+  console.log(questionAnswers);
+      let j = 0;
+      const saved1 = questionAnswers.map((qa) => {
+        const { answer } = qa;
+        console.log(answer);
+        return answer !== undefined && answer !== null && answer.toString() !== '';
+      });
+      
+  console.log(saved1);
+      for (let i = 0; i < saved1.length; i++) {
+        if (saved1[i] === true) {
+          setIsButtonClickable(true);
+          j++;
+          console.log(j);
+        }
+      }
+      if(j==0)
+      setIsButtonClickable(false);
+  
+      setSaved(saved1);
+      setNumOfSaved(j);
+    }, 4000); // Update every second (adjust the interval as needed)
+  
+    return () => {
+      clearInterval(interval); // Clean up the interval on component unmount
+    };
+  }, [answers,drawings]);
+  
 
   const handleSubmit = async() => {
     // You can save the answers to the server here
@@ -324,6 +365,33 @@ const handleDrawingUpdate = useCallback((question, data) => {
         stopCamera();
         setEnabled(false);
         setStarted(false);
+      })
+      .catch(error => {
+        // handle error
+        console.log(error);
+      });
+      
+    console.log(answers);
+  };
+  const handleSaveAnswers = async() => {
+    // You can save the answers to the server here
+    
+    const response= await fetch(`/student/saveAnswers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          courseName,
+          examId,
+          Id: user._id,
+          answers: answers,
+          sumbitted:true,
+          drawings:drawings
+        })
+      })
+      .then(response => {
+        console.log(response);
       })
       .catch(error => {
         // handle error
@@ -387,7 +455,9 @@ const handleDrawingUpdate = useCallback((question, data) => {
 }
 
 return (
+  
   <div className="container"  style={{ overflow: 'auto' }}>
+    <StudentNavbar2/>
     <canvas ref={canvasRef} style={{ display: 'none' }} />
     <video ref={webcamRef} className={`${started ? styles.invisible : 'w-100'}`} />
     {!enabled && (
@@ -418,14 +488,15 @@ return (
     fontSize: '3rem', // increase the font size of the h1 element
     fontWeight: 'bold', // make the text bold
     marginBottom: '0.5rem', // add some margin at the bottom
-    color: '#333', // set the text color to a dark gray
+    color: 'white',
+    paddingTop:'72px' // set the text color to a dark gray
   }}>{courseName.charAt(0).toUpperCase()+courseName.slice(1)}</h1>
   <h2 style={{
     fontSize: '2.5rem', // increase the font size of the h2 element
     fontWeight: 'bold', // make the text bold
     marginBottom: '0.5rem', // add some margin at the bottom
-    color: '#007b55', // set the text color to blue
-  }}>{title} Exam</h2>
+    color: 'white', // set the text color to blue
+  }}>{title}</h2>
   <h2 style={{
     fontSize: '1.5rem', // increase the font size of the h2 element
     fontWeight: 'normal', // make the text normal weight
@@ -452,53 +523,63 @@ return (
 
         {questions.map((question, index) => (
           <Card key={question._id} className="mt-5">
+            <Card.Header style={{ backgroundColor: '#d4edda', display: 'flex', justifyContent: 'center' }}>
+    <h5 className="card-title">
+      Question {index + 1}
+    </h5>
+  </Card.Header>
             <Card.Body>
-              <Card.Title>
-                ({index + 1}) {question.text} ({question.grade} grades)
+              <Card.Title  style={{  display: 'flex', justifyContent: 'center' , fontSize:'2em' }} >
+                {question.text} ({question.grade} grades)
               </Card.Title>
               {question.attachment && (
-                <Button variant="primary" onClick={() => handleDownload(question.attachment)}>
-                  Download Attachments
-                </Button>
-              )}
-              {question.attachment && isImageAttachment(question.attachment) && (
-                <div style={{ width: '200px', height: '200px' }}>
-                  <Card.Img src={imageUrl[question._id]} alt="Attachment" fluid />
-                </div>
-              )}
-              <input type="file" onChange={handleFileChange} />
-              <Button variant="primary" className="ml-3" onClick={() => handleUpload(question._id)}>
+  <div>
+   
+    {isImageAttachment(question.attachment) && (
+      <div style={{ maxWidth: '40%', margin: '10px 0' }}>
+        <Card.Img src={imageUrl[question._id]} alt="Attachment" />
+      </div>
+    )}
+     <Button variant="primary" onClick={() => handleDownload(question.attachment)}>
+      Download Attachment
+    </Button>
+  </div>
+)}
+
+{question.type=='text'&& <input type="file" onChange={handleFileChange} />}
+              {question.type=='text'&&<Button variant="primary" className="ml-3" onClick={() => handleUpload(question._id)}>
                 Upload your answers
-              </Button>
+              </Button>}
               <ToastContainer />
               {question.type === 'mcq' && (
-                <ul className="list-unstyled mt-3">
-                  {question.choices.map((choice, choiceIndex) => (
-                    <li key={choiceIndex}>
-                      <label>
-                        <input
-                          type="radio"
-                          name={`question${index}`}
-                          value={choice}
-                          checked={answers[question._id] === choiceIndex}
-                          onChange={() => handleAnswerChange(question._id, choiceIndex)}
-                        />
-                        <span className="mr-2">{String.fromCharCode(97 + choiceIndex)})</span>
-                        {choice}
-                      </label>
-                      {question.choiceAttachments && question.choiceAttachments[choiceIndex] && (
-                        <div style={{ width: '200px', height: '200px' }}>
-                          <Card.Img
-                            src={choicesUrl[question._id][choiceIndex]}
-                            alt="Attachment"
-                            fluid
-                          />
-                        </div>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
+  <ul className="list-unstyled mt-3" style={{ display: 'flex', flexWrap: 'wrap' }}>
+    {question.choices.map((choice, choiceIndex) => (
+      <li key={choiceIndex} style={{ width: '50%' }}>
+        <label>
+          <input
+            type="radio"
+            name={`question${index}`}
+            value={choice}
+            checked={answers[question._id] === choiceIndex}
+            onChange={() => handleAnswerChange(question._id, choiceIndex)}
+          />
+          <span className="mr-2">{String.fromCharCode(97 + choiceIndex)})</span>
+          {choice}
+        </label>
+        {question.choiceAttachments && question.choiceAttachments[choiceIndex] && (
+          <div style={{ maxWidth: '80%', margin: '10px 0' }}>
+            <Card.Img
+              src={choicesUrl[question._id][choiceIndex]}
+              alt="Attachment"
+              fluid
+            />
+          </div>
+        )}
+      </li>
+    ))}
+  </ul>
+)}
+
               {question.type === 'text' && (
                 <div className="mt-3">
                   <label>Your answer:</label>
@@ -521,13 +602,13 @@ return (
     paddingBottom: '40px',  // left-align the text inside the input element
   }}
 />
-                  <Drawing onUpdate={(data) => handleDrawingUpdate(question._id, data)} />
+                  <Drawing onUpdate={(data) => handleDrawingUpdate(question._id, data)} imageUrl={drawingsForStudent[index]}/>
                 </div>
               )}
             </Card.Body>
           </Card>
         ))}
-        {!submitted && !isSubmitting && (
+        {/* {!submitted && !isSubmitting && (
           <Button className="btn btn-primary mt-3" variant='success' onClick={handleSubmit} style={{
             width: '100%', // set the width of the button to 100% of its container
             paddingBottom:'40px',
@@ -537,11 +618,31 @@ return (
           }}>
             {buttonText}
           </Button>
-        )}
+        )} */}
         {isSubmitting && <p className="mt-3">Submitting...</p>}
-       
+        <div className="button-bar" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: 'lightgray', padding: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="exam-info">
+        <span className="exam-name">{title}</span>
       </div>
+      <div className="answered-questions" style={{ textAlign: 'center' }}>
+        {numOfSaved}/{questions.length} Answered Questions
+      </div>
+      <div className="submit-button" style={{ textAlign: 'right' }}>
+      <Button  variant='success' onClick={handleSubmit} disabled={!isButtonClickable} style={{
+            width: '100%', // set the width of the button to 100% of its container
+            paddingBottom:'40px',
+            height:'2px', // center the button horizontally
+            fontSize: '1.2rem', // set the font size of the button
+            fontWeight: 'bold', // make the text bold
+          }}>
+            {buttonText}
+          </Button>
+      </div>
+    </div>
+      </div>
+      
     )}
+     
   </div>
 );
 

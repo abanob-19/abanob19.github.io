@@ -137,7 +137,13 @@ const seeMyCourses=async(req,res)=>{
               }
             }
           });
-    res.status(200).json(exams)
+          var exams2=[]
+          var j=0;
+          for(j=0;j<exams.length;j++){
+            if((new Date(course.exams[j].endTime)).setHours((new Date(course.exams[j].endTime)).getHours() - 3 )>= new Date(Date.now()))
+            exams2.push(exams[j])
+          }
+    res.status(200).json(exams2)
   }
 
   const getQuestionsForExam = async (req, res) => {
@@ -156,9 +162,16 @@ const seeMyCourses=async(req,res)=>{
     console.log(examId , courseName);
     try {
       const examx = student.exams.find((exam) => exam.examId.equals(examId.trim()));
+      var drawingsForStudent1=[]
+      for (let i = 0; i < examx.questions.length; i++) {
+      if(examx.questions[i].drawing)
+        drawingsForStudent1.push(examx.questions[i].drawing)
+        else 
+        drawingsForStudent1.push(null)
+      }
       if (examx) {
         console.log("already generated");
-        return res.send({Questions:examx.questions , submitted:examx.submitted, answers:examx.studentAnswers});
+        return res.send({Questions:examx.questions , submitted:examx.submitted, answers:examx.studentAnswers , drawingsForStudent:drawingsForStudent1});
       }
       let exam = null;
       let myCourse=null;
@@ -283,9 +296,10 @@ const seeMyCourses=async(req,res)=>{
         submitted:false,
         graded:false,
       }
+      const drawingsForStudent=new Array(questions.length).fill(null)
       student.exams.push(examForStudent)
       await student.save()
-      return res.send({Questions:questions , submitted:examForStudent.submitted, answers:examForStudent.studentAnswers});
+      return res.send({Questions:questions , submitted:examForStudent.submitted, answers:examForStudent.studentAnswers, drawingsForStudent:drawingsForStudent});
     } catch (err) {
       console.error(err);
       return res.status(500).send('Server error');
@@ -366,6 +380,80 @@ const seeMyCourses=async(req,res)=>{
     res.status(500).send(err);
   }
 }
+const saveAnswers = async (req, res) => {
+  const examId= req.body.examId;
+  const answers=req.body.answers
+  const courseName = req.body.courseName;
+  const  id  = req.body.Id
+  const drawings=req.body.drawings
+// if (!mongoose.Types.ObjectId.isValid(id.trim())) {
+//         return res.status(400).json({error: ' Invalid Id No such student'})     }
+const student =   await Student.findById({_id: id.trim()})
+if(!student) {
+         return res.status(400).json({error: 'No such student'})
+      }
+
+console.log(examId , courseName);
+try {
+  const examx = student.exams.find((exam) => exam.examId.equals(examId.trim()) && exam.courseName===courseName);
+  if (examx) {
+    console.log("found");
+  }
+  else{
+    console.log("no such exam")
+  }
+  var totalGrade=0
+  const answerEntries = Object.entries(answers);
+  const questionAnswers = answerEntries.map(([questionId, answer]) => ({ questionId, answer }));
+
+  console.log(questionAnswers.length)
+  // loop through the answers array and store every answer in the corresponding question.studentAnswer in questions array in the exam
+  for (let i = 0; i < questionAnswers.length; i++) {
+    //get questionId and answer from  answers which ia a json object of the form {questionId:answer}
+
+
+    const { questionId, answer } = questionAnswers[i];
+    console.log(questionId,answer)
+    const index = examx.questions.findIndex((q) => q._id.equals(questionId));
+    examx.studentAnswers[index]=answer
+    const question = examx.questions.find((q) => q._id.equals(questionId));
+    
+    // calculate the grade for the question
+    //get the choice text of the choice that has the same index as the answer
+    if(question.type=='mcq'){
+    const choice = question.choices[answer];
+    const correctAnswer = question.answer;
+    if (correctAnswer===choice) {
+      examx.studentGrades[index] = parseInt(question.grade);;
+      totalGrade+=parseInt(question.grade);
+      examx.questions[i].graded=true
+    } else {
+      examx.studentGrades[index] = 0;
+      examx.questions[i].graded=true
+    }}
+    // else if(question.type=='text'){
+    //   if(drawings){
+    //     if(drawings[questionId]){
+    //      examx.questions[i].drawing=drawings[questionId]
+    //     }
+    //   }
+    // }
+   
+  }
+  examx.totalGrade=totalGrade
+  // update the exams array of the student with the edited exam examx
+  const index = student.exams.findIndex((exam) => exam.examId.equals(examId.trim()) && exam.courseName===courseName);
+  student.exams[index] = examx;
+  // save the student
+  await student.save();
+  console.log("saved")
+ res.send("saved")
+}
+catch(err){
+  console.log(err)
+  res.status(500).send(err);
+}
+}
 const saveScreenshot = async (req, res) => {
   const { courseName,studentId, examId } = req.body;
   const screenshotDataUrl = req.body.screenshot;
@@ -402,4 +490,5 @@ module.exports = {
   seeExamsForGrades,
   uploadFile,
   downloadFile,
+  saveAnswers,
 }

@@ -1,7 +1,7 @@
 import React, { useState, useRef,useEffect , useCallback } from 'react';
 import{Button} from 'react-bootstrap';
 import styles from '../pages/Instructor.module.css'
- const Drawing = ({onUpdate}) => {
+ const Drawing = ({onUpdate , imageUrl}) => {
     const canvasRef1 = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
 const [lastX, setLastX] = useState(0);
@@ -52,6 +52,12 @@ const [lastX, setLastX] = useState(0);
   }, [isErasing]);
   useEffect(() => {
     const canvas = canvasRef1.current;
+    const context = canvas.getContext('2d');
+    const image = new Image();
+    image.onload = () => {
+      context.drawImage(image, 0, 0);
+    };
+    image.src = imageUrl; // R
     canvas.style.cursor = 'crosshair'
     canvas.addEventListener('mousedown', startDrawing);
     canvas.addEventListener('mousemove', draw);

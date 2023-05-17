@@ -42,33 +42,53 @@ if (loading){
 }
   return (
     <div>
-      <Navbar bg="dark" variant='dark' expand="lg" className="fixed-top">
-        <div className="container-fluid">
-          <img src={logo} alt="Logo" width="100" height="50" /> 
-          
-          <Navbar.Brand >   {user ? user.name : ''}</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ml-auto">
-              <Nav.Link onClick={() => handleClick1()} className={styles['nav-link-hover']}><FontAwesomeIcon icon={faHome} /></Nav.Link>
-              <NavDropdown title={<FontAwesomeIcon icon={faUser} />} alignRight>
-              <NavDropdown.Item onClick={() => setShowCreateExamForm(true)}>
-               <FontAwesomeIcon icon={faFileAlt} className={styles['nav-link-hover']} /> Create Exam
-               </NavDropdown.Item>
-                <NavDropdown.Item onClick={() => handleClick3()}>
-               <FontAwesomeIcon icon={faCheckSquare} className={styles['nav-link-hover']} /> Grade
-               </NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item onClick={() => handleClick()}>
-  <FontAwesomeIcon icon={faSignOutAlt} className={styles['nav-link-hover']} /> Logout
-</NavDropdown.Item>
-              </NavDropdown>
-            </Nav>
-          </Navbar.Collapse>
+    <Navbar bg="dark" variant="dark" expand="lg" className="fixed-top">
+      <div className="container-fluid d-flex justify-content-between">
+        <div className="d-flex align-items-center">
+          <img src={logo} alt="Logo" width="100" height="50" />
+          <Nav>
+            <Nav.Link onClick={() => handleClick1()} className={styles['nav-link-hover']} ><FontAwesomeIcon icon={faHome} style={{height:'25px'}} /></Nav.Link>
+          </Nav>
         </div>
-      </Navbar>
-      {showCreateExamForm && <CreateExamForm onClose={() => setShowCreateExamForm(false)} style={{ paddingTop: '200px' }}/>}
-    </div>
+        <div className="d-flex align-items-center">
+          <Nav>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+              <Nav className="ml-auto">
+                <NavDropdown title={<FontAwesomeIcon icon={faUser} />} alignRight>
+                  <NavDropdown.Item onClick={() => setShowCreateExamForm(true)}>
+                    <FontAwesomeIcon icon={faFileAlt} className={styles['nav-link-hover']} /> Create Exam
+                  </NavDropdown.Item>
+                  <NavDropdown.Item onClick={() => handleClick3()}>
+                    <FontAwesomeIcon icon={faCheckSquare} className={styles['nav-link-hover']} /> Grade
+                  </NavDropdown.Item>
+                  <NavDropdown.Divider />
+                  <NavDropdown.Item onClick={() => handleClick()}>
+                    <FontAwesomeIcon icon={faSignOutAlt} className={styles['nav-link-hover']} /> Logout
+                  </NavDropdown.Item>
+                </NavDropdown>
+                <Navbar.Text>
+                  {user && (
+                    <span className="text-light">{user.name}</span>
+                  )}
+                </Navbar.Text>
+              </Nav>
+            </Navbar.Collapse>
+          </Nav>
+        </div>
+      </div>
+    </Navbar>
+    {showCreateExamForm && <CreateExamForm onClose={() => setShowCreateExamForm(false)} style={{ paddingTop: '200px' }} />}
+  </div>
+  
+
+
+
+
+
+
+
+
   );
   
 

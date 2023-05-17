@@ -10,7 +10,7 @@ import { faUser } from '@fortawesome/free-solid-svg-icons'
 
 
 import { faHome } from '@fortawesome/free-solid-svg-icons'
-function StudentNavbar() {
+function StudentNavbar2() {
   const { state,dispatch } = useInstructorsContext()
   const navigate = useNavigate();
   const [showCreateExamForm, setShowCreateExamForm] = useState(false);
@@ -31,9 +31,7 @@ function StudentNavbar() {
     <div className="d-flex align-items-center">
       <img src={logo} alt="Logo" width="100" height="50" />
       <Nav>
-        <Nav.Link onClick={() => handleClick1()} className={styles['nav-link-hover']}>
-          <FontAwesomeIcon icon={faHome} size="lg" />
-        </Nav.Link>
+       
         
       </Nav>
     </div>
@@ -41,17 +39,7 @@ function StudentNavbar() {
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="ml-auto">
-          <NavDropdown
-          align="end"
-              drop="left"
-            title=<FontAwesomeIcon icon={faUser} />
-            id="basic-nav-dropdown"
-            
-          >
-            <NavDropdown.Item onClick={() => handleClick()}>
-              <FontAwesomeIcon icon={faSignOutAlt} className={styles['nav-link-hover']} /> Logout
-            </NavDropdown.Item>
-          </NavDropdown>
+        
         </Nav>
         <Navbar.Text>
                   {user && (
@@ -66,4 +54,4 @@ function StudentNavbar() {
   );
 }
 
-export default StudentNavbar;
+export default StudentNavbar2;

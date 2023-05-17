@@ -236,18 +236,16 @@ const[newBank,setNewBank]=useState(false)
         variant="success"
         className="d-flex align-items-center fixed-bottom"
         style={{
-          width: "40px",
-          height: "40px",
+          width: "110px",
+          height: "45px",
           position: "fixed",
-          bottom: "615px",
-          right: "20px",
-          margin: "20px",
-          marginLeft: "1450px",
-          zIndex: "9999",
+          top: "10px",
+          left: "170px",
+          zIndex: "9999", // add a high z-index value
         }}
         onClick={handleNewQuestionBankClick}
       >
-        <FontAwesomeIcon icon={faPlus} />
+        <FontAwesomeIcon icon={faPlus} /> Add bank
       </Button>
     </OverlayTrigger>
     </div>

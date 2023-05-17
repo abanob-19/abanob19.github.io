@@ -28,7 +28,7 @@ const StudentPage = () => {
   {return (
     <div>
       <StudentNavbar />
-      <h1 style={{ paddingTop: '72px' }} className={styles.courses} >My Courses</h1>
+      <h1 style={{ paddingTop: '72px' , color:'white' }} className={styles.courses} >My Courses</h1>
       <Container fluid className="d-flex flex-wrap justify-content-center" >
         {user.courses.map((course) => (
           <Card key={course} className={styles.courseCard} >

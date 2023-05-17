@@ -11,6 +11,7 @@ const {
   seeExamsForGrades,
   uploadFile,
   downloadFile,
+  saveAnswers,
 } = require('../controllers/studentController')
 const router = express.Router()
 
@@ -23,4 +24,5 @@ router.post('/saveScreenshot', saveScreenshot)
 router.get('/seeExamsForGrades/',seeExamsForGrades)
 router.post('/uploadFile', upload.single('attachment'),uploadFile)
 router.get('/downloadFile/', downloadFile)
+router.post('/saveAnswers',saveAnswers)
 module.exports = router

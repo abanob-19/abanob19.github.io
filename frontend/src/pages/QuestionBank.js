@@ -777,8 +777,7 @@ if (!questionBank||loading) {
   return (
     <div  >
       <InstructorNavbar />
-      <h1 style={{paddingTop:'72px', textAlign: 'center' , color:'#B2D1EE'}}>{name.charAt(0).toUpperCase()+name.slice(1)}</h1>
-  <h2 style={{textAlign: 'center',color:'#B2D1EE'}}>{questionBankName}</h2>
+      <h1 style={{paddingTop:'72px', textAlign: 'center' , color:'#B2D1EE'}}>{name.charAt(0).toUpperCase()+name.slice(1)}/{questionBankName}</h1>
       {warning&&<div style={{display:'flex',justifyContent:'space-between'}}>
       <h3 style={{color:'red'}}> You have Errors in Question {warningIndex+1}</h3> 
       </div>}
@@ -801,11 +800,11 @@ if (!questionBank||loading) {
               <div className="d-flex align-items-center">
               <h3 className="mb-0 me-2">{qIndex+1})   {question.text}</h3>
               <div className="d-flex">
-                <FontAwesomeIcon icon={faEdit} className="text-warning ms-2" style={{ cursor: 'pointer' }} onClick={() => {
+                <FontAwesomeIcon icon={faEdit} className="text-warning ms-2" style={{ cursor: 'pointer' , height:"30px" }} onClick={() => {
                   setEditedText(question.text);
                   setEditedQuestionIndexforEditText(qIndex);
                 }} />
-                <FontAwesomeIcon icon={faTrashAlt} className="text-danger ms-2" style={{ cursor: 'pointer' }} onClick={() => handleDeleteQuestion(question._id)} />
+                <FontAwesomeIcon icon={faTrashAlt} className="text-danger ms-2" style={{ cursor: 'pointer' ,  height:"30px"  }} onClick={() => handleDeleteQuestion(question._id)} />
               </div>
             </div>
             )}
@@ -826,26 +825,39 @@ if (!questionBank||loading) {
               </button>
                     </div>
                   ) : (
-                    <div >
-                      {choice}
-                      <FontAwesomeIcon icon={faEdit}  style={{ cursor: 'pointer' , marginLeft: '10px' }}onClick={() => {
-                        setEditedChoice(choice);
-                        setEditedChoiceIndex(cIndex);
-                        setEditedQuestionIndex(qIndex);
-                      }}/>
-                      <FontAwesomeIcon icon={faTrashAlt}  style={{ cursor: 'pointer' , marginLeft: '10px' }} onClick={() => handleDeleteChoice(cIndex,question)}/> 
-                      {question.choiceAttachments&& question.choiceAttachments[cIndex]&&<div style={{ width: "200px", height: "200px" }}> <img src={ choicesUrl[question._id][cIndex]}alt="Attachment"   style={{ maxWidth: "100%", maxHeight: "100%" }}/>  
-                      <OverlayTrigger placement="right" overlay={renderTooltip2}>
-  <div style={{width:'20%'}}>
-    <FontAwesomeIcon
-      icon={faTrashAlt}
-      style={{ cursor: 'pointer' , marginLeft: '10px' , color:'red'}}
-      onClick={() => handleDeleteChoiceAttachment(cIndex,question)}
-    />
-  </div>
-</OverlayTrigger>                      </div>}
+                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
+  {choice}
+  <FontAwesomeIcon icon={faEdit} style={{ cursor: 'pointer', marginLeft: '10px' }} onClick={() => {
+    setEditedChoice(choice);
+    setEditedChoiceIndex(cIndex);
+    setEditedQuestionIndex(qIndex);
+  }} />
+  <FontAwesomeIcon icon={faTrashAlt} style={{ cursor: 'pointer', marginLeft: '10px' }} onClick={() => handleDeleteChoice(cIndex, question)} />
+  {question.choiceAttachments && question.choiceAttachments[cIndex] && (
+    <div style={{ marginLeft: 'auto', height: '100%', maxWidth: '50%', display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <FontAwesomeIcon
+          icon={faTrashAlt}
+          style={{ cursor: 'pointer', marginRight: '10px', color: 'red' }}
+          onClick={() => handleDeleteChoiceAttachment(cIndex, question)}
+        />
+        <img
+          src={choicesUrl[question._id][cIndex]}
+          alt="Attachment"
+          style={{ maxWidth: '100%', height: 'auto' }}
+        />
+      </div>
+      <OverlayTrigger placement="right" overlay={renderTooltip2}>
+        <div style={{ width: '20%' }}>
+          {/* Other actions */}
+        </div>
+      </OverlayTrigger>
+    </div>
+  )}
+</div>
 
-                    </div>
+
+                  
                   )}
                 </ListGroup.Item>
               ))}
@@ -960,8 +972,8 @@ if (!questionBank||loading) {
       Download
     </Button>
   }
-  {question.attachment && isImageAttachment(question.attachment) &&<div style={{ width: "200px", height: "200px" }}> <img src={imageUrl[question._id]}alt="Attachment"   style={{ maxWidth: "100%", maxHeight: "100%" }}/>
-</div>}
+  {question.attachment && isImageAttachment(question.attachment) && <img src={imageUrl[question._id]}alt="Attachment"   style={{ maxWidth: "80%", maxHeight: "80%" }}/>
+}
 {question.attachment && (
   <div>
     <OverlayTrigger placement="right" overlay={renderTooltip2}>
@@ -984,19 +996,18 @@ if (!questionBank||loading) {
       <button
   className="btn btn-success d-flex align-items-center"
   style={{
-    width: "40px",
-    height:'40px',
+    width: "140px",
+    height: "45px",
     position: "fixed",
-    bottom: "615px",
-    right: "20px",
-    margin: "20px",
-    marginLeft: "1450px",
+    top: "10px",
+    left: "170px",
     zIndex: "9999", // add a high z-index value
   }}
   onClick={() => setDisplayForm(true)}
 >
-  <FontAwesomeIcon icon={faPlus} />
+  <FontAwesomeIcon icon={faPlus} /> Add question
 </button>
+
 </OverlayTrigger>
     </div>
     </div>

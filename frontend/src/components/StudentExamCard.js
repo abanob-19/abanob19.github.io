@@ -67,6 +67,7 @@ const isFinished = (remainingToEnd == 0);
           </Card.Subtitle>
         )}
         <Card.Text>
+        {!canStart && <Alert variant='warning'>Not Open</Alert>}
           {remainingToStart > 0 && <p>Remaining Time: {remainingTime} </p>}
           {remainingToStart == 0 && !isFinished && <Alert variant='warning'>Open</Alert>}
           <p>Start Time: {new Date(exam.startTime).toLocaleDateString()} {new Date(exam.startTime).toLocaleTimeString([], { timeZone: 'UTC' })}</p>
@@ -78,6 +79,7 @@ const isFinished = (remainingToEnd == 0);
           </p>
         </Card.Text>
         {canStart && <Button onClick={handleSample} className="mr-3 rounded-pill  " >Start Exam</Button> }
+        
       </Card.Body>
     </Card>
   );

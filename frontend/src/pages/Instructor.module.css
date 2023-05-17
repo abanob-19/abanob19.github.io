@@ -64,9 +64,9 @@
   }
   .courseCard {
     width: 350px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     margin-right: 30px;
-    border-radius: 30px;
+    border-radius: 20px;
     box-shadow: 30px 20px 0px rgba(0, 0, 0, 0.1);
   }
   
