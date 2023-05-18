@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useInstructorsContext } from '../hooks/useInstrcutorContext'
 import styles from '../pages/Instructor.module.css';
 import { Link } from 'react-router-dom';
-import { Button,Card } from 'react-bootstrap';
+import { Button,Card,Badge } from 'react-bootstrap';
 import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import EditMathField from 'react-mathquill'
@@ -18,6 +18,7 @@ const StudentExam = () => {
   const[numOfSaved,setNumOfSaved]=useState(0)
   const [questions, setQuestions] = useState(null);
   const [answers, setAnswers] = useState({});
+  const [savedText,setSavedText]=useState([])
   const [saved,setSaved]=useState([])
   const [buttonText, setButtonText] = useState('Submit');
   const location = useLocation();
@@ -29,6 +30,8 @@ const StudentExam = () => {
     const title = searchParams.get('title');
     const end = searchParams.get('endTime');
     const now = new Date (Date.now()) 
+    const [update,setUpdate]=useState(false)
+    const[updateIndex,setUpdateIndex]=useState(null)
     // const startTime = (new Date(exam.startTime)).setHours((new Date(exam.startTime)).getHours() - 3) ;
     // const remainingToStart = startTime > now ? (startTime - now) / 1000 : 0;
     const endTime =  (new Date(end)).setHours((new Date(end)).getHours() - 3) ;
@@ -48,6 +51,7 @@ const navigate = useNavigate();
  const [choicesUrl, setChoicesUrl] = useState({});
  const [remainingTime, setRemainingTime] = useState(null);
  const [drawingsForStudent,setDrawingsForStudent]=useState(null)
+ const[backgroundColor,setBackgroundColor]=useState('green')
  useEffect(() => {
   if (!user)
   { 
@@ -57,13 +61,18 @@ const navigate = useNavigate();
    { navigate('/InstructorCourses'); return  ;}
    document.title = "Online Assessment Simulator";
   console.log('remaining to end', remainingToEnd);
+
   const intervalId = setInterval(() => {
     const timeLeft = remainingToEnd;
-
+    const minutes=timeLeft/60
+    if(minutes<=15)
+    setBackgroundColor('red')
+    else if (minutes<=30)
+    setBackgroundColor('yellow')
     if (timeLeft <= 0) {
       clearInterval(intervalId);
       setRemainingTime(null);
-      handleSubmit();
+       handleSubmit();
     } else {
       const hours = Math.floor(timeLeft / 3600);
       const minutes = Math.floor((timeLeft % 3600) / 60);
@@ -99,11 +108,20 @@ const handleChoiceUrls=async function fetchImageUrl(id,index,qattachment,length)
   
   
 }
-const handleDrawingUpdate = useCallback((question, data) => {
+const handleDrawingUpdate = useCallback((question, data,index) => {
+  console.log('handleDrawingUpdate', question, data);
+  
+  setDrawingsForStudent((prevDrawings) => ({
+    ...prevDrawings,
+    [index]: data,  
+  }));
+  setUpdate(true)
+  setUpdateIndex(index)
   setDrawings((prevDrawings) => ({
     ...prevDrawings,
     [question]: data,
   }));
+  
   console.log(drawings);
 }, []);
   const [file, setFile] = useState(null);
@@ -116,8 +134,8 @@ const handleDrawingUpdate = useCallback((question, data) => {
      { navigate('/InstructorCourses'); return  ;}
      document.title = "Online Assessment Simulator";
     const interval = setInterval(() => {
-      // if (started){
-      // captureScreenshot();}
+      if (started){
+      captureScreenshot();}
     }, 15000); // take screenshot every 15 seconds
 
     return () => clearInterval(interval);
@@ -263,6 +281,7 @@ const handleDrawingUpdate = useCallback((question, data) => {
       const q=data.Questions;
      const drawingsForStudent1=data.drawingsForStudent;
      setDrawingsForStudent(drawingsForStudent1);
+     
       
     setSubmitted(data.submitted);
     
@@ -272,6 +291,46 @@ const handleDrawingUpdate = useCallback((question, data) => {
         }
       setAnswers(answers);
       console.log(answers);
+      for (i=0;i<data.drawingsForStudent.length;i++){
+        drawings[data.Questions[i]._id]=data.drawingsForStudent[i];
+        }
+      const answerEntries = Object.entries(answers);
+      const questionAnswers = answerEntries.map(([questionId, answer]) => ({ questionId, answer }));
+  console.log(questionAnswers);
+      let x = 0;
+      const saved1 = questionAnswers.map((qa) => {
+        const { answer } = qa;
+        console.log(answer);
+        console.log(drawings);
+        console.log(drawings[qa.questionId]);
+        return( answer !== undefined && answer !== null && answer.toString() !== '')||(drawings[qa.questionId]!==undefined&&drawings[qa.questionId]!==null);
+      });
+      
+  console.log(saved1);
+      for (let i = 0; i < saved1.length; i++) {
+        if (saved1[i] === true) {
+          setSavedText(prevSavedText => ({
+            ...prevSavedText,
+            [i]: 'Saved'
+          }));
+          setIsButtonClickable(true);
+          x++;
+          console.log(j);
+        }
+        else
+        setSavedText(prevSavedText => ({
+          ...prevSavedText,
+          [i]: 'not saved'
+        }));
+      }
+      
+      if(x==0)
+      setIsButtonClickable(false);
+  
+      setSaved(saved1);
+      setNumOfSaved(x);
+      
+      setAnswers(answers);
       for(var i=0;i<data.Questions.length;i++){
         
         if(data.Questions[i].attachment&& isImageAttachment(data.Questions[i].attachment)){
@@ -296,47 +355,38 @@ const handleDrawingUpdate = useCallback((question, data) => {
     fetchData();
     
   }, [version,state.secVersion]);
+  const [answerQueue, setAnswerQueue] = useState([]);
+  const [debouncedQueue, setDebouncedQueue] = useState([]);
 
-  const handleAnswerChange = (questionId, choiceIndex) => {
+  useEffect(() => {
+    const debounceDelay = 1000; // Adjust this value as needed
+
+    const debounceTimer = setTimeout(() => {
+      setDebouncedQueue(answerQueue);
+    }, debounceDelay);
+
+    return () => clearTimeout(debounceTimer);
+  }, [answerQueue]);
+
+
+  const handleAnswerChange = (questionId, choiceIndex,index) => {
+    console.log(choiceIndex);
     setAnswers(prevAnswers => ({
       ...prevAnswers,
       [questionId]: choiceIndex
     }));
-   
+     setAnswerQueue(prevQueue => [...prevQueue, { index, choiceIndex }]);
+   console.log(choiceIndex);
   };
   useEffect(() => {
+    console.log("here");
+    if(questions){
     handleSaveAnswers();
+    }
+     
   
-    const interval = setInterval(() => {
-      const answerEntries = Object.entries(answers);
-      const questionAnswers = answerEntries.map(([questionId, answer]) => ({ questionId, answer }));
-  console.log(questionAnswers);
-      let j = 0;
-      const saved1 = questionAnswers.map((qa) => {
-        const { answer } = qa;
-        console.log(answer);
-        return answer !== undefined && answer !== null && answer.toString() !== '';
-      });
-      
-  console.log(saved1);
-      for (let i = 0; i < saved1.length; i++) {
-        if (saved1[i] === true) {
-          setIsButtonClickable(true);
-          j++;
-          console.log(j);
-        }
-      }
-      if(j==0)
-      setIsButtonClickable(false);
-  
-      setSaved(saved1);
-      setNumOfSaved(j);
-    }, 4000); // Update every second (adjust the interval as needed)
-  
-    return () => {
-      clearInterval(interval); // Clean up the interval on component unmount
-    };
-  }, [answers,drawings]);
+    
+  }, [debouncedQueue,drawings]);
   
 
   const handleSubmit = async() => {
@@ -375,6 +425,19 @@ const handleDrawingUpdate = useCallback((question, data) => {
   };
   const handleSaveAnswers = async() => {
     // You can save the answers to the server here
+    if (debouncedQueue.length > 0|| update) {
+    console.log(drawings);
+    if(update){
+      setSavedText(prevSavedText => ({
+        ...prevSavedText,
+        [updateIndex]: 'Saving'
+      }));
+    }
+    else
+    {setSavedText(prevSavedText => ({
+      ...prevSavedText,
+      [debouncedQueue[0].index]: 'Saving'
+    }));}
     
     const response= await fetch(`/student/saveAnswers`, {
         method: 'POST',
@@ -392,6 +455,42 @@ const handleDrawingUpdate = useCallback((question, data) => {
       })
       .then(response => {
         console.log(response);
+        console.log(answers);
+           const answerEntries = Object.entries(answers);
+      const questionAnswers = answerEntries.map(([questionId, answer]) => ({ questionId, answer }));
+  console.log(questionAnswers);
+      let j = 0;
+      const saved1 = questionAnswers.map((qa) => {
+        const { answer } = qa;
+        console.log(answer);
+        console.log(drawings);
+        console.log(drawings[qa.questionId]);
+        return( answer !== undefined && answer !== null && answer.toString() !== '')||(drawings[qa.questionId]!==undefined&&drawings[qa.questionId]!==null);
+      });
+      
+  console.log(saved1);
+      for (let i = 0; i < saved1.length; i++) {
+        if (saved1[i] === true) {
+          setIsButtonClickable(true);
+          setSavedText(prevSavedText => ({
+            ...prevSavedText,
+            [i]: 'Saved'
+          }));
+          j++;
+          console.log(j);
+        }
+        else
+          setSavedText(prevSavedText => ({
+            ...prevSavedText,
+            [i]: 'Not Saved'
+          }));
+      }
+      
+      if(j==0)
+      setIsButtonClickable(false);
+  
+      setSaved(saved1);
+      setNumOfSaved(j);
       })
       .catch(error => {
         // handle error
@@ -399,6 +498,11 @@ const handleDrawingUpdate = useCallback((question, data) => {
       });
       
     console.log(answers);
+    setAnswerQueue([]);
+    if(update)
+    setUpdate(false);
+    setUpdateIndex(null)
+    }
   };
   const handleDownload = async (attachment) => {
     try {
@@ -461,7 +565,9 @@ return (
     <canvas ref={canvasRef} style={{ display: 'none' }} />
     <video ref={webcamRef} className={`${started ? styles.invisible : 'w-100'}`} />
     {!enabled && (
+      
       <div className="alert alert-warning">
+        Your Exam is ready.
         You have to enable your webcam to take the exam{' '}
         <button className="btn btn-primary ml-3" onClick={startExam}>
           Enable WebCam
@@ -509,20 +615,29 @@ return (
   justifyContent: 'flex-end', // align the element to the right
   alignItems: 'center', // center the element vertically
 }}>
-  <h3 style={{
-    fontSize: '1.3rem', // decrease the font size of the h3 element
-    fontWeight: 'normal', // make the text normal weight
-    marginRight: '0.5rem', // add some margin to the right
-    color: 'black', // set the text color to a lighter gray
-    position: 'fixed', // position the element fixed
-    top: '1rem', // set the top position
-    right: '1rem',
-    zIndex:'9999' // set the right position
-  }}>{`Duration: ${remainingTime} `}</h3>
+<h3 style={{
+      fontSize: '1.3rem',
+      fontWeight: 'normal',
+      marginRight: '0.5rem',
+      color: 'black',
+      position: 'fixed',
+      top: '5rem',
+      right: '1rem',
+      zIndex: '9999',
+      borderRadius: '50%', // make the element circular
+      width: '4rem', // set the width and height to the same value to create a circle
+      height: '4rem',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: backgroundColor,
+    }}>
+      {`${remainingTime}`}
+    </h3>
 </div>
 
         {questions.map((question, index) => (
-          <Card key={question._id} className="mt-5">
+          <Card key={question._id} className="mt-5" style={{marginBottom:'90px'}}>
             <Card.Header style={{ backgroundColor: '#d4edda', display: 'flex', justifyContent: 'center' }}>
     <h5 className="card-title">
       Question {index + 1}
@@ -561,7 +676,7 @@ return (
             name={`question${index}`}
             value={choice}
             checked={answers[question._id] === choiceIndex}
-            onChange={() => handleAnswerChange(question._id, choiceIndex)}
+            onChange={() => handleAnswerChange(question._id, choiceIndex,index)}
           />
           <span className="mr-2">{String.fromCharCode(97 + choiceIndex)})</span>
           {choice}
@@ -582,6 +697,7 @@ return (
 
               {question.type === 'text' && (
                 <div className="mt-3">
+                   
                   <label>Your answer:</label>
                   <input
   
@@ -592,6 +708,9 @@ return (
       ...prevAnswers,
       [question._id]: e.target.value,
     }));
+    const id=question._id;
+    const value=e.target.value;
+    setAnswerQueue(prevQueue => [...prevQueue, { index, value }]);
   }}
   style={{
     height: '80px', // set the height of the input element to 80 pixels
@@ -602,9 +721,14 @@ return (
     paddingBottom: '40px',  // left-align the text inside the input element
   }}
 />
-                  <Drawing onUpdate={(data) => handleDrawingUpdate(question._id, data)} imageUrl={drawingsForStudent[index]}/>
+                  <Drawing onUpdate={(data ) => handleDrawingUpdate(question._id, data,index)} imageUrl={drawingsForStudent[index]}/>
                 </div>
               )}
+             <Badge variant='primary'>{savedText[index]}</Badge>
+             
+
+
+
             </Card.Body>
           </Card>
         ))}

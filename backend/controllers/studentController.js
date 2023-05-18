@@ -163,14 +163,15 @@ const seeMyCourses=async(req,res)=>{
     try {
       const examx = student.exams.find((exam) => exam.examId.equals(examId.trim()));
       var drawingsForStudent1=[]
-      for (let i = 0; i < examx.questions.length; i++) {
-      if(examx.questions[i].drawing)
-        drawingsForStudent1.push(examx.questions[i].drawing)
-        else 
-        drawingsForStudent1.push(null)
-      }
+     
       if (examx) {
         console.log("already generated");
+        for (let i = 0; i < examx.questions.length; i++) {
+          if(examx.questions[i].drawing)
+            drawingsForStudent1.push(examx.questions[i].drawing)
+            else 
+            drawingsForStudent1.push(null)
+          }
         return res.send({Questions:examx.questions , submitted:examx.submitted, answers:examx.studentAnswers , drawingsForStudent:drawingsForStudent1});
       }
       let exam = null;
@@ -431,13 +432,16 @@ try {
       examx.studentGrades[index] = 0;
       examx.questions[i].graded=true
     }}
-    // else if(question.type=='text'){
-    //   if(drawings){
-    //     if(drawings[questionId]){
-    //      examx.questions[i].drawing=drawings[questionId]
-    //     }
-    //   }
-    // }
+    else if(question.type=='text'){
+      if(drawings){
+        if(drawings[questionId]){
+         examx.questions[i].drawing=drawings[questionId]
+        }
+        else{
+          examx.questions[i].drawing=null
+        }
+      }
+    }
    
   }
   examx.totalGrade=totalGrade

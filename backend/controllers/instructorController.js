@@ -1337,9 +1337,9 @@ const submitAnswers = async (req, res) => {
               for(k=0;k<student.exams[j].questions.length;k++){
                 if(exam.questions[k]._id.equals(questionId.trim())&&(!exam.questions[k].graded)){
                   console.log("here")
-                  exam.studentGrades[k]=parseInt(grade)
+                  exam.studentGrades[k]=parseFloat(grade)
                   exam.questions[k].graded=true
-                  exam.totalGrade=exam.totalGrade+parseInt(grade)
+                  exam.totalGrade=exam.totalGrade+parseFloat(grade)
                   
                   break;
                 }

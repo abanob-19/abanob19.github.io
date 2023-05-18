@@ -5,6 +5,8 @@ import { Card, ListGroup , Button, Container, Row, Col  } from 'react-bootstrap'
 import styles from '../pages/Instructor.module.css';
 import InstructorNavbar from "../components/instructorNavbar";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const GradingPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
@@ -39,7 +41,7 @@ const[drawings, setDrawings] = useState([]);
         // if(currentStudentId && students[0] && currentStudentId._id.equals(students[0]))
       try {
         if (currentStudentId) {
-            setLoading(true);
+            
           const response = await axios.get(`/instructor/getExamTextQuestions/?studentId=${currentStudentId}&courseName=${courseName}&examId=${examId}`);
           for(var i=0;i<response.data.questions.length;i++){
         
@@ -90,12 +92,12 @@ const[drawings, setDrawings] = useState([]);
     // Fetch questions from backend API
     const fetchStudents = async () => {
       try {
+        setLoading(true); 
         const response = await axios.get(`/instructor/getStudentsForExam/?courseName=${courseName}&examId=${examId}`);
         setStudents(response.data); 
         console.log(response.data);
         if (response.data.length>0){
         setCurrentStudentId(response.data[0]);
-       setLoading(true); 
        setAllStudentsGraded(false); 
     }
     else{
@@ -167,13 +169,25 @@ const handleOptionSelect = (index,option) => {
         
     
 }
-const handleSubmitAnswers = async(questionId , index) => {
+const handleSubmitAnswers = async(questionId , index,grade) => {
     // Collect answers from UI (e.g., selected radio buttons)
    if(!selectedOption[index]){
-         alert("please select an option")
+         alert("please choose grade")
             return;
         }
-
+        if (!/^\d+(\.\d+)?$/.test(selectedOption[index])) {
+          toast.error('invalid grade', {
+            position: toast.POSITION.TOP_RIGHT
+          });
+          
+          return;
+        }
+        if(parseFloat(selectedOption[index])>parseFloat(grade)){
+          toast.error('Maximum grade is ' + grade, {
+            position: toast.POSITION.TOP_RIGHT
+          });
+          return;
+        }
 console.log(questionId, index , selectedOption[index]);
 setLoading(true);
 // post to backend using body {questionId selectedOption[index] , studentId , examId , courseName} 
@@ -181,7 +195,9 @@ await axios.post('/instructor/submitAnswers', {questionId:questionId, grade: sel
 .then((response) => {
     console.log(response);
     if (response.status === 200) {
-        alert("graded successfully");
+      toast.success('graded successfully', {
+        position: toast.POSITION.TOP_RIGHT
+      });
         setVersion(version+1);
     }
     else{
@@ -192,7 +208,7 @@ await axios.post('/instructor/submitAnswers', {questionId:questionId, grade: sel
     console.log(error);
     alert("error");
 });
-setLoading(false);
+
 
     // Send answers to backend API for grading
     // Update UI with graded results
@@ -212,8 +228,8 @@ setLoading(false);
       <Container className="d-flex flex-column justify-content-center align-items-center" style={{ height: '100vh' }}>
         <InstructorNavbar />
         <div className="text-center">
-          <h1>{title}</h1>
-          <h1>All Students Graded</h1>
+          <h1 style={{color:'white'}}>{title}</h1>
+          <h1 style={{color:'white'}}>All Students Graded</h1>
         </div>
       </Container>
     );
@@ -221,37 +237,48 @@ setLoading(false);
   return (
     <div>
       <InstructorNavbar />
+      <ToastContainer />
       <Container className="mt-5" style={{paddingTop:'72px'}}>
-      <h1 style={{textAlign: 'center'}}>{title}</h1>
-      <h1 style={{textAlign: 'center'}}>Exam Questions</h1>
+      <h1 style={{textAlign: 'center' , color:'white'}}>{title}</h1>
+      <h1 style={{textAlign: 'center', color:'white'}}>Exam Questions</h1>
 
         {questions.map((question, index) => (
           <div key={index} className="my-5">
-            {question.studentAttachment && (
-              <Button variant="primary" onClick={() => handleDownload(question.studentAttachment)}>
-                Download Attachments
+            
+            <Question question={question} answer={answers[index]} grade={question.grade} onChoose={(option) => handleOptionSelect(index, option)} />
+            {!question.graded && selectedOption[index] && (
+              <Button variant="success" onClick={() => handleSubmitAnswers(question._id, index,question.grade)} className="mt-3">
+                Submit
               </Button>
             )}
-            <Question question={question} answer={answers[index]}  onChoose={(option) => handleOptionSelect(index, option)} />
             {question.studentAttachment && isImageAttachment(question.studentAttachment) && (
-              <div className="mt-3">
-                <label>Attachment:</label>
-                <img src={imageUrl[question._id]} alt="Attachment" style={{ width: '50%', maxWidth: '300px' }}  />
-              </div>
-            )}
-            <label>Student Drawings:</label>
+  <div>
+    <label style={{ color: 'white' }}>Student Attachment:</label>
+    <div className="mt-3">
+      <img src={imageUrl[question._id]} alt="Attachment" style={{ width: '50%', maxWidth: '300px' }} />
+    </div>
+  </div>
+)}
+
+{question.studentAttachment && (
+  <div className="mt-3">
+    <Button variant="primary" onClick={() => handleDownload(question.studentAttachment)}>
+      Download Attachments
+    </Button>
+  </div>
+)}
+
+            
             {question.drawing && (
-              
+              <div>
+                <label style={{color:'white'}}>Student Drawing:</label>
               <div className="mt-3">
                 
                 <img style={{backgroundColor:'white'}} src={drawings[index]} alt="Student Drawing"  />
               </div>
+              </div>
             )}
-            {!question.graded && selectedOption[index] && (
-              <Button variant="success" onClick={() => handleSubmitAnswers(question._id, index)} className="mt-3">
-                Submit
-              </Button>
-            )}
+            
             {question.graded && <p>graded</p>}
           </div>
         ))}
@@ -260,7 +287,7 @@ setLoading(false);
   );
 
 };
-const Question = ({ question, answer,onChoose }) => {
+const Question = ({ question, answer,onChoose,grade }) => {
     const [selectedOption, setSelectedOption] = useState(null); // State variable for selected option
   
     const options = Array.from({ length: parseInt(question.grade) + 1 }, (_, index) => index);
@@ -275,14 +302,13 @@ const Question = ({ question, answer,onChoose }) => {
     return (
       <Card>
         <Card.Body>
-          <Card.Title>Question: {question.text}</Card.Title>
+          <Card.Title >Question: {question.text}</Card.Title>
           <Card.Text>Answer: {answer}</Card.Text>
-          <Card.Text>Choose Grade:</Card.Text>
+          <Card.Text>Grade: {grade}</Card.Text>
           {!question.graded && (
             <ListGroup>
-              {options.map((option, index) => (
-                <AnswerOption key={index} option={option} onSelect={handleOptionSelect} selectedOption={selectedOption} />
-              ))}
+              
+               <input type="text" pattern="\d+(\.\d+)?" placeholder="Enter a grade" onChange={(e)=>handleOptionSelect(e.target.value)} />
             </ListGroup>
           )}
         </Card.Body>

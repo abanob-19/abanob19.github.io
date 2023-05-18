@@ -13,6 +13,21 @@ const [lastX, setLastX] = useState(0);
     setLastY(event.offsetY);
    
   }, []);
+  const checkIfImageIsBlank = (url) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = function() {
+        // Compare image dimensions to determine if it is blank
+        const isBlank = img.width === 0 && img.height === 0;
+        resolve(isBlank);
+      };
+      img.onerror = function() {
+        // Handle image loading error
+        resolve(true); // Treat loading error as a blank image
+      };
+      img.src = url;
+    });
+  };
   const draw = useCallback((event) => {
     if (!isDrawing) return;
     const canvas = canvasRef1.current;
@@ -42,10 +57,12 @@ const [lastX, setLastX] = useState(0);
     // canvas.style.cursor = 'default';
   }, [onUpdate]);
   const clearCanvas = useCallback(() => {
+    console.log('clearing canvas');
     const canvas = canvasRef1.current;
     const context = canvas.getContext('2d');
     context.clearRect(0, 0, canvas.width, canvas.height);
-    onUpdate(canvasRef1.current.toDataURL());
+    onUpdate(null);
+  
   }, []);
   const toggleEraser = useCallback(() => {
     setIsErasing(!isErasing);
@@ -53,11 +70,13 @@ const [lastX, setLastX] = useState(0);
   useEffect(() => {
     const canvas = canvasRef1.current;
     const context = canvas.getContext('2d');
-    const image = new Image();
+    if (imageUrl)
+{    const image = new Image();
+  
     image.onload = () => {
       context.drawImage(image, 0, 0);
     };
-    image.src = imageUrl; // R
+    image.src = imageUrl; }
     canvas.style.cursor = 'crosshair'
     canvas.addEventListener('mousedown', startDrawing);
     canvas.addEventListener('mousemove', draw);

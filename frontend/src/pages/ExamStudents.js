@@ -45,11 +45,11 @@ if(!students) {
   return (
     <div className="container mt-5">
       <InstructorNavbar />
-      <h1 className="text-center mb-4" style={{ paddingTop: '32px' }}>Students List</h1>
+      <h1 className="text-center mb-4" style={{ paddingTop: '32px' , color:'white'}}>Students List</h1>
       <table className="table table-striped">
         <thead>
           <tr>
-            <th scope="col">Student ID</th>
+            <th scope="col" style={{color:'white'}}>Student ID</th>
           </tr>
         </thead>
         <tbody>
