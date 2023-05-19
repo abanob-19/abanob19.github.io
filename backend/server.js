@@ -23,11 +23,11 @@ app.use('/instructor', instructorRoutes)
 app.use('/student', studentRoutes)
 
 // listen for requests
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(mongodb+srv://abanob11:Online_Simulator@cluster0.4kouk9k.mongodb.net/?retryWrites=true&w=majority)
   .then(() => {
     console.log('connected to database')
     // listen to port
-    app.listen(process.env.PORT, () => {
+    app.listen(4000, () => {
       console.log('listening for requests on port', process.env.PORT)
     })
   })
