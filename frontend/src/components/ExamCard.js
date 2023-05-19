@@ -332,8 +332,8 @@ const handleSample = async() => {
               Course: {exam.courseName.charAt(0).toUpperCase() + exam.courseName.slice(1)}
             </Card.Subtitle>
           )}
-          <Card.Text>Start Time:{new Date(exam.startTime).toLocaleDateString()} {new Date(exam.startTime).toLocaleTimeString([], { timeZone: 'UTC' })}</Card.Text>
-          <Card.Text>End Time: {new Date(exam.endTime).toLocaleDateString()} {new Date(exam.endTime).toLocaleTimeString([], { timeZone: 'UTC' })}</Card.Text>
+          <Card.Text>Start Time:{new Date(exam.startTime).toISOString().split('T')[0]} {new Date(exam.startTime).toLocaleTimeString([], { timeZone: 'UTC' })}</Card.Text>
+          <Card.Text>End Time: {new Date(exam.endTime).toISOString().split('T')[0]}  {new Date(exam.endTime).toLocaleTimeString([], { timeZone: 'UTC' })}</Card.Text>
           <Card.Text>Exam Type: {exam.type}</Card.Text>
 
           <div style={{ display: 'inline-flex', alignItems: 'center' }}>

@@ -12,7 +12,7 @@ function CreateExamForm({ onClose }) {
   const [title, setTitle] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
-  const [examType, setExamType] = useState(''); 
+  const [examType, setExamType] = useState('Quiz'); 
   const [specs, setSpecs] = useState([{chapter: '', category: 'Easy', numQuestions: '',grade:''}]); // Default specification
   const { state,dispatch } = useInstructorsContext()
   const[isLoading,setIsLoading] = useState(false)
@@ -43,9 +43,9 @@ const endDateTime = Date.parse(endTime);
       }
     }
     console.log("here2")
-    if(title==='' || flag){
+    if(title==='' || flag ||courseName===''){
       alert("Please fill all fields")
-      console.log("title or specs emoty")
+      console.log("title or specs or course name empty")
     }
     else if (flag2){
       alert("Please remove duplicate specifications")
@@ -153,6 +153,7 @@ const endDateTime = Date.parse(endTime);
               .catch(error => console.error(error));}
               fetchData();}}
 >
+  <option value="" disabled selected>Select Course</option>
   {user.courses.map((course) => (
     <option key={course} value={course}>
       {course.charAt(0).toUpperCase() + course.slice(1)}
@@ -169,7 +170,7 @@ const endDateTime = Date.parse(endTime);
             onChange={(event) => setExamType(event.target.value)}
 >
   
-<option value="Quiz">Quiz</option>
+  <option value="Quiz">Quiz</option>
   <option value="Final">Final</option>
   <option value="MidTerm">MidTerm</option>
   <option value="Assignment">Assignment</option>

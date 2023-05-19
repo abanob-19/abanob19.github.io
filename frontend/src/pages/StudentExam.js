@@ -565,15 +565,15 @@ return (
     <canvas ref={canvasRef} style={{ display: 'none' }} />
     <video ref={webcamRef} className={`${started ? styles.invisible : 'w-100'}`} />
     {!enabled && (
-      
-      <div className="alert alert-warning">
-        Your Exam is ready.
-        You have to enable your webcam to take the exam{' '}
-        <button className="btn btn-primary ml-3" onClick={startExam}>
-          Enable WebCam
-        </button>
-      </div>
-    )}
+  <div className="alert alert-warning text-center">
+    <p>{title} {courseName} is ready.
+    You have to enable your webcam to take the exam.</p>
+    <button className="btn btn-primary" onClick={startExam}>
+      Enable WebCam
+    </button>
+  </div>
+)}
+
     {!started && enabled && (
       <div className="alert alert-success">
         You can start the exam now{' '}

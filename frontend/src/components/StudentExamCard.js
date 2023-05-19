@@ -70,8 +70,8 @@ const isFinished = (remainingToEnd == 0);
         {!canStart && <Alert variant='warning'>Not Open</Alert>}
           {remainingToStart > 0 && <p>Remaining Time: {remainingTime} </p>}
           {remainingToStart == 0 && !isFinished && <Alert variant='warning'>Open</Alert>}
-          <p>Start Time: {new Date(exam.startTime).toLocaleDateString()} {new Date(exam.startTime).toLocaleTimeString([], { timeZone: 'UTC' })}</p>
-          <p>End Time: {new Date(exam.endTime).toLocaleDateString()} {new Date(exam.endTime).toLocaleTimeString([], { timeZone: 'UTC' })}</p>
+          <p>Start Time: {new Date(exam.startTime).toISOString().split('T')[0]} {new Date(exam.startTime).toLocaleTimeString([], { timeZone: 'UTC' })}</p>
+          <p>End Time: {new Date(exam.endTime).toISOString().split('T')[0]}  {new Date(exam.endTime).toLocaleTimeString([], { timeZone: 'UTC' })}</p>
 
           <p>
             Status:{' '}

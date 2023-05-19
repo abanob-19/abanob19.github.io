@@ -131,7 +131,7 @@ const[choiceFile,setChoiceFile]=useState([null,null])
           {newQuestion.type === 'mcq' && (
             <Form.Group >
               <Form.Label>Choices:</Form.Label>
-              <Button variant="primary" type="button" onClick={handleAddChoice}>
+              <Button variant="primary" type="button" onClick={handleAddChoice} >
                 
                 <FaPlus />
               </Button>
@@ -142,7 +142,7 @@ const[choiceFile,setChoiceFile]=useState([null,null])
       type="text"
       value={choice}
       onChange={(event) => handleNewChoiceChange(event, index)}
-      style={{ marginBottom: '0' }}
+      style={{ marginBottom: '0' , width: '60%'}}
     />
      <Form.Control type="file" onChange={(e) => handleChoiceFileChange(e,index)} style={{ width: '35%' }} id={`choice-file-${index}`}/>
     {numberOfChoices > 2 && (

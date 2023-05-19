@@ -110,7 +110,7 @@ const isImageAttachment = (attachment) => {
       const handleFinishEditChoice =async (newChoice,question) => {
         // const updatedQuestionBank = { ...questionBank };
         // updatedQuestionBank.questions[editedChoiceIndex].choices[editedChoice] = newChoice;
-        if(newChoice=="")
+        if(newChoice==""&&!editedFile)
         alert("Choice can't be empty");
         else{
         question.choices[editedChoiceIndex] = newChoice;
@@ -217,8 +217,11 @@ const isImageAttachment = (attachment) => {
       const handleDeleteChoiceAttachment=(index,question)=>{
         // const updatedQuestionBank = { ...questionBank };
         // updatedQuestionBank.questions[editedChoiceIndex].choices[editedChoice] = newChoice;
-       
+       if(question.choices[index]==''||question.choices[index]==null)
+       { alert("Choice cannot be empty");
+        return}
           const confirmed = window.confirm("Are you sure you want to delete this Attachment?");
+          
     if (confirmed) {
         
         setLoading(true)
@@ -337,7 +340,7 @@ const isImageAttachment = (attachment) => {
    const handleFinishAddedChoice=async (AddedChoice,question)=>{
         // const updatedQuestionBank = { ...questionBank };
         // updatedQuestionBank.questions[editedChoiceIndex].choices[editedChoice] = newChoice;
-        if(AddedChoice=="")
+        if(AddedChoice==""&&!editedFile)
         alert("Choice can't be empty");
         else{
         // question.choices.push(AddedChoice);
@@ -648,7 +651,7 @@ const isImageAttachment = (attachment) => {
       var flag=false;
       //loop over newQuestion.choices to check if there is an empty choice
       for(var i=0;i<newQuestion.choices.length;i++){
-        if(newQuestion.choices[i]==""){
+        if(newQuestion.choices[i]==""&&!newQuestion.choiceAttachments[i]){
           flag=true;
           break;
         }

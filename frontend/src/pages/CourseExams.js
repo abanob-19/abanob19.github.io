@@ -122,7 +122,7 @@ if(!exams|| isLoading||!questionBanks){
   return (
     <div>
       <InstructorNavbar/>
-      <label style={{paddingTop:'70px'}}>Exam Type:
+      <label style={{paddingTop:'70px' , color:'white'}}>Exam Type 
              <select
             className={styles['form-control']}
            value={examType}

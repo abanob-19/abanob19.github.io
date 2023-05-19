@@ -39,7 +39,8 @@ else{
       })
       const json = await response.json()
       if (!response.ok) 
-      setError(json.error)
+     { setError(json.error)
+    setLoading(false)}
       if (response.ok) {
         setError(null)
         setUsername('')
@@ -96,7 +97,12 @@ if(loading){
         <Button variant="primary" type="submit">
           Login
         </Button>
-        {error && <div className="error">{error}</div>}
+        {error && (
+  <div style={{  color: "#ff0000", padding: "10px", borderRadius: "5px", marginTop: "10px" }}>
+    <p style={{ margin: "0" }}>{error}</p>
+  </div>
+)}
+
       </Form>
     </div>
   );

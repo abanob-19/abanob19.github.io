@@ -131,7 +131,7 @@ const SampleExam = () => {
     fontSize: '3rem', // increase the font size of the h1 element
     fontWeight: 'bold', // make the text bold
     marginBottom: '0.5rem', // add some margin at the bottom
-    color: '#333', // set the text color to a dark gray
+    color: 'white', // set the text color to a dark gray
   }}>{courseName.charAt(0).toUpperCase()+courseName.slice(1)}</h1>
   <h2 style={{
     fontSize: '2.5rem', // increase the font size of the h2 element
